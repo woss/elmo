@@ -17,9 +17,11 @@ function Links({ links }: Props) {
     const classes = useStyles();
     return (
         <Grid className={classes.root}>
-            {links.map((link, key) => {
-                return <Link key={key} linkId={link} />;
-            })}
+            <List>
+                {links.map((link, key) => {
+                    return <Link key={key} linkId={link} />;
+                })}
+            </List>
         </Grid>
     );
 }

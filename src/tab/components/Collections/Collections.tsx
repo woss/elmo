@@ -9,11 +9,11 @@ interface Props {
 
 const Collections = ({ collections }: Props) => {
     return (
-        <Grid>
+        <React.Fragment>
             {collections.map((collection, key) => {
                 return <Collection key={key} collection={collection} />;
             })}
-        </Grid>
+        </React.Fragment>
     );
 };
 
