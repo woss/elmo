@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Grid, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import purple from "@material-ui/core/colors/purple";
 
 import { ICollection } from "@src/interfaces";
 import Links from "../Links/Links";
@@ -13,9 +14,9 @@ const useStyles = makeStyles(theme => ({
     },
     title: {
         padding: theme.spacing(3),
-        color: theme.palette.primary.dark,
+        color: theme.palette.primary.contrastText,
         // backgroundColor: theme.palette.background.paper,
-        // backgroundColor: theme.palette.primary.main,
+        backgroundColor: purple[700],
     },
 }));
 interface Props {
@@ -23,17 +24,15 @@ interface Props {
 }
 function Collection({ collection }: Props) {
     const classes = useStyles();
-
+    const theme = useTheme();
+    window.theme = theme;
     return (
         <Grid className={classes.root}>
             <Typography className={classes.title} variant="h4" component="h4">
                 {collection.title}
             </Typography>
-            <Grid container className={classes.content}>
-                <Grid item>
-                    <Links links={collection.links} />
-                </Grid>
-            </Grid>
+
+            <Links links={collection.links} />
         </Grid>
     );
 }
