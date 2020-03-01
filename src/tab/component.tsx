@@ -20,8 +20,7 @@ const useStyles = makeStyles(theme => ({
         padding: theme.spacing(3),
     },
 }));
-
-export const Tab: FunctionComponent = () => {
+const Tab: FunctionComponent = () => {
     const classes = useStyles();
 
     React.useEffect(() => {
@@ -43,3 +42,5 @@ export const Tab: FunctionComponent = () => {
         </div>
     );
 };
+
+export default Tab;

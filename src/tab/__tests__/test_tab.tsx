@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Tab } from "../component";
+import Tab from "../component";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 
 it("component renders", () => {
