@@ -1,0 +1,32 @@
+{
+    "manifest_version": 2,
+    "name": "ELMO - Efficient Link Manager",
+    "description": "Efficient Link Manager with offline mode via IPFS",
+    "version": "0.1.0",
+    "browser_action": {
+        "default_icon": "icon-16.png",
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "scripts": ["js/backgroundPage.js"],
+        "persistent": false
+    },
+    "chrome_url_overrides": {
+        "newtab": "tab.html"
+    },
+    "icons": {
+        "16": "icon-16.png",
+        "48": "icon-48.png",
+        "128": "icon-128.png"
+    },
+    "permissions": [
+        "identity",
+        "contextMenus",
+        "unlimitedStorage",
+        "storage",
+        "activeTab",
+        "tabs",
+        "https://*/",
+        "http://*/"
+    ]
+}
