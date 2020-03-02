@@ -4,12 +4,14 @@ import secondaryColor from "@material-ui/core/colors/orange";
 
 const t = {
     palette: {
-        type: "dark",
+        type: "light",
         primary: primaryColor,
         secondary: secondaryColor,
     },
 };
 
-export const theme = createMuiTheme(t) as any;
+export const theme = createMuiTheme(t as any);
 
-window.theme = theme;
+window["theme"] = theme;
+
+console.log(theme);

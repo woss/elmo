@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import purple from "@material-ui/core/colors/purple";
 
 import { ICollection } from "@src/interfaces";
 import Links from "../Links/Links";
@@ -15,8 +14,7 @@ const useStyles = makeStyles(theme => ({
     title: {
         padding: theme.spacing(3),
         color: theme.palette.primary.contrastText,
-        // backgroundColor: theme.palette.background.paper,
-        backgroundColor: purple[700],
+        backgroundColor: theme.palette.primary["A100"],
     },
 }));
 interface Props {
