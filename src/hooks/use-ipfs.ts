@@ -8,13 +8,6 @@ import dotProp from "dot-prop";
  * will re-render when the result turns up.
  *
  */
-export default function useIpfs(ipfs, cmd, opts?) {
-    const [res, setRes] = useState(null);
-    useEffect(() => {
-        callIpfs(ipfs, cmd, opts, setRes);
-    }, [ipfs, cmd, opts]);
-    return res;
-}
 
 async function callIpfs(ipfs, cmd, opts, setRes) {
     if (!ipfs) return null;
@@ -23,4 +16,12 @@ async function callIpfs(ipfs, cmd, opts, setRes) {
     const res = await ipfsCmd(opts);
     console.log(`Result ipfs.${cmd}`, res);
     setRes(res);
+}
+
+export default function useIpfs(ipfs, cmd, opts?) {
+    const [res, setRes] = useState(null);
+    useEffect(() => {
+        callIpfs(ipfs, cmd, opts, setRes);
+    }, [ipfs, cmd, opts]);
+    return res;
 }

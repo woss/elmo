@@ -6,12 +6,13 @@ import { makeStyles } from "@material-ui/core/styles";
 import { browser } from "webextension-polyfill-ts";
 import Header from "./components/Header/Header";
 import Fab from "@material-ui/core/Fab";
+
 import AddIcon from "@material-ui/icons/Add";
 // IPFS setup
 
 import useIpfsFactory from "../hooks/use-ipfs-factory";
 import useIpfs from "../hooks/use-ipfs";
-import IpfsId from "./components/ipfs/Ipfs";
+// import IpfsId from "./components/ipfs/Ipfs";
 
 //
 
@@ -33,8 +34,11 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const Tab: FunctionComponent = () => {
-    // const { ipfs, ipfsInitError } = useIpfsFactory({ commands: ["id"] });
-    // const id = useIpfs(ipfs, "id");
+    const { ipfs, ipfsInitError } = useIpfsFactory({ commands: ["id"] });
+    const id = useIpfs(ipfs, "id");
+    const isOnline = useIpfs(ipfs, "isOnline");
+    const bootlist = useIpfs(ipfs, "bootstrap.list");
+
     const classes = useStyles();
 
     React.useEffect(() => {
@@ -49,12 +53,12 @@ export const Tab: FunctionComponent = () => {
         <div className={classes.root}>
             <CssBaseline />
             <Header />
-            {/* {ipfsInitError && (
+            {ipfsInitError && (
                 <div className="bg-yellow pa4 mw7 center mv4 white">
                     Error: {ipfsInitError.message || ipfsInitError}
                 </div>
             )}
-            {id && <IpfsId {...id} />} */}
+            {id && <pre>{JSON.stringify(id, null, 2)}</pre>}
             <main className={classes.content}>
                 <Container>
                     <Collections

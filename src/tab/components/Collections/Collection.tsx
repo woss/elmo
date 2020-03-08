@@ -4,6 +4,9 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import { ICollection } from "@src/interfaces";
 import Links from "../Links/Links";
+
+import TEST_DB from "@src/TEST_DB";
+
 const useStyles = makeStyles(theme => ({
     root: {
         flexGrow: 1,
@@ -23,11 +26,24 @@ interface Props {
 function Collection({ collection }: Props) {
     const classes = useStyles();
 
+    const workspaces = TEST_DB.workspaces;
     return (
         <Grid className={classes.root}>
-            <Typography className={classes.title} variant="h4" component="h4">
-                {collection.title}
-            </Typography>
+            <div className={classes.title}>
+                <Typography variant="h4" component="h4">
+                    {collection.title}
+                </Typography>
+                Workspaces:
+                {collection.workspaceIndexes.map((idx, k) => {
+                    return (
+                        <span key={k}>
+                            {workspaces[idx]
+                                ? ` ${workspaces[idx].name}, `
+                                : ""}
+                        </span>
+                    );
+                })}
+            </div>
 
             <Links links={collection.links} />
         </Grid>

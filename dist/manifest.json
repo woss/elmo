@@ -27,6 +27,9 @@
         "activeTab",
         "tabs",
         "https://*/",
-        "http://*/"
-    ]
+        "http://*/",
+        "contextMenus",
+        "clipboardWrite"
+    ],
+    "default_locale": "en"
 }

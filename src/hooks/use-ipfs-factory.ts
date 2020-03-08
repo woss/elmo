@@ -13,35 +13,30 @@ let ipfs = null;
  * so use-ipfs calls can grab it from there rather than expecting
  * it to be passed in.
  */
+
 export default function useIpfsFactory({ commands }) {
     const [isIpfsReady, setIpfsReady] = useState(Boolean(ipfs));
     const [ipfsInitError, setIpfsInitError] = useState(null);
-
-    useEffect(() => {
-        // The fn to useEffect should not return anything other than a cleanup fn,
-        // So it cannot be marked async, which causes it to return a promise,
-        // Hence we delegate to a async fn rather than making the param an async fn.
-        startIpfs();
-        return function cleanup() {
-            if (ipfs && ipfs.stop) {
-                console.log("Stopping IPFS");
-                ipfs.stop().catch(err => console.error(err));
-                ipfs = null;
-                setIpfsReady(false);
-            }
-        };
-    });
-
     async function startIpfs() {
         if (ipfs) {
             console.log("IPFS already started");
         } else if (window["ipfs"] && window["ipfs"].enable) {
-            console.log('Found window["ipfs"]');
+            console.log("Found window['ipfs']");
             ipfs = await window["ipfs"].enable({ commands });
         } else {
             try {
                 console.time("IPFS Started");
-                ipfs = await Ipfs.create();
+                ipfs = await Ipfs.create({
+                    config: {
+                        Addresses: {
+                            Swarm: [
+                                // "/dns4/wrtc-star.discovery.libp2p.io/tcp/443/wss/p2p-webrtc-star",
+                            ],
+                            Gateway: "/ip4/127.0.0.1/tcp/9091",
+                            API: "/ip4/127.0.0.1/tcp/5003",
+                        },
+                    },
+                });
                 console.timeEnd("IPFS Started");
             } catch (error) {
                 console.error("IPFS init error:", error);
@@ -51,7 +46,23 @@ export default function useIpfsFactory({ commands }) {
         }
 
         setIpfsReady(Boolean(ipfs));
+        return;
     }
+    useEffect(() => {
+        // The fn to useEffect should not return anything other than a cleanup fn,
+        // So it cannot be marked async, which causes it to return a promise,
+        // Hence we delegate to a async fn rather than making the param an async fn.
+        startIpfs();
+        return function cleanup() {
+            console.log("ipfs cleanup");
+            if (ipfs && ipfs.stop) {
+                console.log("Stopping IPFS");
+                ipfs.stop().catch(err => console.error(err));
+                ipfs = null;
+                setIpfsReady(false);
+            }
+        };
+    }, []);
 
     return { ipfs, isIpfsReady, ipfsInitError };
 }
