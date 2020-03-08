@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { browser } from "webextension-polyfill-ts";
-import Tab from "./component";
+import Tab from "./tab";
 import { ThemeProvider } from "@material-ui/core";
 import { theme } from "@src/theme";
 
