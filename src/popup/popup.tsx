@@ -17,3 +17,5 @@ export const Popup: FunctionComponent = () => {
         </div>
     );
 };
+
+export default Popup;

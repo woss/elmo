@@ -4,24 +4,31 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import Container from "@material-ui/core/Container";
 import { makeStyles } from "@material-ui/core/styles";
 import { browser } from "webextension-polyfill-ts";
+import Header from "./components/Header/Header";
+import Fab from "@material-ui/core/Fab";
+import AddIcon from "@material-ui/icons/Add";
 // IPFS setup
 
 import useIpfsFactory from "../hooks/use-ipfs-factory";
 import useIpfs from "../hooks/use-ipfs";
+import IpfsId from "./components/ipfs/Ipfs";
+
 //
 
 // test db
 import TEST_DB from "@src/TEST_DB";
 import Collections from "./components/Collections/Collections";
 
-import Header from "./components/Header/Header";
-import IpfsId from "./components/ipfs/Ipfs";
-
 const useStyles = makeStyles(theme => ({
     root: {},
     content: {
         flexGrow: 1,
         padding: theme.spacing(3),
+    },
+    fabButton: {
+        position: "fixed",
+        right: theme.spacing(3),
+        bottom: theme.spacing(3),
     },
 }));
 
@@ -34,6 +41,9 @@ export const Tab: FunctionComponent = () => {
         browser.runtime.sendMessage({ tabMounted: true });
     }, []);
 
+    const handleAddCollection = () => {
+        console.log("should add collection");
+    };
     // Renders the component tree
     return (
         <div className={classes.root}>
@@ -52,6 +62,15 @@ export const Tab: FunctionComponent = () => {
                     ></Collections>
                 </Container>
             </main>
+            <div className={classes.fabButton}>
+                <Fab
+                    color="primary"
+                    aria-label="add"
+                    onClick={handleAddCollection}
+                >
+                    <AddIcon />
+                </Fab>
+            </div>
         </div>
     );
 };
