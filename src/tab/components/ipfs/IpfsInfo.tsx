@@ -7,14 +7,7 @@ interface Props {
 }
 export const IpfsInfo = ({ ipfs }: Props) => {
     if (!ipfs) return null;
-    const [ipfsInfo, setIpfsInfo] = useState({
-        node: {
-            id: "",
-            addresses: [],
-        },
-        isOnline: false,
-        Peers: [],
-    });
+
     const node = useIpfs(ipfs, "id");
     const isOnline = useIpfs(ipfs, "isOnline");
     const bootstrapList = useIpfs(ipfs, "bootstrap.list");

@@ -36,6 +36,7 @@ const useStyles = makeStyles(theme => ({
 
 export const Tab: FunctionComponent = () => {
     const { ipfs, ipfsInitError } = useIpfsFactory({ commands: ["id"] });
+    console.log("IPFS", ipfs);
     const classes = useStyles();
 
     React.useEffect(() => {
