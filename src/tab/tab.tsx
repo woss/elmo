@@ -19,6 +19,7 @@ import useIpfs from "../hooks/use-ipfs";
 // test db
 import TEST_DB from "@src/TEST_DB";
 import Collections from "./components/Collections/Collections";
+import IpfsInfo from "./components/ipfs/IpfsInfo";
 
 const useStyles = makeStyles(theme => ({
     root: {},
@@ -35,10 +36,6 @@ const useStyles = makeStyles(theme => ({
 
 export const Tab: FunctionComponent = () => {
     const { ipfs, ipfsInitError } = useIpfsFactory({ commands: ["id"] });
-    const id = useIpfs(ipfs, "id");
-    const isOnline = useIpfs(ipfs, "isOnline");
-    const bootlist = useIpfs(ipfs, "bootstrap.list");
-
     const classes = useStyles();
 
     React.useEffect(() => {
@@ -58,9 +55,10 @@ export const Tab: FunctionComponent = () => {
                     Error: {ipfsInitError.message || ipfsInitError}
                 </div>
             )}
-            {id && <pre>{JSON.stringify(id, null, 2)}</pre>}
+
             <main className={classes.content}>
                 <Container>
+                    {ipfs && <IpfsInfo ipfs={ipfs}></IpfsInfo>}
                     <Collections
                         collections={TEST_DB.collections}
                     ></Collections>
