@@ -2,7 +2,8 @@ const path = require("path");
 
 module.exports = {
     entry: {
-        backgroundPage: path.join(__dirname, "src/backgroundPage.ts"),
+        background: path.join(__dirname, "src/backgroundPage.ts"),
+        // content: path.join(__dirname, "src/contentScript.ts"),
         popup: path.join(__dirname, "src/popup/index.tsx"),
         tab: path.join(__dirname, "src/tab/index.tsx"),
     },
@@ -23,6 +24,19 @@ module.exports = {
         extensions: [".ts", ".tsx", ".js"],
         alias: {
             "@src": path.resolve(__dirname, "src/"),
+            url: 'iso-url',
+            stream: 'readable-stream', // cure general insanity
+            http: 'http-node', // chrome.sockets
+            dns: 'http-dns', // chrome.sockets
+            dgram: 'chrome-dgram', // chrome.sockets
+            net: 'chrome-net' // chrome.sockets
         },
+    },
+    node: {
+        global: true, // https://github.com/webpack/webpack/issues/5627#issuecomment-394309966
+        Buffer: true,
+        fs: 'empty',
+        tls: 'empty',
+        cluster: 'empty' // expected by js-ipfs dependency: node_modules/prom-client/lib/cluster.js
     },
 };

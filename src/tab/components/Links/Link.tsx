@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import { ILink } from "@src/interfaces";
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -15,12 +15,14 @@ import {
     Button,
 } from "@material-ui/core";
 
-import { ListItemText, IconButton } from "@material-ui/core";
+import { Link as RouterLink } from "react-router-dom";
+import { withStore } from "@src/OrbitDB/OrbitDB";
+import isEmpty from "lodash/isEmpty";
 
 const useStyles = makeStyles(theme => ({
     root: {
         minWidth: 275,
-        maxWidth: 350,
+        maxWidth: 275,
         margin: theme.spacing(2),
     },
     bullet: {
@@ -36,69 +38,87 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-import TEST_DB from "@src/TEST_DB";
-
-const dbLinks = TEST_DB.links;
-
 interface Props {
-    linkId: number;
-}
-function Link({ linkId }: Props) {
-    const link: ILink = dbLinks[linkId];
-
-    if (!link) {
-        return null;
-    }
-    return (
-        <ListItem>
-            <ListItemIcon>
-                <CheckIcon />
-            </ListItemIcon>
-            <ListItemText
-                primary={link.title.toUpperCase()}
-                secondary={link.url}
-            />
-            <ListItemSecondaryAction>
-                <IconButton edge="end" aria-label="delete">
-                    <OfflinePinIcon />
-                </IconButton>
-            </ListItemSecondaryAction>
-        </ListItem>
-    );
+    linkHash: string;
 }
 
-export function LinkCard({ linkId }: Props) {
+export default function LinkCard({ linkHash }: Props) {
     const classes = useStyles();
-    const bull = <span className={classes.bullet}>•</span>;
-    const link: ILink = dbLinks[linkId];
 
-    if (!link) {
-        return null;
+    const defaultState: ILink = {
+        title: "",
+        url: "",
+        hash: "",
+        createdAt: 0,
+        ipfs: {
+            path: "",
+            cid: "",
+        },
+    };
+    const [link, setLink] = useState(defaultState);
+    const linkStore = withStore("links");
+
+    async function getLink(hash) {
+        const r = await linkStore.get(hash);
+
+        if (!isEmpty(r)) {
+            setLink(r[0]);
+        }
     }
+
+    useEffect(() => {
+        if (linkStore) {
+            getLink(linkHash);
+        }
+    });
+
     return (
         <Card className={classes.root}>
             <CardContent>
-                <Typography variant="h5" component="h2">
+                <Typography variant="h5" component="h2" noWrap>
                     {link.title}
                 </Typography>
-                <Typography className={classes.pos} color="textSecondary">
-                    adjective
+                {/* <Typography className={classes.pos} color="textSecondary">
+                    maybe tags??
                 </Typography>
                 <Typography variant="body2" component="p">
-                    <a
-                        href={link.url}
-                        rel="noopener noreferrer"
-                        target="_blank"
-                    >
-                        Online version
-                    </a>
-                </Typography>
+                    body
+                </Typography> */}
             </CardContent>
             <CardActions>
-                <Button size="small">Learn More</Button>
+                <Button
+                    href={link.url}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    size="small"
+                    color="primary"
+                >
+                    Online
+                </Button>
+                <Button
+                    component={RouterLink}
+                    to={link.ipfs ? `/view/${link.hash}` : "#"}
+                    // rel="noopener noreferrer"
+                    // target="_blank"
+                    size="small"
+                    disabled={!link.ipfs.cid}
+                >
+                    Offline
+                </Button>
+                <Button
+                    href={
+                        link.ipfs
+                            ? `https://ipfs.io/ipfs/${link.ipfs.cid}`
+                            : "#"
+                    }
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    size="small"
+                    disabled={!link.ipfs.cid}
+                >
+                    IPFS
+                </Button>
             </CardActions>
         </Card>
     );
 }
-
-export default Link;

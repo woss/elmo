@@ -1,20 +1,141 @@
-import * as React from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { ICollection } from "@src/interfaces";
 import Collection from "./Collection";
-import { Grid } from "@material-ui/core";
+import Skeleton from "@material-ui/lab/Skeleton";
+import { makeStyles } from "@material-ui/core/styles";
 
-interface Props {
-    collections: [ICollection];
-}
+import { Grid, Container } from "@material-ui/core";
 
-const Collections = ({ collections }: Props) => {
+import nanoid from "nanoid";
+import { createCID } from "@src/ipfsNode/helpers";
+import Fab from "@material-ui/core/Fab";
+import AddIcon from "@material-ui/icons/Add";
+
+import { withStore, loadAllFromStore } from "@src/OrbitDB/OrbitDB";
+
+const useStyles = makeStyles(theme => ({
+    root: {},
+    loading: {
+        width: 300,
+    },
+    content: {
+        flexGrow: 1,
+        padding: theme.spacing(3),
+    },
+    fabButton: {
+        position: "fixed",
+        right: theme.spacing(3),
+        bottom: theme.spacing(3),
+        zIndex: 1200,
+    },
+}));
+
+function Collections() {
+    const classes = useStyles();
+
+    const store = withStore("collections");
+    // const linksDB = withStore("links");
+
+    const [forceReload, setForceReload] = useState(false);
+    const [collections, setCollections] = useState([] as ICollection[]);
+
+    //get default values and make binding
+    useEffect(() => {
+        // must do this since we get false too
+
+        store.events.on("write", async (dbname, event) => {
+            console.debug("store event write ", dbname, event);
+            const _col: ICollection = event.payload.value;
+            const idx = collections.findIndex(c => c._id === _col._id);
+            if (idx !== -1) {
+                const newCollections = collections;
+                newCollections[idx] = _col;
+                console.log(newCollections, idx, _col);
+                setCollections(newCollections);
+            } else {
+                console.log("Call redraw");
+                const c = await loadAllFromStore("collections");
+                setCollections(c);
+            }
+        });
+
+        store.events.on("replicate", address => {
+            console.debug("COLLECTIONS:: replication started", address);
+        });
+        store.events.on("replicated", async () => {
+            console.debug("COLLECTIONS::  replicated");
+            const c = await store.get("");
+            setCollections(c);
+            setForceReload(true);
+            // loadAllFromStore("collections").then(c => {});
+        });
+        // linksDB.events.on("replicate", address => {
+        //     console.debug("LINKS :: replication started", address);
+        // });
+        // linksDB.events.on("replicated", () => {
+        //     console.debug("LINKS::replicated ");
+        //     loadAllFromStore("links")
+        // });
+
+        loadAllFromStore("collections").then(c => {
+            setCollections(c);
+        });
+    }, []);
+
+    async function handleAddCollection() {
+        const collectionName = "Collection " + Math.round(Math.random() * 100);
+        console.log("Adding collection", collectionName);
+        const collection: ICollection = {
+            _id: nanoid(),
+            hash: await createCID(collectionName),
+            title: collectionName,
+            links: [],
+            sharedWith: [],
+            // user: user._id,
+            // workspaces: [currentWorkspace._id],
+            createdAt: Date.now(),
+        };
+
+        try {
+            await store.put(collection, { pin: true });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    if (!collections) {
+        return (
+            <div className={classes.loading}>
+                <Skeleton />
+                <Skeleton animation={false} />
+                <Skeleton animation="wave" />
+            </div>
+        );
+    }
+
     return (
-        <React.Fragment>
-            {collections.map((collection, key) => {
-                return <Collection key={key} collection={collection} />;
-            })}
-        </React.Fragment>
+        <div>
+            <Grid container spacing={2} direction="column">
+                {collections.map(({ _id }) => {
+                    return (
+                        <Grid item key={_id}>
+                            <Collection forceReload={forceReload} id={_id} />
+                        </Grid>
+                    );
+                })}
+            </Grid>
+            <div className={classes.fabButton}>
+                <Fab
+                    color="secondary"
+                    aria-label="Create Collection"
+                    className={classes.fabButton}
+                    onClick={handleAddCollection}
+                >
+                    <AddIcon />
+                </Fab>
+            </div>
+        </div>
     );
-};
+}
 
 export default Collections;
