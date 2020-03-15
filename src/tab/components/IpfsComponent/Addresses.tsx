@@ -51,7 +51,7 @@ function Addresses() {
     return (
         <div className={classes.root}>
             <Typography variant="h6">Public Key:</Typography>
-            <pre>{identity.publicKey}</pre>
+            <span className={classes.text}>{identity.publicKey}</span>
             <Typography variant="h6">
                 Swarm Addresses: {identity.addresses.length}
             </Typography>

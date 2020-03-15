@@ -73,13 +73,13 @@ export const IpfsInfo = () => {
         testStuff();
     }, []);
     return (
-        <Grid container>
+        <Grid container spacing={spacing} className={classes.root}>
             <Grid item md xs>
                 <Grid
                     container
                     direction="column"
-                    spacing={spacing}
-                    className={classes.root}
+                    // spacing={spacing}
+                    // className={classes.root}
                 >
                     <Grid item>
                         <Paper className={classes.titleContainer}>
@@ -105,22 +105,19 @@ export const IpfsInfo = () => {
                         </Paper>
                     </Grid>
                     <Grid item>
-                        <Grid container spacing={spacing} direction="column">
-                            <Grid item xs className={classes.left}>
-                                <Grid container direction="column">
-                                    <Grid item>
-                                        <Paper className={classes.paper}>
-                                            <Addresses />
-                                        </Paper>
-                                    </Grid>
-                                    <Grid item>
-                                        <Paper className={classes.paper}>
-                                            <SwarmPeers />
-                                        </Paper>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                        </Grid>
+                        <Paper className={classes.paper}>
+                            <Addresses />
+                        </Paper>
+                    </Grid>
+                    <Grid item>
+                        <Paper className={classes.paper}>
+                            <SwarmPeers />
+                        </Paper>
+                    </Grid>
+                    <Grid item>
+                        <Paper className={classes.paper}>
+                            <Config />
+                        </Paper>
                     </Grid>
                 </Grid>
             </Grid>
@@ -130,9 +127,6 @@ export const IpfsInfo = () => {
                 </Paper>
                 <Paper className={classes.paper}>
                     <Connect />
-                </Paper>
-                <Paper className={classes.paper}>
-                    <Config />
                 </Paper>
             </Grid>
         </Grid>

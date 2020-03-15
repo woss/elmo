@@ -21,10 +21,7 @@ export const IPFS_DEFAULT_OPTS: Options = {
             ],
             API: "/ip4/0.0.0.0/tcp/5003",
             Gateway: "/ip4/0.0.0.0/tcp/9091",
-            Delegates: [
-                //     "/dns4/node1.delegate.ipfs.io/tcp/443/https",
-                //     "/dns4/node0.delegate.ipfs.io/tcp/443/https",
-            ],
+            Delegates: [],
         },
         Discovery: {
             MDNS: {

@@ -1,3 +1,6 @@
+// Not in use, there was an error with the http so i decided to use IPFS companion.
+// i'd love to ue sockets since make much more sense on the phone
+
 import { Options } from "@src/typings/ipfs-types";
 
 import Ipfs from "ipfs";

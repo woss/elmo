@@ -89,7 +89,12 @@ export const Tab: FunctionComponent = () => {
     }
 
     function onMessage(msg: IncomingMessage) {
-        setIncomingMessage(formatMessage(msg));
+        const message = formatMessage(msg);
+
+        console.log("incoming message action", message.message.action);
+        if (message.message.action != "approveReplicateDB") {
+            setIncomingMessage(message);
+        }
     }
 
     async function handleAgree(decision) {
@@ -144,6 +149,7 @@ export const Tab: FunctionComponent = () => {
     }
 
     React.useEffect(() => {
+        let unsubscribeCleanup;
         if (ipfsReady && continueToApp) {
             if (preferRemote) {
                 const dbs = JSON.parse(localStorage.getItem("remoteDatabases"));
@@ -164,10 +170,12 @@ export const Tab: FunctionComponent = () => {
             // Create local channel ans listens to the messages.
             // Main use is to send local messages withing same instance
             // or listen for the incoming messages, mainly about replicating the DB
-            createChatListener(onMessage).then(({ topic }) => {
+            createChatListener(onMessage).then(({ topic, unsubscribe }) => {
                 setSelfTopic(topic);
+                unsubscribeCleanup = unsubscribe;
             });
         }
+        return unsubscribeCleanup;
     }, [continueToApp, ipfsReady]);
 
     if (!ipfsReady) {
@@ -206,8 +214,18 @@ export const Tab: FunctionComponent = () => {
                                 <Route path="/ipfs">
                                     <IpfsInfo />
                                 </Route>
+
                                 <Route path="/db">
                                     <Database />
+                                </Route>
+
+                                <Route path="/ahh-the-choices">
+                                    <FirstTime
+                                        fromRoute
+                                        handleContinueToApp={
+                                            handleContinueToApp
+                                        }
+                                    />
                                 </Route>
 
                                 <Route path="/">

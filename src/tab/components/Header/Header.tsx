@@ -180,9 +180,9 @@ function Header() {
                         className={classes.actionLinks}
                         variant="contained"
                         component={RouterLink}
-                        to="/stats"
+                        to="/ahh-the-choices"
                     >
-                        Stats
+                        Choices
                     </Button>
 
                     {/* <IconButton aria-label="show 4 new mails" color="inherit">
