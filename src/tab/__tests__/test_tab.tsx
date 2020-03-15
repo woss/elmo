@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import Tab from "../tab";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 

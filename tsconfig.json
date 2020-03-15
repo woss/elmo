@@ -2,7 +2,8 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@src/*": ["src/*"]
+            "@src/*": ["src/*"],
+            "@src/": ["src/"]
         },
         "target": "es5",
         "module": "commonjs",
@@ -16,6 +17,7 @@
         "lib": ["es2015", "dom"],
         "experimentalDecorators": true,
         "allowSyntheticDefaultImports": true,
-        "suppressExcessPropertyErrors": true
+        "suppressExcessPropertyErrors": true,
+        "typeRoots": ["src/typings", "node_modules/@types"]
     }
 }

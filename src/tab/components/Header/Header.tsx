@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
@@ -6,18 +6,26 @@ import InputBase from "@material-ui/core/InputBase";
 import Badge from "@material-ui/core/Badge";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
-import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
-import AccountCircle from "@material-ui/icons/AccountCircle";
 import MailIcon from "@material-ui/icons/Mail";
 import NotificationsIcon from "@material-ui/icons/Notifications";
-import MoreIcon from "@material-ui/icons/MoreVert";
-import { Typography } from "@material-ui/core";
+import { Typography, Button } from "@material-ui/core";
 import { makeStyles, useTheme, fade } from "@material-ui/core/styles";
-
+import { IUser, IWorkspace } from "@src/interfaces";
+import AccountCircle from "@material-ui/icons/AccountCircle";
+import WorkspaceSelector from "./WorkspaceSelector";
+import SearchEngineSelector, { searchEngines } from "./SearchEngineSelector";
+import { Link as RouterLink } from "react-router-dom";
+import Link from "@material-ui/core/Link";
 const useStyles = makeStyles(theme => ({
     root: {
         display: "flex",
+    },
+    logo: {
+        color: "inherit",
+    },
+    actionLinks: {
+        margin: theme.spacing(1),
     },
     content: {
         flexGrow: 1,
@@ -37,6 +45,7 @@ const useStyles = makeStyles(theme => ({
     },
     search: {
         position: "relative",
+        // display: "flex",
         borderRadius: theme.shape.borderRadius,
         backgroundColor: fade(theme.palette.common.white, 0.15),
         "&:hover": {
@@ -44,7 +53,7 @@ const useStyles = makeStyles(theme => ({
         },
         marginRight: theme.spacing(2),
         marginLeft: theme.spacing(3),
-        width: "60vw",
+        width: "auto",
         [theme.breakpoints.up("xl")]: {
             marginLeft: theme.spacing(3),
             width: "auto",
@@ -72,74 +81,162 @@ const useStyles = makeStyles(theme => ({
         },
     },
     sectionDesktop: {
-        display: "none",
+        // display: "none",
         [theme.breakpoints.up("md")]: {
             display: "flex",
         },
     },
 }));
+
 function Header() {
     const classes = useStyles();
+    // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    // const [current, setCurrent] = useState(searchEngines[0].id);
 
+    // const ipfsInstance = useIpfsFactory({ commands: ["id"] });
+    // const { isOrbitDBReady, databases } = useOrbitDBFactory({
+    //     ipfs: ipfsInstance.ipfs,
+    //     ipfsReady: ipfsInstance.isIpfsReady,
+    // });
+
+    // const open = Boolean(anchorEl);
+    // const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    //     setAnchorEl(event.currentTarget);
+    // };
+
+    // const handleClose = () => {
+    //     setAnchorEl(null);
+    // };
+    // useEffect(()=>{
+
+    // }, isOrbitDBReady)
     return (
-        <div>
-            <AppBar position="static">
-                <Toolbar>
-                    {/* <IconButton
-                        edge="start"
-                        className={classes.menuButton}
-                        color="inherit"
-                        aria-label="open drawer"
+        <AppBar position="static">
+            <Toolbar>
+                <Typography className={classes.title} variant="h6" noWrap>
+                    <Button
+                        className={classes.logo}
+                        component={RouterLink}
+                        to="/"
                     >
-                        <MenuIcon />
-                    </IconButton> */}
-                    <Typography className={classes.title} variant="h6" noWrap>
                         ELMO - Links and more
-                    </Typography>
-                    <div className={classes.search}>
-                        <div className={classes.searchIcon}>
-                            <SearchIcon />
+                    </Button>
+                </Typography>
+                {/* <div className={classes.search}>
+                    <div className={classes.searchIcon}>
+                        <SearchIcon />
+                    </div>
+                    <SearchEngineSelector
+                        selectCurrentEngine={setCurrent}
+                        current={current}
+                    />
+                    <InputBase
+                        placeholder="Search…"
+                        classes={{
+                            root: classes.inputRoot,
+                            input: classes.inputInput,
+                        }}
+                        inputProps={{ "aria-label": "search" }}
+                        onClick={() => {
+                            console.log("fuzzy search here");
+                        }}
+                        onChange={e => {
+                            console.log("Search term: ", e.target.value.trim());
+                        }}
+                    />
+                </div> */}
+                <div className={classes.grow} />
+                {/* <WorkspaceSelector
+                    workspaces={workspaces}
+                    selectCurrentWorkspace={currentWorkspaces}
+                ></WorkspaceSelector> */}
+                <div className={classes.sectionDesktop}>
+                    <Button
+                        className={classes.actionLinks}
+                        variant="contained"
+                        component={RouterLink}
+                        to="/"
+                        color="secondary"
+                    >
+                        Collections
+                    </Button>
+                    <Button
+                        className={classes.actionLinks}
+                        variant="contained"
+                        component={RouterLink}
+                        to="/ipfs"
+                    >
+                        IPFS
+                    </Button>
+                    <Button
+                        className={classes.actionLinks}
+                        variant="contained"
+                        component={RouterLink}
+                        to="/db"
+                    >
+                        OrbitDB
+                    </Button>
+                    <Button
+                        className={classes.actionLinks}
+                        variant="contained"
+                        component={RouterLink}
+                        to="/stats"
+                    >
+                        Stats
+                    </Button>
+
+                    {/* <IconButton aria-label="show 4 new mails" color="inherit">
+                        <Badge badgeContent={4} color="secondary">
+                            <MailIcon />
+                        </Badge>
+                    </IconButton>
+                    <IconButton
+                        aria-label="show 17 new notifications"
+                        color="inherit"
+                    >
+                        <Badge badgeContent={17} color="secondary">
+                            <NotificationsIcon />
+                        </Badge>
+                    </IconButton> */}
+                    {/* {user && (
+                        <div>
+                            
+                            <IconButton
+                                aria-label="account of current user"
+                                aria-controls="menu-appbar"
+                                aria-haspopup="true"
+                                onClick={handleMenu}
+                                color="inherit"
+                            >
+                                <AccountCircle />
+                            </IconButton>
+                            <Menu
+                                id="menu-appbar"
+                                anchorEl={anchorEl}
+                                anchorOrigin={{
+                                    vertical: "top",
+                                    horizontal: "right",
+                                }}
+                                keepMounted
+                                transformOrigin={{
+                                    vertical: "top",
+                                    horizontal: "right",
+                                }}
+                                open={open}
+                                onClose={handleClose}
+                            >
+                                <MenuItem onClick={handleClose}>
+                                    Profile
+                                </MenuItem>
+                                <MenuItem onClick={handleClose}>
+                                    My account
+                                </MenuItem>
+                            </Menu>
                         </div>
-                        <InputBase
-                            placeholder="Search…"
-                            classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }}
-                            inputProps={{ "aria-label": "search" }}
-                            onClick={() => {
-                                console.log("fuzzy search here");
-                            }}
-                            onChange={e => {
-                                console.log(
-                                    "Search term: ",
-                                    e.target.value.trim(),
-                                );
-                            }}
-                        />
-                    </div>
-                    <div className={classes.grow} />
-                    <div className={classes.sectionDesktop}>
-                        <IconButton
-                            aria-label="show 4 new mails"
-                            color="inherit"
-                        >
-                            <Badge badgeContent={4} color="secondary">
-                                <MailIcon />
-                            </Badge>
-                        </IconButton>
-                        <IconButton
-                            aria-label="show 17 new notifications"
-                            color="inherit"
-                        >
-                            <Badge badgeContent={17} color="secondary">
-                                <NotificationsIcon />
-                            </Badge>
-                        </IconButton>
-                    </div>
-                </Toolbar>
-            </AppBar>
-        </div>
+                    )} */}
+                </div>
+            </Toolbar>
+        </AppBar>
     );
 }
 
