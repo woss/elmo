@@ -12,12 +12,18 @@ import { PeerInfo, IncomingMessage } from "@src/typings/ipfs-types";
 import {
     IElmoIncomingMessageReplicateDB,
     IDatabaseDefinition,
-    IElmoIncomingMessage,
 } from "@src/interfaces";
 import { createDbs, useDBNode } from "@src/OrbitDB/OrbitDB";
+import { useSnackbar } from "notistack";
+import { useHistory } from "react-router-dom";
+
 const useStyles = makeStyles(theme => ({
     root: { width: "60vw" },
-
+    flex: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+    },
     card: {
         // minHeight: 296,
     },
@@ -34,10 +40,14 @@ interface Props {
         continueToApp?: boolean;
         continueAppWitRemote?: boolean;
     }) => any;
+    fromRoute: boolean;
 }
 
-function FirstTime({ handleContinueToApp }: Props) {
+function FirstTime({ handleContinueToApp, fromRoute }: Props) {
     const classes = useStyles();
+    const { enqueueSnackbar } = useSnackbar();
+    const history = useHistory();
+
     const [remoteAddress, setRemoteAddress] = useState("");
     const [selfTopic, setSelfTopic] = useState("");
     const { ipfs } = useIpfsNode();
@@ -53,6 +63,7 @@ function FirstTime({ handleContinueToApp }: Props) {
     }
 
     async function handleClickRemoteAddress() {
+        enqueueSnackbar("Message sent to remote peer");
         const message: IElmoIncomingMessageReplicateDB = {
             action: "replicateDB",
             all: true,
@@ -66,28 +77,43 @@ function FirstTime({ handleContinueToApp }: Props) {
 
     // RECEIVING THE MESSAGE FROM THE MASTER INSTANCE
     const onMessage = (msg: IncomingMessage) => {
-        console.debug(`Received message from ${msg.from}`);
-
         const message: IElmoIncomingMessageReplicateDB = JSON.parse(
             msg.data.toString(),
         );
+
+        console.debug(
+            `Received message from ${msg.from} for the action ${message.action}`,
+        );
+        console.debug("Message: ", message);
+        enqueueSnackbar(
+            `Received message from ${msg.from} for the action ${message.action}`,
+        );
+
         // Create remote databases
         switch (message.action) {
             case "approveReplicateDB":
+                // this is when the the request for replicateDB is approved
                 const m: IDatabaseDefinition[] = message.dbs;
-                // const withDbID = m.map(i => {
-                //     let x: IDatabaseDefinition = i;
-                //     x.options.accessController.write.push(instance.identity.id);
-                //     return x;
-                // });
 
                 createDbs(m).then(d => {
                     localStorage.setItem("remoteDatabases", JSON.stringify(m));
-                    handleClickCreateNew(true);
+                    console.log("fromRoute", fromRoute);
+                    if (fromRoute) {
+                        history.push("/");
+                    } else {
+                        handleClickCreateNew(true);
+                    }
                 });
                 break;
-
+            case "replicateDB":
+                // this is when the initiator wants to replicate DB
+                break;
             default:
+                console.error("We don't support that just yet", message.action);
+                enqueueSnackbar(
+                    `We don't support that just yet ${message.action}`,
+                    { variant: "error" },
+                );
                 break;
         }
     };
@@ -109,7 +135,12 @@ function FirstTime({ handleContinueToApp }: Props) {
     }
 
     return (
-        <Grid container direction="column" className={classes.root} spacing={2}>
+        <Grid
+            container
+            direction="column"
+            className={[classes.root, classes.flex].join(" ")}
+            spacing={2}
+        >
             <Grid item className={classes.title}>
                 <Typography variant="h3">Welcome to ELMO 👋</Typography>
                 <Typography variant="subtitle2">

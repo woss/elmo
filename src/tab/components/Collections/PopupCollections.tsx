@@ -16,11 +16,10 @@ const PopupCollections = () => {
                 active: true,
                 currentWindow: true,
             })
-            .then(tabs => {
+            .then(async tabs => {
                 setCurrentTab(tabs[0]);
-                loadAllFromStore("collections").then(c => {
-                    setCollections(c);
-                });
+                const c = await loadAllFromStore("collections");
+                setCollections(c);
             });
     }, []);
     return (

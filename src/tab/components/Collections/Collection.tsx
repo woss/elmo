@@ -11,8 +11,7 @@ import Links from "../Links/Links";
 import { createCID, addFileToIPFS } from "@src/ipfsNode/helpers";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
-
-import Snackbar from "@material-ui/core/Snackbar";
+import { useSnackbar } from "notistack";
 import {
     createPageInstance,
     getPageTitle,
@@ -64,6 +63,8 @@ const VALID_URL_REGEX = /^(ftp|http|https|file):\/\/[^ "]+$/;
 
 function Collection({ id, forceReload }: Props) {
     const classes = useStyles();
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
     const store = withStore("collections");
     const defaultCollection: ICollection = {
         _id: "",
@@ -74,24 +75,15 @@ function Collection({ id, forceReload }: Props) {
         workspaces: [],
     };
     const [collection, setCollection] = useState(defaultCollection);
-    const [notification, setNotification] = React.useState(null);
-
-    const handleNotificationClose = (
-        event: React.SyntheticEvent | React.MouseEvent,
-        reason?: string,
-    ) => {
-        if (reason === "clickaway") {
-            return;
-        }
-
-        setNotification(null);
-    };
 
     async function handleAddLink() {
         const url = prompt("Please enter the URL");
 
         if (VALID_URL_REGEX.test(url)) {
-            setNotification("Saving your link ...");
+            const snackKey = enqueueSnackbar("Saving link ...", {
+                varian: "info",
+                persist: true,
+            });
             const doc = await createPageInstance(url);
             const docObj = toDocument(doc);
             const title = getPageTitle(docObj);
@@ -107,11 +99,19 @@ function Collection({ id, forceReload }: Props) {
                 url,
                 ipfs: ipfsPath,
             });
+            console.debug("Adding link to collection. Link hash :: ", hash);
 
+            console.time("Add Link To Collection");
             await addToCollection(hash, collection);
+            console.timeEnd("Add Link To Collection");
+
             await loadCollection();
+            closeSnackbar(snackKey);
         } else {
-            setNotification("Incorrect or empty URL");
+            // we have the url but it's invalid, don't show if user clicks on cancel
+            if (url) {
+                enqueueSnackbar("Incorrect or empty URL", { variant: "error" });
+            }
         }
     }
     function handleShareCollection() {
@@ -135,9 +135,10 @@ function Collection({ id, forceReload }: Props) {
 
     async function handleTitleSave(): Promise<void> {
         const hash = await createCID(collection.title.trim());
-
         if (hash === collection.hash) return null;
 
+        const k = enqueueSnackbar("Renaming collection ...", { persist: true });
+        console.time("Renaming collection");
         await store.put(
             {
                 ...collection,
@@ -145,9 +146,12 @@ function Collection({ id, forceReload }: Props) {
             },
             { pin: true },
         );
+        console.timeEnd("Renaming collection");
+        closeSnackbar(k);
     }
 
     async function loadCollection() {
+        console.debug("Loading collection ", id);
         const r = await store.get(id);
         // console.log(r[0], collection
         setCollection(r[0]);
@@ -218,37 +222,6 @@ function Collection({ id, forceReload }: Props) {
 
             {/* Lets show the links */}
             <Links links={collection.links} />
-
-            {/* simple notification if 💩 hits the 🛕 */}
-            <Snackbar
-                anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "left",
-                }}
-                open={!!notification}
-                autoHideDuration={5000}
-                onClose={handleNotificationClose}
-                message={notification}
-                action={
-                    <React.Fragment>
-                        {/* <Button
-                            color="secondary"
-                            size="small"
-                            onClick={handleNotificationClose}
-                        >
-                            UNDO
-                        </Button> */}
-                        <IconButton
-                            size="small"
-                            aria-label="close"
-                            color="inherit"
-                            onClick={handleNotificationClose}
-                        >
-                            <CloseIcon fontSize="small" />
-                        </IconButton>
-                    </React.Fragment>
-                }
-            />
         </div>
     );
 }

@@ -13,7 +13,7 @@ interface Props extends IElmoIncomingMessage {
     handleAgree: IOneParamFunction;
 }
 export default function ReplicateDatabase({
-    message: { dbs, action },
+    message: { dbs, all, action },
     from,
     open: openFromProps,
     handleAgree,
@@ -28,7 +28,7 @@ export default function ReplicateDatabase({
         setOpen(false);
         handleAgree(false);
     };
-
+    console.log(dbs, from, action, all);
     return (
         <div>
             <Dialog
@@ -43,7 +43,8 @@ export default function ReplicateDatabase({
                     <DialogContentText id="alert-dialog-description">
                         This message is from <BoldText>{from}</BoldText> and
                         they wish to <BoldText>{action}</BoldText>{" "}
-                        <BoldText>{dbs}</BoldText> databases.
+                        <BoldText>{all ? "all" : dbs.join(",")}</BoldText>{" "}
+                        databases.
                     </DialogContentText>
 
                     <DialogContentText id="alert-dialog-description">

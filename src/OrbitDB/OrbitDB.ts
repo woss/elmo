@@ -29,7 +29,7 @@ export async function startOrbitDBInstance(): Promise<IDbInstance> {
         try {
             console.time("Start OrbitDB");
             const node = await OrbitDB.createInstance(ipfs);
-            console.time("Start OrbitDB");
+            console.timeEnd("Start OrbitDB");
 
             dbInstance = {
                 instance: node,
@@ -65,6 +65,7 @@ export function buildOptions(opts: IOrbitDBOptions = {}) {
     return o;
 }
 export async function createDbs(dbs: IDatabaseDefinition[]) {
+    console.log("Creating DBs");
     const { instance } = useDBNode();
 
     return Promise.all(

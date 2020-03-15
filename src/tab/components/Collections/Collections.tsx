@@ -12,6 +12,7 @@ import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 
 import { withStore, loadAllFromStore } from "@src/OrbitDB/OrbitDB";
+import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles(theme => ({
     root: {},
@@ -32,6 +33,7 @@ const useStyles = makeStyles(theme => ({
 
 function Collections() {
     const classes = useStyles();
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const store = withStore("collections");
     // const linksDB = withStore("links");
@@ -63,8 +65,8 @@ function Collections() {
             console.debug("COLLECTIONS:: replication started", address);
         });
         store.events.on("replicated", async () => {
-            console.debug("COLLECTIONS::  replicated");
-            const c = await store.get("");
+            enqueueSnackbar("COLLECTIONS::  replicated", { variant: "info" });
+            const c = await loadAllFromStore("collections");
             setCollections(c);
             setForceReload(true);
             // loadAllFromStore("collections").then(c => {});
@@ -84,7 +86,10 @@ function Collections() {
 
     async function handleAddCollection() {
         const collectionName = "Collection " + Math.round(Math.random() * 100);
-        console.log("Adding collection", collectionName);
+        const snackKey = enqueueSnackbar(`Adding ${collectionName}`, {
+            variant: "info",
+            persist: true,
+        });
         const collection: ICollection = {
             _id: nanoid(),
             hash: await createCID(collectionName),
@@ -97,9 +102,16 @@ function Collections() {
         };
 
         try {
+            console.time("Add collection");
             await store.put(collection, { pin: true });
+            console.timeEnd("Add collection");
+
+            closeSnackbar(snackKey);
         } catch (e) {
             console.error(e);
+            enqueueSnackbar(e, {
+                variant: "error",
+            });
         }
     }
 
