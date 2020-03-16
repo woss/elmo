@@ -1,8 +1,8 @@
 # Welcome
 
-Current title is **ELMO - Efficient Link Management and O**, but i'm looking for better alternatives, if you want to participate in deciding click [here and VOTE](https://linkto.run/p/L62X0YTC)
+Current title is **ELMO - Efficient Link Management and O**, but i'm looking for better alternatives, if you want to participate in deciding click [here and VOTE](https://linkto.run/p/J3T51ILU)
 
-Results can ber found [here](https://linkto.run/r/L62X0YTC)
+Results can ber found [here](https://linkto.run/r/J3T51ILU)
 
 Options:
 
