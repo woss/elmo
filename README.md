@@ -56,4 +56,4 @@ yarn dev
 
 Now you are ready to load the extension.
 Check out this video.
-![intro]('./assets/how-to-video/intro.gif)
+![intro](./assets/how-to-video/intro.gif)
