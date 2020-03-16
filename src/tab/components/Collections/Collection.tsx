@@ -1,229 +1,273 @@
-import React, { useState, useEffect } from "react";
-import { Typography, IconButton, InputBase, Button } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import DeleteIcon from "@material-ui/icons/Delete";
-import CloseIcon from "@material-ui/icons/Close";
-import AddIcon from "@material-ui/icons/Add";
-import { ICollection } from "@src/interfaces";
-
-import ShareIcon from "@material-ui/icons/Share";
-import Links from "../Links/Links";
-import { createCID, addFileToIPFS } from "@src/ipfsNode/helpers";
+import { IconButton, InputBase, Typography } from "@material-ui/core";
 import AppBar from "@material-ui/core/AppBar";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import { green } from "@material-ui/core/colors";
+import { makeStyles } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
-import { useSnackbar } from "notistack";
-import {
-    createPageInstance,
-    getPageTitle,
-    createLink,
-    calculateHash,
-    addToCollection,
-    toDocument,
-} from "../Links/helpers";
-
+import AddIcon from "@material-ui/icons/Add";
+import CheckIcon from "@material-ui/icons/Check";
+import DeleteIcon from "@material-ui/icons/Delete";
+import SaveIcon from "@material-ui/icons/Save";
+import ShareIcon from "@material-ui/icons/Share";
+import { ICollection } from "@src/interfaces";
+import { addFileToIPFS, createCID } from "@src/ipfsNode/helpers";
 import { withStore } from "@src/OrbitDB/OrbitDB";
+import clsx from "clsx";
+import { useSnackbar } from "notistack";
+import React, { SyntheticEvent, useEffect, useState } from "react";
+import {
+  addToCollection,
+  calculateHash,
+  createLink,
+  createPageInstance,
+  getPageTitle,
+  toDocument,
+} from "../Links/helpers";
+import Links from "../Links/Links";
+
 const useStyles = makeStyles(theme => ({
-    root: {
-        display: "flex",
-        flexDirection: "column",
+  root: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  title: {
+    display: "flex",
+    justifyItems: "center",
+    flexGrow: 1,
+  },
+  grow: {
+    flexGrow: 1,
+  },
+  inputRoot: {
+    color: "inherit",
+    width: "100%",
+  },
+  inputInput: {
+    // padding: theme.spacing(1, 1, 1, 7),
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    // [theme.breakpoints.up("xl")]: {
+    //     width: 200,
+    // },
+  },
+  button: {
+    color: "inherit",
+  },
+  createdAt: {
+    paddingLeft: theme.spacing(2),
+  },
+  wrapper: {
+    margin: theme.spacing(1),
+    position: "relative",
+  },
+  buttonSuccess: {
+    backgroundColor: green[500],
+    "&:hover": {
+      backgroundColor: green[700],
     },
-    title: {
-        display: "flex",
-        justifyItems: "center",
-        flexGrow: 1,
-    },
-    grow: {
-        flexGrow: 1,
-    },
-    inputRoot: {
-        color: "inherit",
-        width: "100%",
-    },
-    inputInput: {
-        // padding: theme.spacing(1, 1, 1, 7),
-        transition: theme.transitions.create("width"),
-        width: "100%",
-        // [theme.breakpoints.up("xl")]: {
-        //     width: 200,
-        // },
-    },
-    button: {
-        color: "inherit",
-    },
-    createdAt: {
-        paddingLeft: theme.spacing(2),
-    },
+  },
+  fabProgress: {
+    color: green[500],
+    position: "absolute",
+    width: theme.spacing(8),
+    height: theme.spacing(8),
+    zIndex: 1,
+  },
 }));
 interface Props {
-    id: string;
-    forceReload: boolean;
+  id: string;
+  forceReload: boolean;
 }
 
 const VALID_URL_REGEX = /^(ftp|http|https|file):\/\/[^ "]+$/;
 
 function Collection({ id, forceReload }: Props) {
-    const classes = useStyles();
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const classes = useStyles();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-    const store = withStore("collections");
-    const defaultCollection: ICollection = {
-        _id: "",
-        createdAt: 0,
-        hash: "",
-        links: [],
-        title: "",
-        workspaces: [],
-    };
-    const [collection, setCollection] = useState(defaultCollection);
+  const store = withStore("collections");
+  const defaultCollection: ICollection = {
+    _id: "",
+    createdAt: 0,
+    hash: "",
+    links: [],
+    title: "",
+    workspaces: [],
+  };
+  const [collection, setCollection] = useState(defaultCollection);
+  const [saving, setSaving] = useState(false);
 
-    async function handleAddLink() {
-        const url = prompt("Please enter the URL");
+  const [success, setSuccess] = React.useState(false);
 
-        if (VALID_URL_REGEX.test(url)) {
-            const snackKey = enqueueSnackbar("Saving link ...", {
-                varian: "info",
-                persist: true,
-            });
-            const doc = await createPageInstance(url);
-            const docObj = toDocument(doc);
-            const title = getPageTitle(docObj);
+  async function loadCollection() {
+    console.debug("Loading collection ", id);
+    const r = await store.get(id);
+    // console.log(r[0], collection.links);
+    setCollection(r[0]);
+  }
 
-            const ipfsPath = await addFileToIPFS(`${title}.html`, doc);
+  async function handleAddLink() {
+    const url = prompt("Please enter the URL");
 
-            const hash = await calculateHash(url);
+    if (VALID_URL_REGEX.test(url)) {
+      const snackKey = enqueueSnackbar("Saving link ...", {
+        varian: "info",
+        persist: true,
+      });
 
-            await createLink({
-                createdAt: Date.now(),
-                hash,
-                title,
-                url,
-                ipfs: ipfsPath,
-            });
-            console.debug("Adding link to collection. Link hash :: ", hash);
+      const doc = await createPageInstance(url);
+      const docObj = toDocument(doc);
+      const title = getPageTitle(docObj);
+      const ipfsPath = await addFileToIPFS(`${title}.html`, doc);
 
-            console.time("Add Link To Collection");
-            await addToCollection(hash, collection);
-            console.timeEnd("Add Link To Collection");
+      const hash = await calculateHash(url);
 
-            await loadCollection();
-            closeSnackbar(snackKey);
-        } else {
-            // we have the url but it's invalid, don't show if user clicks on cancel
-            if (url) {
-                enqueueSnackbar("Incorrect or empty URL", { variant: "error" });
-            }
-        }
+      await createLink({
+        createdAt: Date.now(),
+        hash,
+        title,
+        url,
+        ipfs: ipfsPath,
+      });
+      console.debug("Adding link to collection. Link hash :: ", hash);
+
+      console.time("Add Link To Collection");
+      await addToCollection(hash, collection);
+      console.timeEnd("Add Link To Collection");
+
+      await loadCollection();
+      closeSnackbar(snackKey);
+    } else {
+      // we have the url but it's invalid, don't show if user clicks on cancel
+      if (url) {
+        enqueueSnackbar("Incorrect or empty URL", { variant: "error" });
+      }
     }
-    function handleShareCollection() {
-        console.log("share collection");
+  }
+  function handleShareCollection() {
+    console.log("share collection");
+  }
+
+  async function handleDelete(): Promise<void> {
+    const r = confirm("SRSLY?");
+    if (r === true) {
+      await store.del(collection._id);
     }
+  }
 
-    async function handleDelete(): Promise<void> {
-        var r = confirm("SRSLY?");
-        if (r === true) {
-            await store.del(collection._id);
-        }
-    }
+  function handleTitleChange(e) {
+    const t = e.target.value;
+    setCollection({
+      ...collection,
+      title: t,
+    });
+  }
 
-    function handleTitleChange(e) {
-        const t = e.target.value;
-        setCollection({
-            ...collection,
-            title: t,
-        });
-    }
+  async function handleTitleSave(e: SyntheticEvent): Promise<void> {
+    e.preventDefault();
+    const hash = await createCID(collection.title.trim());
+    if (hash === collection.hash) return null;
 
-    async function handleTitleSave(): Promise<void> {
-        const hash = await createCID(collection.title.trim());
-        if (hash === collection.hash) return null;
+    if (saving) return null;
 
-        const k = enqueueSnackbar("Renaming collection ...", { persist: true });
-        console.time("Renaming collection");
-        await store.put(
-            {
-                ...collection,
-                hash,
-            },
-            { pin: true },
-        );
-        console.timeEnd("Renaming collection");
-        closeSnackbar(k);
-    }
+    setSaving(true);
 
-    async function loadCollection() {
-        console.debug("Loading collection ", id);
-        const r = await store.get(id);
-        // console.log(r[0], collection
-        setCollection(r[0]);
-    }
+    console.debug("Renaming collection", collection._id);
+    console.time(`Renaming collection ${collection._id}`);
 
-    useEffect(() => {
-        loadCollection();
-    }, []);
-
-    useEffect(() => {
-        if (forceReload) {
-            console.log("got force reload");
-            loadCollection();
-        }
-    }, [forceReload]);
-
-    return (
-        <div className={classes.root}>
-            <AppBar position="static">
-                <Toolbar>
-                    <Typography
-                        variant="h4"
-                        component="h4"
-                        className={classes.title}
-                    >
-                        <InputBase
-                            id="title"
-                            classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }}
-                            value={collection.title}
-                            onBlur={handleTitleSave}
-                            onChange={handleTitleChange}
-                            fullWidth
-                            color="secondary"
-                        />
-                    </Typography>
-                    <div className={classes.grow} />
-                    <div>
-                        <IconButton
-                            onClick={handleDelete}
-                            className={classes.button}
-                            aria-label="delete"
-                            variant="contained"
-                        >
-                            <DeleteIcon />
-                        </IconButton>
-                        <IconButton
-                            id="add-link"
-                            onClick={handleAddLink}
-                            className={classes.button}
-                            aria-label="add link"
-                        >
-                            <AddIcon />
-                        </IconButton>
-                        <IconButton
-                            id="share-collection"
-                            onClick={handleShareCollection}
-                            className={classes.button}
-                            aria-label="share"
-                        >
-                            <ShareIcon />
-                        </IconButton>
-                    </div>
-                </Toolbar>
-            </AppBar>
-
-            {/* Lets show the links */}
-            <Links links={collection.links} />
-        </div>
+    await store.put(
+      {
+        ...collection,
+        hash,
+      },
+      { pin: true },
     );
+    console.timeEnd(`Renaming collection ${collection._id}`);
+    setSuccess(true);
+    setSaving(false);
+
+    setTimeout(() => setSuccess(false), 3000);
+  }
+
+  useEffect(() => {
+    loadCollection();
+  }, []);
+
+  useEffect(() => {
+    if (forceReload) {
+      console.log("got force reload");
+      loadCollection();
+    }
+  }, [forceReload]);
+
+  const buttonClassname = clsx({
+    [classes.buttonSuccess]: success,
+    [classes.button]: true,
+  });
+
+  return (
+    <div className={classes.root}>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h4" component="h4" className={classes.title}>
+            <form onSubmit={handleTitleSave}>
+              <InputBase
+                id="title"
+                classes={{
+                  root: classes.inputRoot,
+                  input: classes.inputInput,
+                }}
+                value={collection.title}
+                onBlur={handleTitleSave}
+                onChange={handleTitleChange}
+                fullWidth
+                color="secondary"
+              />
+            </form>
+          </Typography>
+          <div className={classes.grow} />
+          <div>
+            <IconButton
+              aria-label="save"
+              color="primary"
+              className={buttonClassname}
+            >
+              {saving && <CircularProgress className={classes.fabProgress} />}
+              {success ? <CheckIcon /> : <SaveIcon />}
+            </IconButton>
+
+            <IconButton
+              id="add-link"
+              onClick={handleAddLink}
+              className={classes.button}
+              aria-label="add link"
+            >
+              <AddIcon />
+            </IconButton>
+            <IconButton
+              id="share-collection"
+              onClick={handleShareCollection}
+              className={classes.button}
+              aria-label="share"
+            >
+              <ShareIcon />
+            </IconButton>
+            <IconButton
+              onClick={handleDelete}
+              className={classes.button}
+              aria-label="delete"
+              variant="contained"
+            >
+              <DeleteIcon />
+            </IconButton>
+          </div>
+        </Toolbar>
+      </AppBar>
+
+      {/* Lets show the links */}
+      <Links links={collection.links} />
+    </div>
+  );
 }
 
 export default Collection;
