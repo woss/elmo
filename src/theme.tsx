@@ -3,15 +3,15 @@ import secondaryColor from "@material-ui/core/colors/orange";
 import { createMuiTheme, responsiveFontSizes } from "@material-ui/core/styles";
 
 const t = {
-    palette: {
-        type: "light",
-        // type: "dark",
-        primary: primaryColor,
-        secondary: secondaryColor,
-    },
+  palette: {
+    type: "light",
+    // type: "dark",
+    primary: primaryColor,
+    secondary: secondaryColor,
+  },
 };
 
-export let theme = createMuiTheme(t as any);
+export const theme = createMuiTheme(t as any);
 // theme = responsiveFontSizes(theme);
 
 window["theme"] = theme;
