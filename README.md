@@ -55,5 +55,7 @@ yarn dev
 ```
 
 Now you are ready to load the extension.
-Check out this video.
+Check out this to see the demo...
+
+
 ![intro](./assets/how-to-video/intro.gif)
