@@ -1,18 +1,19 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { ICollection } from "@src/interfaces";
-import Collection from "./Collection";
-import Skeleton from "@material-ui/lab/Skeleton";
-import { makeStyles } from "@material-ui/core/styles";
-
-import { Grid, Container } from "@material-ui/core";
-
-import nanoid from "nanoid";
-import { createCID } from "@src/ipfsNode/helpers";
+import { Grid } from "@material-ui/core";
 import Fab from "@material-ui/core/Fab";
+import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
-
-import { withStore, loadAllFromStore } from "@src/OrbitDB/OrbitDB";
+import { replaceKey } from "@src/databases/ChromeStorage";
+import {
+  DB_NAME_COLLECTIONS,
+  loadAllFromStore,
+  withStore,
+} from "@src/databases/OrbitDB";
+import { ICollection } from "@src/interfaces";
+import { createCID } from "@src/ipfsNode/helpers";
+import nanoid from "nanoid";
 import { useSnackbar } from "notistack";
+import React, { useEffect, useState } from "react";
+import Collection from "./Collection";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -31,67 +32,22 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function Collections() {
+export default function Collections() {
   const classes = useStyles();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-  const store = withStore("collections");
+  const store = withStore(DB_NAME_COLLECTIONS);
   // const linksDB = withStore("links");
 
   const [disabled, setDisabled] = useState(false);
   const [forceReload, setForceReload] = useState(false);
   const [collections, setCollections] = useState([] as ICollection[]);
 
-  //get default values and make binding
-  useEffect(() => {
-    // must do this since we get false too
-
-    store.events.on("write", async (dbname, event) => {
-      console.debug("COLLECTIONS:: write", dbname, event);
-      const _col: ICollection = event.payload.value;
-      const idx = collections.findIndex(c => c._id === _col._id);
-      if (idx !== -1) {
-        const newCollections = collections;
-        newCollections[idx] = _col;
-
-        setCollections(newCollections);
-      } else {
-        const c = await loadAllFromStore("collections");
-        setCollections(c);
-      }
-    });
-
-    store.events.on("replicate", address => {
-      console.debug("COLLECTIONS:: replication started", address);
-    });
-    store.events.on("replicated", async () => {
-      console.debug("COLLECTIONS:: replicated");
-
-      const c = await loadAllFromStore("collections");
-      setCollections(c);
-      setForceReload(true);
-      // loadAllFromStore("collections").then(c => {});
-    });
-    // linksDB.events.on("replicate", address => {
-    //     console.debug("LINKS :: replication started", address);
-    // });
-    // linksDB.events.on("replicated", () => {
-    //     console.debug("LINKS::replicated ");
-    //     loadAllFromStore("links")
-    // });
-
-    loadAllFromStore("collections").then(c => {
-      setCollections(c);
-    });
-  }, []);
-
-  async function handleAddCollection() {
-    setDisabled(true);
+  async function createCollection(): Promise<ICollection> {
     const collectionName = "Collection " + Math.round(Math.random() * 100);
-    const snackKey = enqueueSnackbar(`Adding ${collectionName}`, {
-      variant: "info",
-      persist: true,
-    });
+    /**
+     * helper function for collection creation
+     */
     const collection: ICollection = {
       _id: nanoid(),
       hash: await createCID(collectionName),
@@ -102,11 +58,22 @@ function Collections() {
       // workspaces: [currentWorkspace._id],
       createdAt: Date.now(),
     };
+    return collection;
+  }
+
+  async function handleAddCollection() {
+    setDisabled(true);
 
     try {
-      console.time("Add collection");
+      const collection = await createCollection();
+      const snackKey = enqueueSnackbar(`Adding ${collection.title}`, {
+        variant: "info",
+        persist: true,
+      });
+
+      console.time("ORBITDB:: Add collection");
       await store.put(collection, { pin: true });
-      console.timeEnd("Add collection");
+      console.timeEnd("ORBITDB:: Add collection");
 
       closeSnackbar(snackKey);
       setDisabled(false);
@@ -119,15 +86,36 @@ function Collections() {
     }
   }
 
-  if (!collections) {
-    return (
-      <div className={classes.loading}>
-        <Skeleton />
-        <Skeleton animation={false} />
-        <Skeleton animation="wave" />
-      </div>
-    );
-  }
+  //////////////////////////////////////////
+  ///  get default values and make binding
+  /////////////////////////////////////////
+  useEffect(() => {
+    // must do this since we get false too
+
+    store.events.on("write", async (dbname, event) => {
+      console.debug("COLLECTIONS:: write", dbname, event);
+
+      const collections = await loadAllFromStore(DB_NAME_COLLECTIONS);
+      await replaceKey(DB_NAME_COLLECTIONS, collections);
+      setCollections(collections);
+    });
+
+    store.events.on("replicate", address => {
+      console.debug("COLLECTIONS:: replication started", address);
+    });
+    store.events.on("replicated", async () => {
+      console.debug("COLLECTIONS:: replicated");
+
+      const c = await loadAllFromStore(DB_NAME_COLLECTIONS);
+      setCollections(c);
+
+      setForceReload(true);
+    });
+
+    loadAllFromStore(DB_NAME_COLLECTIONS).then(c => {
+      setCollections(c);
+    });
+  }, []);
 
   return (
     <div>
@@ -154,5 +142,3 @@ function Collections() {
     </div>
   );
 }
-
-export default Collections;

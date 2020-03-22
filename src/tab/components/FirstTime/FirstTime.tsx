@@ -6,6 +6,12 @@ import CardHeader from "@material-ui/core/CardHeader";
 import { makeStyles } from "@material-ui/core/styles";
 import { createChatListener } from "@src/chat/chat";
 import {
+  syncDbDataWithStorage,
+  initChromeStorage,
+  getValuesByKey,
+} from "@src/databases/ChromeStorage";
+import { createDbs, createDefaultDbs, useDBNode } from "@src/databases/OrbitDB";
+import {
   IDatabaseDefinition,
   IElmoGenericMessage,
   IElmoMessage,
@@ -14,7 +20,6 @@ import {
 } from "@src/interfaces";
 import { useIpfsNode } from "@src/ipfsNode/ipfsFactory";
 import useIpfsEffect from "@src/ipfsNode/use-ipfs";
-import { createDbs, useDBNode } from "@src/OrbitDB/OrbitDB";
 import { history } from "@src/tab/tab";
 import { IncomingMessage, PeerInfo } from "@src/typings/ipfs";
 import { useSnackbar } from "notistack";
@@ -70,6 +75,20 @@ function FirstTime({ handleContinueToApp, fromRoute }: Props) {
     const val = e.target.value;
 
     setRandomMessage(val);
+  }
+
+  async function handleClickCreateNew() {
+    // Create Default Databases and default ChromeStorage
+    try {
+      await initChromeStorage();
+      await createDefaultDbs();
+      await syncDbDataWithStorage();
+      handleContinueToApp({
+        continueToApp: true,
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async function handleClickRemoteAddress() {
@@ -144,7 +163,7 @@ function FirstTime({ handleContinueToApp, fromRoute }: Props) {
             closeSnackbar(k);
             history.push("/");
           } else {
-            handleClickCreateNew(true);
+            handleClickCreateNew();
             closeSnackbar(k);
           }
         });
@@ -186,15 +205,6 @@ function FirstTime({ handleContinueToApp, fromRoute }: Props) {
       // isSubscribed = false;
     };
   }, []);
-
-  function handleClickCreateNew(remote = false) {
-    localStorage.setItem("preferRemote", remote.toString());
-    localStorage.setItem("continueToApp", "true");
-    handleContinueToApp({
-      continueToApp: true,
-      preferRemote: remote,
-    });
-  }
 
   return (
     <Grid
@@ -248,10 +258,7 @@ function FirstTime({ handleContinueToApp, fromRoute }: Props) {
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button
-                  color="primary"
-                  onClick={() => handleClickCreateNew(false)}
-                >
+                <Button color="primary" onClick={handleClickCreateNew}>
                   Create new ELMO
                 </Button>
               </CardActions>

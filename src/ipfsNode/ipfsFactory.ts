@@ -1,25 +1,35 @@
 import { IIPFSInstance } from "../interfaces";
 import { Options } from "@src/typings/ipfs";
-import { isEmpty } from "ramda";
-import { init } from "./embedded-chromesockets";
+import * as R from "ramda";
+import Ipfs from "ipfs";
 import { buildConfig } from "./config";
 import toMultiaddr from "uri-to-multiaddr";
 
 let nodes: IIPFSInstance[] = [];
 
+/**
+ * Init the IPFS node
+ * @param opts
+ */
+export async function init(opts: Options): Promise<Ipfs> {
+  const ipfsOpts = await buildConfig(opts);
+  const node = await Ipfs.create(ipfsOpts);
+  return node;
+}
+
 export async function startIpfsNode(
   opts: Options = {},
   returnFirst = true,
 ): Promise<IIPFSInstance> {
-  if (!isEmpty(nodes) && returnFirst) {
+  if (!R.isEmpty(nodes) && returnFirst) {
     const firstNode = nodes[0];
     console.log("IPFS instance found. Returning first");
     return firstNode;
   } else {
     try {
-      console.time(`IPFS Started`);
+      console.time("IPFS:: Start");
       const ipfs = await init(opts);
-      console.timeEnd(`IPFS Started`);
+      console.timeEnd("IPFS:: Start");
 
       const version = await ipfs.version();
 
@@ -51,7 +61,7 @@ export function useIpfsNode(id?: string): IIPFSInstance {
   if (id) {
     console.log("return specific node");
   } else {
-    if (!isEmpty(nodes)) {
+    if (!R.isEmpty(nodes)) {
       return nodes[0];
     } else {
       throw new Error("No connected IPFS nodes.");
@@ -93,14 +103,6 @@ export async function startMultipleIpfsNodes(
     nodes = n;
     return nodes;
   });
-}
-
-async function stop(id?: string) {
-  const { ipfs } = await useIpfsNode();
-  await ipfs.stop();
-  // for now we have only one instance, so let's just drop it
-
-  nodes = [];
 }
 
 export async function connectToExternal({

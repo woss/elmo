@@ -1,5 +1,5 @@
 import React from "react";
-import { useDBNode } from "@src/OrbitDB/OrbitDB";
+import { useDBNode } from "@src/databases/OrbitDB";
 import { Typography, Paper, useTheme, makeStyles } from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({

@@ -1,22 +1,20 @@
-import React, { useEffect } from "react";
-import { ICollection, ILink } from "@src/interfaces";
 import Checkbox from "@material-ui/core/Checkbox";
-import ListItem, { ListItemProps } from "@material-ui/core/ListItem";
+import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import { addFileToIPFS } from "@src/ipfsNode/helpers";
+import { ICollection } from "@src/interfaces";
+import * as R from "ramda";
+import React, { useEffect } from "react";
 import { Tabs } from "webextension-polyfill-ts";
 import {
-  createLinkObjectFromTab,
-  createLink,
   addToCollection,
-  removeFromCollection,
+  createLinkObjectFromTab,
   createPageInstance,
-  calculateHash,
+  removeFromCollection,
+  saveLink,
+  createLink,
 } from "../Links/helpers";
-import { useIpfsNode } from "@src/ipfsNode/ipfsFactory";
-
-import isEmpty from "lodash/isEmpty";
+import { calculateHash } from "@src/ipfsNode/helpers";
 
 interface Props {
   collection: ICollection;
@@ -27,7 +25,7 @@ function PopupCollection({ collection, currentTab }: Props) {
   const [checked, setChecked] = React.useState(false);
   const [disabled, setDisabled] = React.useState(false);
 
-  const { ipfs } = useIpfsNode();
+  // const { ipfs } = useIpfsNode();
   const tabTopic = localStorage.getItem("tabTopic");
 
   async function handleToggle() {
@@ -39,10 +37,10 @@ function PopupCollection({ collection, currentTab }: Props) {
       // now we are doing uncheck, remove
       await removeFromCollection(hash, collection);
 
-      if (!isEmpty(tabTopic)) {
+      if (!R.isEmpty(tabTopic)) {
         // notify the main app
         console.log("Sending msg to ", tabTopic);
-        await ipfs.pubsub.publish(tabTopic, Buffer.from(JSON.stringify("yo")));
+        // await ipfs.pubsub.publish(tabTopic, Buffer.from(JSON.stringify("yo")));
       }
 
       setChecked(false);
@@ -51,22 +49,27 @@ function PopupCollection({ collection, currentTab }: Props) {
       const link = await createLinkObjectFromTab(currentTab);
       const doc = await createPageInstance(link.url);
 
-      const ipfsPath = await addFileToIPFS(`/${currentTab.title}.html`, doc);
+      // const ipfsPath = await addFileToIPFS(`/${currentTab.title}.html`, doc);
 
       try {
-        const hash = await createLink({
+        const l = createLink({
           ...link,
-          ipfs: ipfsPath,
+          // ipfs: ipfsPath,
+          ipfs: {
+            cid: "dasdsa",
+            path: "dasdasd",
+          },
         });
+        const hash = await saveLink(l);
         await addToCollection(hash, collection);
 
-        if (!isEmpty(tabTopic)) {
+        if (!R.isEmpty(tabTopic)) {
           // notify the main app
           console.log("Sending msg to ", tabTopic);
-          await ipfs.pubsub.publish(
-            tabTopic,
-            Buffer.from(JSON.stringify("yo")),
-          );
+          // await ipfs.pubsub.publish(
+          //   tabTopic,
+          //   Buffer.from(JSON.stringify("yo")),
+          // );
         }
         setChecked(true);
         setDisabled(false);
@@ -93,6 +96,8 @@ function PopupCollection({ collection, currentTab }: Props) {
           checked={checked}
           tabIndex={-1}
           disableRipple
+          color="primary"
+
           // inputProps={{ "aria-labelledby": labelId }}
         />
       </ListItemIcon>
