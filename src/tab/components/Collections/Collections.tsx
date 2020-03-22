@@ -7,6 +7,7 @@ import {
   DB_NAME_COLLECTIONS,
   loadAllFromStore,
   withStore,
+  addCollection,
 } from "@src/databases/OrbitDB";
 import { ICollection } from "@src/interfaces";
 import { createCID } from "@src/ipfsNode/helpers";
