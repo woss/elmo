@@ -1,22 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { Button, Typography } from "@material-ui/core";
 import AppBar from "@material-ui/core/AppBar";
+import { fade, makeStyles } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import InputBase from "@material-ui/core/InputBase";
-import Badge from "@material-ui/core/Badge";
-import MenuItem from "@material-ui/core/MenuItem";
-import Menu from "@material-ui/core/Menu";
-import SearchIcon from "@material-ui/icons/Search";
-import MailIcon from "@material-ui/icons/Mail";
-import NotificationsIcon from "@material-ui/icons/Notifications";
-import { Typography, Button } from "@material-ui/core";
-import { makeStyles, useTheme, fade } from "@material-ui/core/styles";
-import { IUser, IWorkspace } from "@src/interfaces";
-import AccountCircle from "@material-ui/icons/AccountCircle";
-import WorkspaceSelector from "./WorkspaceSelector";
-import SearchEngineSelector, { searchEngines } from "./SearchEngineSelector";
+import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import Link from "@material-ui/core/Link";
 const useStyles = makeStyles(theme => ({
   root: {
     display: "flex",

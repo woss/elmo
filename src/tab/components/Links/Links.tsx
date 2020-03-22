@@ -2,7 +2,7 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import LinkCard from "./Link";
-import { withStore, loadAllFromStore } from "@src/OrbitDB/OrbitDB";
+import { withStore, loadAllFromStore } from "@src/databases/OrbitDB";
 
 const useStyles = makeStyles(theme => ({
   root: {

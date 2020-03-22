@@ -10,18 +10,18 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
 import ShareIcon from "@material-ui/icons/Share";
 import { ICollection } from "@src/interfaces";
-import { addFileToIPFS, createCID } from "@src/ipfsNode/helpers";
-import { withStore } from "@src/OrbitDB/OrbitDB";
+import { addFileToIPFS, createCID, calculateHash } from "@src/ipfsNode/helpers";
+import { withStore } from "@src/databases/OrbitDB";
 import clsx from "clsx";
 import { useSnackbar } from "notistack";
 import React, { SyntheticEvent, useEffect, useState } from "react";
 import {
   addToCollection,
-  calculateHash,
-  createLink,
+  saveLink,
   createPageInstance,
   getPageTitle,
   toDocument,
+  createLink,
 } from "../Links/helpers";
 import Links from "../Links/Links";
 
@@ -122,18 +122,19 @@ function Collection({ id, forceReload }: Props) {
 
       const hash = await calculateHash(url);
 
-      await createLink({
+      const l = await createLink({
         createdAt: Date.now(),
         hash,
         title,
         url,
         ipfs: ipfsPath,
       });
-      console.debug("Adding link to collection. Link hash :: ", hash);
 
-      console.time("Add Link To Collection");
+      await saveLink(l);
+
+      console.time(`Adding link, hash ${hash}, to collection`);
       await addToCollection(hash, collection);
-      console.timeEnd("Add Link To Collection");
+      console.timeEnd(`Adding link, hash ${hash}, to collection`);
 
       await loadCollection();
       closeSnackbar(snackKey);

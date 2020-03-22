@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { ICollection } from "@src/interfaces";
-import PopupCollection from "./PopupCollection";
 import { List } from "@material-ui/core";
-
+import { getValuesByKey } from "@src/databases/ChromeStorage";
+import React, { useEffect, useState } from "react";
 import { browser, Tabs } from "webextension-polyfill-ts";
-
-import { loadAllFromStore } from "@src/OrbitDB/OrbitDB";
+import PopupCollection from "./PopupCollection";
 
 const PopupCollections = () => {
-  const [collections, setCollections] = useState([] as ICollection[]);
+  // const [collections, setCollections] = useState([] as ICollection[]);
+  const [collections, setCollections] = useState([] as { [s: string]: any });
   const [currentTab, setCurrentTab] = useState(null as Tabs.Tab);
   useEffect(() => {
     browser.tabs
@@ -18,7 +16,10 @@ const PopupCollections = () => {
       })
       .then(async tabs => {
         setCurrentTab(tabs[0]);
-        const c = await loadAllFromStore("collections");
+        // const c = await loadAllFromStore("collections");
+        const c = await getValuesByKey("collections");
+        // create array of objects
+        // console.log(c.collections);
         setCollections(c);
       });
   }, []);

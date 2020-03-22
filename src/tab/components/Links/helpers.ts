@@ -1,9 +1,9 @@
 import { Tabs } from "webextension-polyfill-ts";
-import { ILink, ICollection } from "@src/interfaces";
-import { createCID } from "@src/ipfsNode/helpers";
+import { ILink, ICollection, IKeyVal } from "@src/interfaces";
+import { createCID, calculateHash } from "@src/ipfsNode/helpers";
 import nanoid from "nanoid";
 
-import { withStore } from "@src/OrbitDB/OrbitDB";
+import { withStore } from "@src/databases/OrbitDB";
 
 export async function createPageInstance(url: string): Promise<string> {
   console.debug("createPageInstance:: Getting the page");
@@ -36,6 +36,7 @@ export function getPageTitle(doc: Document): string {
 
 export async function createLinkObjectFromTab(tab: Tabs.Tab): Promise<ILink> {
   const link: ILink = {
+    _id: nanoid(),
     title: tab.title,
     url: tab.url.trim(),
     hash: await calculateHash(tab.url.trim()),
@@ -44,13 +45,17 @@ export async function createLinkObjectFromTab(tab: Tabs.Tab): Promise<ILink> {
   return link;
 }
 
+export function createLink(d: IKeyVal | any): ILink {
+  return Object.assign({}, d, { _id: nanoid() });
+}
+
 /**
  * Creates the link and returns its hash
  * @return hash
  * @param link
  * @param store
  */
-export async function createLink(link: ILink): Promise<string> {
+export async function saveLink(link: ILink): Promise<string> {
   const store = withStore("links");
   try {
     // await store.put({ ...link, _id: nanoid() }, { pin: true });
@@ -88,8 +93,4 @@ export async function removeFromCollection(
   };
   const store = withStore("collections");
   await store.put(newCollection, { pin: true });
-}
-
-export async function calculateHash(url: string): Promise<string> {
-  return await createCID(url);
 }

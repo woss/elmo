@@ -2,6 +2,7 @@ import { IIPFSPeer, IElmoIncomingMessage } from "@src/interfaces";
 import { useIpfsNode } from "@src/ipfsNode/ipfsFactory";
 import { IncomingMessage } from "@src/typings/ipfs";
 import { useIpfs } from "@src/ipfsNode/use-ipfs";
+import { bufferify } from "@src/helpers";
 
 export async function createChatListener(onMessage, peerId?: string) {
   const { ipfs } = useIpfsNode();
@@ -24,7 +25,7 @@ export async function createChatListener(onMessage, peerId?: string) {
   }
 }
 
-export async function createDialer(dialer: IIPFSPeer, listener: IIPFSPeer) {}
+// export async function createDialer(dialer: IIPFSPeer, listener: IIPFSPeer) {}
 
 export function formatMessage({
   data,
@@ -37,14 +38,3 @@ export function formatMessage({
     topics: topicIDs,
   };
 }
-
-/**
- * Create a buffer
- * @param s
- */
-export const bufferify = (s: Buffer | string | number | Uint8Array): Buffer => {
-  if (!Buffer.isBuffer(s)) {
-    return Buffer.from(s.toString());
-  }
-  return s;
-};

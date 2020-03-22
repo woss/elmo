@@ -49,3 +49,7 @@ export async function addFileToIPFS(
   //     // return { path: result.path, cid: result.cid.toString() };
   // }
 }
+
+export async function calculateHash(url: string): Promise<string> {
+  return await createCID(url);
+}

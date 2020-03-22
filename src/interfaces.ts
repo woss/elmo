@@ -1,38 +1,32 @@
-export interface ILink {
-  title: string;
+export interface ILink extends IOrbitDBItemBasicStructure {
   url: string;
   hash: string; // cid of url
-  createdAt: number; //miliseconds
   description?: string;
   ipfs?: ILocalFileOnIPFS;
 }
-export interface IWorkspace {
-  _id: string;
-  hash: string; // CID(name)
-  name: string;
+export interface IWorkspace extends IOrbitDBItemBasicStructure {
   private: boolean;
   current: boolean;
   sharedWith?: IUser[];
-  createdAt: number; //miliseconds
 }
-export interface IUser {
-  _id: string;
-  hash: string; // cid of email
-  name: string;
+export interface IUser extends IOrbitDBItemBasicStructure {
   email: string;
   did: string;
   permissions: string[];
-  createdAt: number; //miliseconds
 }
-export interface ICollection {
-  _id: string;
-  hash: string; // cid name
+export interface ICollection extends IOrbitDBItemBasicStructure {
   title: string;
   userHash?: string;
   links: string[];
   workspaces?: string[];
   sharedWith?: string[];
-  createdAt: number; //miliseconds
+}
+
+export interface IOrbitDBItemBasicStructure {
+  _id: string; // nanoid()
+  title: string;
+  hash: string; // CID(name)
+  createdAt: number; //millis
 }
 
 export interface IStores {
@@ -58,7 +52,7 @@ export interface IDbInstance {
   instance: any;
   id: string;
   isOrbitDBReady: boolean;
-  dbs: { [key: string]: any };
+  dbs: IOrbitDBStoreType[];
   error?: Error;
 }
 
@@ -102,12 +96,16 @@ export interface IElmoMessage {
 export interface IOneParamFunction {
   (e: any): any;
 }
+export interface IOneParamOptionalFunction {
+  (e?: any): any;
+}
 export interface INoParamFunction {
   (): any;
 }
 
 export interface IDatabaseDefinition {
-  address: string;
+  dbName: string;
+  address?: string;
   storeType: string;
   options: IOrbitDBOptions;
 }
@@ -139,3 +137,37 @@ export enum IElmoMessageActions {
 //   APPROVE_REPLICATE_DB,
 //   DECLINE_REPLICATE_DB,
 // }
+
+export interface IKeyVal {
+  [key: string]: any;
+}
+
+export interface IOrbitDBStoreType {
+  id: string;
+  dbname: string;
+  options: {
+    type: string;
+    accessControllerAddress: string;
+    replicate: boolean;
+    indexBy: string;
+  };
+  _type: string;
+  address: {
+    root: string;
+    path: string;
+    toString: INoParamFunction;
+  };
+  identity: any; // TODO
+  access: {
+    grant: (e?: any, d?: any) => any;
+    write: any; // TODO
+  };
+  events: any; // TODO
+  get: IOneParamOptionalFunction;
+  put: (e?: any, d?: any) => any;
+  del: (e?: any, d?: any) => any;
+}
+
+export interface IAppState extends IKeyVal {
+  continueToApp: boolean;
+}

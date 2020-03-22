@@ -14,13 +14,13 @@ export const IPFS_DEFAULT_OPTS: Options = {
   config: {
     Addresses: {
       Swarm: [
-        "/ip4/0.0.0.0/tcp/4500",
+        // "/ip4/0.0.0.0/tcp/4500",
         // "/ip6/2001::2851:7ae4:388e:866:da7a:e895/tcp/4042",
         // "/ip4/172.18.0.113/tcp/4042",
-        "/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star",
+        // "/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star",
       ],
-      API: "/ip4/0.0.0.0/tcp/5003",
-      Gateway: "/ip4/0.0.0.0/tcp/9091",
+      // API: "/ip4/0.0.0.0/tcp/5003",
+      // Gateway: "/ip4/0.0.0.0/tcp/9091",
       Delegates: [],
     },
     Discovery: {

@@ -1,23 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { ILink } from "@src/interfaces";
-import { makeStyles } from "@material-ui/core/styles";
-
-import ListItem from "@material-ui/core/ListItem";
-import CheckIcon from "@material-ui/icons/CheckCircle";
-import OfflinePinIcon from "@material-ui/icons/OfflinePin";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import {
+  Button,
   Card,
+  CardActions,
   CardContent,
   Typography,
-  CardActions,
-  Button,
 } from "@material-ui/core";
-
-import { Link as RouterLink } from "react-router-dom";
-import { withStore } from "@src/OrbitDB/OrbitDB";
-import isEmpty from "lodash/isEmpty";
+import { makeStyles } from "@material-ui/core/styles";
+import { withStore } from "@src/databases/OrbitDB";
+import { ILink } from "@src/interfaces";
+import * as R from "ramda";
+import React, { useEffect, useState } from "react";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -46,6 +38,7 @@ export default function LinkCard({ linkHash }: Props) {
   const classes = useStyles();
 
   const defaultState: ILink = {
+    _id: "",
     title: "",
     url: "",
     hash: "",
@@ -61,7 +54,7 @@ export default function LinkCard({ linkHash }: Props) {
   async function getLink(hash) {
     const r = await linkStore.get(hash);
 
-    if (!isEmpty(r)) {
+    if (!R.isEmpty(r)) {
       setLink(r[0]);
     }
   }
@@ -91,19 +84,10 @@ export default function LinkCard({ linkHash }: Props) {
           rel="noopener noreferrer"
           target="_blank"
           size="small"
-          color="primary"
+          // color="primary"
+          variant="outlined"
         >
           Online
-        </Button>
-        <Button
-          component={RouterLink}
-          to={link.ipfs ? `/view/${link.hash}` : "#"}
-          // rel="noopener noreferrer"
-          // target="_blank"
-          size="small"
-          disabled={!link.ipfs.cid}
-        >
-          Offline
         </Button>
         <Button
           href={link.ipfs ? `https://ipfs.io/ipfs/${link.ipfs.cid}` : "#"}
@@ -111,6 +95,7 @@ export default function LinkCard({ linkHash }: Props) {
           target="_blank"
           size="small"
           disabled={!link.ipfs.cid}
+          variant="outlined"
         >
           IPFS
         </Button>

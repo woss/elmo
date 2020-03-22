@@ -1,39 +1,44 @@
-import React, { FunctionComponent, useState, useEffect } from "react";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { makeStyles } from "@material-ui/core/styles";
-import { browser } from "webextension-polyfill-ts";
-import Header from "@src/tab/components/Header/Header";
-import Collections from "@src/tab/components/Collections/Collections";
-import { Router, Switch, Route } from "react-router-dom";
-import IpfsInfo from "@src/tab/components/IpfsComponent/IpfsInfo";
-
 import { Container, Typography } from "@material-ui/core";
-import { createHashHistory } from "history";
-import View from "@src/tab/components/Links/View";
-import { startIpfsNode, useIpfsNode } from "@src/ipfsNode/ipfsFactory";
-import {
-  startOrbitDBInstance,
-  useDBNode,
-  createDefaultDbs,
-  createDbs,
-  transformStoreToElmoDefinition,
-} from "@src/OrbitDB/OrbitDB";
+import CssBaseline from "@material-ui/core/CssBaseline";
 import Fade from "@material-ui/core/Fade";
-import Database from "@src/tab/components/Database/Database";
-import { useSnackbar } from "notistack";
-
-import FirstTime from "./components/FirstTime/FirstTime";
-import { createChatListener, formatMessage, bufferify } from "@src/chat/chat";
-import ReplicateDatabase from "./components/CustomDialog/ReplicateDatabase";
+import { makeStyles } from "@material-ui/core/styles";
+import { createChatListener } from "@src/chat/chat";
 import {
-  IElmoIncomingMessage,
+  getValuesByKey,
+  setValue,
+  syncDbDataWithStorage,
+  clear,
+} from "@src/databases/ChromeStorage";
+import {
+  createDefaultDbs,
+  startOrbitDBInstance,
+  transformStoreToElmoDefinition,
+  useDBNode,
+  openDatabases,
+  openAllDatabases,
+  createDatabaseDefinitions,
+} from "@src/databases/OrbitDB";
+import { bufferify } from "@src/helpers";
+import {
   IDatabaseDefinition,
+  IElmoIncomingMessage,
   IElmoMessageActions,
-  IElmoGenericMessage,
-  IElmoMessageDeclineReplicateDB,
   IElmoMessageApproveReplicateDB,
+  IElmoMessageDeclineReplicateDB,
 } from "@src/interfaces";
-import { IncomingMessage } from "@src/typings/ipfs";
+import { startIpfsNode, useIpfsNode } from "@src/ipfsNode/ipfsFactory";
+import { onMessage } from "@src/messages/messages";
+import Collections from "@src/tab/components/Collections/Collections";
+import Database from "@src/tab/components/Database/Database";
+import Header from "@src/tab/components/Header/Header";
+import IpfsInfo from "@src/tab/components/IpfsComponent/IpfsInfo";
+import View from "@src/tab/components/Links/View";
+import { createHashHistory } from "history";
+import React, { FunctionComponent, useEffect, useState } from "react";
+import { Route, Router, Switch } from "react-router-dom";
+import { browser } from "webextension-polyfill-ts";
+import ReplicateDatabase from "./components/CustomDialog/ReplicateDatabase";
+import FirstTime from "./components/FirstTime/FirstTime";
 
 export const history = createHashHistory();
 
@@ -54,18 +59,10 @@ const useStyles = makeStyles(theme => ({
 
 export const Tab: FunctionComponent = () => {
   const classes = useStyles();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-  const continueToAppDefault = JSON.parse(
-    localStorage.getItem("continueToApp"),
-  );
-  const preferRemoteDefault = JSON.parse(localStorage.getItem("preferRemote"));
-  // if undefined or null or false then show first otherwise continueToApp
-  const [preferRemote, setPreferRemote] = useState(preferRemoteDefault);
-  const [continueToApp, setContinueToApp] = useState(continueToAppDefault);
+  const [continueToApp, setContinueToApp] = useState(false);
   const [ready, setReady] = useState(false);
   const [ipfsReady, setIpfsReady] = useState(false);
-  const [selfTopic, setSelfTopic] = useState("");
 
   const [incomingMessage, setIncomingMessage] = useState(
     null as IElmoIncomingMessage,
@@ -73,30 +70,9 @@ export const Tab: FunctionComponent = () => {
 
   // Once fire when doc is loaded
 
-  function handleContinueToApp({
-    continueToApp,
-    preferRemote: incomingPreferRemote,
-  }) {
-    setPreferRemote(incomingPreferRemote);
+  async function handleContinueToApp({ continueToApp }) {
     setContinueToApp(continueToApp);
-  }
-
-  function onMessage(msg: IncomingMessage) {
-    const message = formatMessage(msg) as any;
-
-    if (message.message.action === IElmoMessageActions.REPLICATE_DB) {
-      setIncomingMessage(message);
-    } else if (
-      message.message.action === IElmoMessageActions.APPROVE_REPLICATE_DB
-    ) {
-      console.debug(
-        `Got ${message.message.action} ::  ${message.message.message}`,
-      );
-    } else {
-      enqueueSnackbar(
-        `Got ${message.message.action} ::  ${message.message.message}`,
-      );
-    }
+    await setValue({ continueToApp: true });
   }
 
   async function handleAgree(decision) {
@@ -124,9 +100,7 @@ export const Tab: FunctionComponent = () => {
 
     Promise.all(defaultStores.map(d => d.access.grant("write", dbID))).then(
       async () => {
-        const dbs: IDatabaseDefinition[] = Object.values(defaultStores).map(s =>
-          transformStoreToElmoDefinition(s),
-        );
+        const dbs = createDatabaseDefinitions(defaultStores);
         console.log("SEND THE DBS", dbs);
         const message: IElmoMessageApproveReplicateDB = {
           action: IElmoMessageActions.APPROVE_REPLICATE_DB,
@@ -142,46 +116,45 @@ export const Tab: FunctionComponent = () => {
     );
   }
 
+  ///////////////////////////////////////////////
+  // SETTING UP THE APPLICATION
+  ///////////////////////////////////////////////
   useEffect(() => {
     if (ipfsReady && continueToApp) {
-      if (preferRemote) {
-        const dbs = JSON.parse(localStorage.getItem("remoteDatabases"));
-        createDbs(dbs).then(d => {
-          console.log("Remote dbs loaded");
-          setTimeout(() => setReady(true), 200);
-        });
-      } else {
-        createDefaultDbs().then(d => {
-          console.log("Default dbs loaded");
-          setTimeout(() => setReady(true), 200);
-        });
-      }
+      // Open all the DBs
+      openAllDatabases().then(async () => {
+        // Sync latest DATA to the Storage
+        await syncDbDataWithStorage();
+
+        console.timeEnd("TAB:: Load");
+        setTimeout(() => setReady(true), 200);
+      });
     }
   }, [continueToApp, ipfsReady]);
 
+  ///////////////////////////////////////////////
+  // PAGE LOAD
+  ///////////////////////////////////////////////
   useEffect(() => {
     // https://juliangaramendy.dev/use-promise-subscription/
-    let isSubscribed = true;
     let unsubscribe;
+    console.time("TAB:: Load");
 
     browser.runtime.sendMessage({ tabMounted: true });
+
     startIpfsNode()
       .then(async () => {
         try {
           // Create Local Subscription
-          const { topic, unsubscribe: unsub } = await createChatListener(
+          const { unsubscribe: _unsubscribe } = await createChatListener(
             onMessage,
           );
 
-          setSelfTopic(topic);
-
           // for unsubscribe
-          unsubscribe = unsub;
-
-          // add the topic ID to localStorage so the popup can pick it up
-          localStorage.setItem("tabTopic", topic);
+          unsubscribe = _unsubscribe;
 
           await startOrbitDBInstance();
+
           setIpfsReady(true);
         } catch (e) {
           console.error(e);
@@ -191,10 +164,12 @@ export const Tab: FunctionComponent = () => {
         console.error(e);
       });
 
+    getValuesByKey("continueToApp").then(continueToApp => {
+      setContinueToApp(continueToApp);
+    });
     return () => {
-      console.log("un-mounted");
+      console.debug("TAB:: un-mounted");
       unsubscribe();
-      isSubscribed = false;
     };
   }, []);
 
@@ -229,7 +204,9 @@ export const Tab: FunctionComponent = () => {
             <Header />
             <Container className={classes.content}>
               <Switch>
-                <Route path="/view/:cid" children={<View />} />
+                <Route path="/view/:cid">
+                  <View />
+                </Route>
 
                 <Route path="/ipfs">
                   <IpfsInfo />
