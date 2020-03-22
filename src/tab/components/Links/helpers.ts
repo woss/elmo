@@ -96,9 +96,13 @@ export async function addToCollection(
       links,
     };
 
-    console.time(`LINK:HELPER:: Adding link, hash ${hash}, to collection`);
+    console.time(
+      `LINK:HELPER:: Adding link, hash ${hash}, to collection ${collection._id}`,
+    );
     await store.put(newCollection, { pin: true });
-    console.timeEnd(`LINK:HELPER:: Adding link, hash ${hash}, to collection`);
+    console.timeEnd(
+      `LINK:HELPER:: Adding link, hash ${hash}, to collection ${collection._id}`,
+    );
 
     await saveCollectionToChromeStorage(newCollection);
 

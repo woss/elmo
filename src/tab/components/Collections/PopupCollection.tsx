@@ -29,22 +29,17 @@ function PopupCollection({ collection, currentTab }: Props) {
         payload: { linkHash: hash, collection },
       });
     } else {
-      try {
-        browser.runtime.sendMessage({
-          action: "saveLink",
-          payload: { url: currentTab.url, collection },
-        });
-      } catch (e) {
-        console.error(e);
-      }
+      browser.runtime.sendMessage({
+        action: "saveLink",
+        payload: { url: currentTab.url, collection },
+      });
     }
   }
 
   useEffect(() => {
     if (currentTab) {
       calculateHash(currentTab.url).then(async hash => {
-        const inCollection = collection.links.includes(hash);
-        if (inCollection) setChecked(true);
+        if (collection.links.includes(hash)) setChecked(true);
       });
     }
   }, [currentTab]);

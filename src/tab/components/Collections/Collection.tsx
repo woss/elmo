@@ -11,7 +11,7 @@ import SaveIcon from "@material-ui/icons/Save";
 import ShareIcon from "@material-ui/icons/Share";
 import { withStore, DB_NAME_COLLECTIONS } from "@src/databases/OrbitDB";
 import { ICollection } from "@src/interfaces";
-import { createCID } from "@src/ipfsNode/helpers";
+import { createCID, calculateHash } from "@src/ipfsNode/helpers";
 import clsx from "clsx";
 import { useSnackbar } from "notistack";
 import React, { SyntheticEvent, useEffect, useState } from "react";
@@ -94,14 +94,16 @@ function Collection({ id, forceReload }: Props) {
 
   const [success, setSuccess] = React.useState(false);
   const [links, setLinks] = React.useState([] as string[]);
+  const [addLinkNotificationKey, setAddLinkNotificationKey] = React.useState();
 
   async function loadCollection() {
     // don;t forget to load the store from disk
     await store.load();
     const r = await store.get(id);
-
-    setCollection(r[0]);
-    setLinks(r[0].links);
+    if (!isEmpty(r)) {
+      setCollection(r[0]);
+      setLinks(r[0].links);
+    }
   }
 
   async function handleAddLink() {
@@ -112,12 +114,15 @@ function Collection({ id, forceReload }: Props) {
         varian: "info",
         persist: true,
       });
+      setAddLinkNotificationKey(snackKey);
 
-      const { hash } = await downloadAndSaveLink(url);
-      await addToCollection(hash, collection);
-      await loadCollection();
-
-      closeSnackbar(snackKey);
+      const hash = await calculateHash(url);
+      if (!links.includes(hash)) {
+        browser.runtime.sendMessage({
+          action: "saveLink",
+          payload: { url, collection },
+        });
+      }
     } else {
       // we have the url but it's invalid, don't show if user clicks on cancel
       if (url) {
@@ -177,10 +182,11 @@ function Collection({ id, forceReload }: Props) {
       // we must check that current collection is the only one that needs to make changes
 
       if (r.payload.collection._id === collection._id) {
-        console.log(`COLLECTIONS:: action ${r.action}`, r.payload);
+        // console.log(`COLLECTIONS:: action ${r.action}`, r.payload);
         switch (r.action) {
           case "newLink":
             await loadCollection();
+            closeSnackbar(addLinkNotificationKey);
             break;
 
           default:

@@ -8,7 +8,7 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import { withStore, DB_NAME_LINKS } from "@src/databases/OrbitDB";
 import { ILink } from "@src/interfaces";
-import * as R from "ramda";
+import { isEmpty } from "ramda";
 import React, { useEffect, useState } from "react";
 
 const useStyles = makeStyles(theme => ({
@@ -55,7 +55,7 @@ export default function LinkCard({ linkHash }: Props) {
     await store.load();
     const r = await store.get(hash);
 
-    if (!R.isEmpty(r)) {
+    if (!isEmpty(r)) {
       setLink(r[0]);
     }
   }
