@@ -12,11 +12,11 @@ export async function createChatListener(onMessage, peerId?: string) {
     const topic = peerId ? peerId : identity.id;
     await ipfs.pubsub.subscribe(topic, onMessage);
 
-    console.debug(`Subscribed to topic: ${topic}`);
+    console.log(`Subscribed to topic: ${topic}`);
     return {
       topic,
       unsubscribe: () => {
-        console.debug(`Unsubscribing from topic: ${topic}`);
+        console.log(`Unsubscribing from topic: ${topic}`);
         ipfs.pubsub.unsubscribe(topic, onMessage);
       },
     };

@@ -1,27 +1,69 @@
 import { browser } from "webextension-polyfill-ts";
+import { openAllDatabases, startOrbitDBInstance } from "./databases/OrbitDB";
+import { startIpfsNode } from "./ipfsNode/ipfsFactory";
+import {
+  addToCollection,
+  downloadAndSaveLink,
+  removeFromCollection,
+} from "./tab/components/Links/helpers";
+import { getValuesByKey } from "./databases/ChromeStorage";
 
 // Listen for messages sent from other parts of the extension
 browser.runtime.onMessage.addListener(
   async (
-    request: {
-      tabMounted: boolean;
-      popupMounted: boolean;
-      fetchURL: string;
+    r: {
+      action: string;
+      payload: any;
     },
     sender,
   ) => {
-    console.log(`Message received from ${sender.url}`);
+    console.log(
+      `Message received from ${sender.url} for action ${r.action}`,
+      r.payload,
+    );
+    try {
+      let collection;
+      switch (r.action) {
+        case "connectToIpfsAndOrbitDB":
+          await startIpfsNode();
+          await startOrbitDBInstance();
+          await openAllDatabases();
+          break;
+        case "saveLink":
+          const link = await downloadAndSaveLink(r.payload.url);
+          collection = await addToCollection(link.hash, r.payload.collection);
 
-    // Log statement if request.popupMounted is true
-    // NOTE: this request is sent in `popup/component.tsx`
-    if (request.tabMounted) {
-      console.log("backgroundPage notified that tab.tsx has mounted.");
-    }
-    if (request.popupMounted) {
-      console.log("backgroundPage notified that Popup.tsx has mounted.");
-    }
-    if (request.fetchURL) {
-      console.log("fetch the r", request.fetchURL);
+          browser.runtime.sendMessage({
+            action: "linkSaved",
+            payload: { link, collection },
+          });
+          browser.runtime.sendMessage({
+            action: "newLink",
+            payload: { collection },
+          });
+          break;
+        case "removeLink":
+          collection = await removeFromCollection(
+            r.payload.linkHash,
+            r.payload.collection,
+          );
+
+          browser.runtime.sendMessage({
+            action: "linkRemovedFromCollection",
+            payload: { link, collection },
+          });
+          browser.runtime.sendMessage({
+            action: "newLink",
+            payload: { collection },
+          });
+          break;
+
+        default:
+          console.error(`BACKGROUND::: Unsupported action ${r.action}`);
+          break;
+      }
+    } catch (error) {
+      console.error(error);
     }
   },
 );

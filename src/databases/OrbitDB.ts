@@ -6,6 +6,7 @@ import {
   IOrbitDBOptions,
   IOrbitDBItemBasicStructure,
   IOrbitDBStoreType,
+  ICollection,
 } from "../interfaces";
 import { useIpfsNode } from "../ipfsNode/ipfsFactory";
 import { getValuesByKey, setValue } from "./ChromeStorage";
@@ -247,8 +248,6 @@ export async function openAllDatabases() {
 }
 
 export async function createDefaultDbs(opts: IOrbitDBOptions = {}) {
-  console.debug("Creating default DBs");
-
   const databases = DEFAULT_DATABASES.map(d => {
     return {
       dbName: generateDbName(d.dbName),
@@ -262,7 +261,7 @@ export async function createDefaultDbs(opts: IOrbitDBOptions = {}) {
   await setCreatedDatabasesToChromeStorage(d);
 }
 
-export function withStore(name: string) {
+export function withStore(name: string): IOrbitDBStoreType {
   const dbName = generateDbName(name);
   if (!R.isEmpty(dbInstance)) {
     const store = dbInstance.dbs.find(d => d.dbname === dbName);
@@ -323,4 +322,12 @@ export function setupReplicationListeners() {
     });
   });
   return dbs;
+}
+
+export async function addCollection(c: ICollection) {
+  const store = withStore(DB_NAME_COLLECTIONS);
+  store.load();
+  console.time("ORBITDB:: Add collection");
+  await store.put(c, { pin: true });
+  console.timeEnd("ORBITDB:: Add collection");
 }

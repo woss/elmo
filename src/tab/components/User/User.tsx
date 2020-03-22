@@ -88,7 +88,7 @@
 //   async function handleSave(e) {
 //     e.preventDefault();
 //     if (!user) return null;
-
+// store.load()
 //     const usr = await store.put(
 //       {
 //         ...user,

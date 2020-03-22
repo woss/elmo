@@ -3,6 +3,7 @@ import { getValuesByKey } from "@src/databases/ChromeStorage";
 import React, { useEffect, useState } from "react";
 import { browser, Tabs } from "webextension-polyfill-ts";
 import PopupCollection from "./PopupCollection";
+import { DB_NAME_COLLECTIONS } from "@src/databases/OrbitDB";
 
 const PopupCollections = () => {
   // const [collections, setCollections] = useState([] as ICollection[]);
@@ -16,11 +17,7 @@ const PopupCollections = () => {
       })
       .then(async tabs => {
         setCurrentTab(tabs[0]);
-        // const c = await loadAllFromStore("collections");
-        const c = await getValuesByKey("collections");
-        // create array of objects
-        // console.log(c.collections);
-        setCollections(c);
+        setCollections(await getValuesByKey(DB_NAME_COLLECTIONS));
       });
   }, []);
   return (

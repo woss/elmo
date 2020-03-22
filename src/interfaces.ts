@@ -4,6 +4,7 @@ export interface ILink extends IOrbitDBItemBasicStructure {
   description?: string;
   ipfs?: ILocalFileOnIPFS;
 }
+
 export interface IWorkspace extends IOrbitDBItemBasicStructure {
   private: boolean;
   current: boolean;
@@ -25,7 +26,7 @@ export interface ICollection extends IOrbitDBItemBasicStructure {
 export interface IOrbitDBItemBasicStructure {
   _id: string; // nanoid()
   title: string;
-  hash: string; // CID(name)
+  hash: string; // CID
   createdAt: number; //millis
 }
 
@@ -163,6 +164,7 @@ export interface IOrbitDBStoreType {
     write: any; // TODO
   };
   events: any; // TODO
+  load: IOneParamOptionalFunction;
   get: IOneParamOptionalFunction;
   put: (e?: any, d?: any) => any;
   del: (e?: any, d?: any) => any;

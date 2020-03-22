@@ -18,7 +18,6 @@ export async function addFileToIPFS(
   path: string,
   content: string,
 ): Promise<ILocalFileOnIPFS> {
-  console.debug("addFileToIPFS::", path);
   const opts = {
     cidVersion: 1,
     hashAlg: DEFAULT_HASH_ALG,

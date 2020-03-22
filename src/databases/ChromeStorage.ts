@@ -4,7 +4,7 @@ import { loadAllFromStore, removeDbPrefix, useDBNode } from "./OrbitDB";
 import { isNil } from "ramda";
 
 export async function getValuesByKey(s?: string) {
-  console.log("CHROME_STORAGE:: getValuesByKey", s);
+  // console.log("CHROME_STORAGE:: getValuesByKey", s
   if (isNil(s)) {
     return await browser.storage.local.get(s);
   } else {

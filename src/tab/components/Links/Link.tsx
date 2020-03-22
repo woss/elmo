@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { withStore } from "@src/databases/OrbitDB";
+import { withStore, DB_NAME_LINKS } from "@src/databases/OrbitDB";
 import { ILink } from "@src/interfaces";
 import * as R from "ramda";
 import React, { useEffect, useState } from "react";
@@ -49,10 +49,11 @@ export default function LinkCard({ linkHash }: Props) {
     },
   };
   const [link, setLink] = useState(defaultState);
-  const linkStore = withStore("links");
+  const store = withStore(DB_NAME_LINKS);
 
   async function getLink(hash) {
-    const r = await linkStore.get(hash);
+    await store.load();
+    const r = await store.get(hash);
 
     if (!R.isEmpty(r)) {
       setLink(r[0]);
@@ -60,7 +61,7 @@ export default function LinkCard({ linkHash }: Props) {
   }
 
   useEffect(() => {
-    if (linkStore) {
+    if (store) {
       getLink(linkHash);
     }
   });

@@ -3,18 +3,9 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import { ICollection } from "@src/interfaces";
-import * as R from "ramda";
-import React, { useEffect } from "react";
-import { Tabs } from "webextension-polyfill-ts";
-import {
-  addToCollection,
-  createLinkObjectFromTab,
-  createPageInstance,
-  removeFromCollection,
-  saveLink,
-  createLink,
-} from "../Links/helpers";
 import { calculateHash } from "@src/ipfsNode/helpers";
+import React, { useEffect } from "react";
+import { browser, Tabs } from "webextension-polyfill-ts";
 
 interface Props {
   collection: ICollection;
@@ -25,9 +16,6 @@ function PopupCollection({ collection, currentTab }: Props) {
   const [checked, setChecked] = React.useState(false);
   const [disabled, setDisabled] = React.useState(false);
 
-  // const { ipfs } = useIpfsNode();
-  const tabTopic = localStorage.getItem("tabTopic");
-
   async function handleToggle() {
     setDisabled(true);
     const hash = await calculateHash(currentTab.url);
@@ -35,44 +23,17 @@ function PopupCollection({ collection, currentTab }: Props) {
     // Link exists, remove
     if (checked) {
       // now we are doing uncheck, remove
-      await removeFromCollection(hash, collection);
 
-      if (!R.isEmpty(tabTopic)) {
-        // notify the main app
-        console.log("Sending msg to ", tabTopic);
-        // await ipfs.pubsub.publish(tabTopic, Buffer.from(JSON.stringify("yo")));
-      }
-
-      setChecked(false);
-      setDisabled(false);
+      browser.runtime.sendMessage({
+        action: "removeLink",
+        payload: { linkHash: hash, collection },
+      });
     } else {
-      const link = await createLinkObjectFromTab(currentTab);
-      const doc = await createPageInstance(link.url);
-
-      // const ipfsPath = await addFileToIPFS(`/${currentTab.title}.html`, doc);
-
       try {
-        const l = createLink({
-          ...link,
-          // ipfs: ipfsPath,
-          ipfs: {
-            cid: "dasdsa",
-            path: "dasdasd",
-          },
+        browser.runtime.sendMessage({
+          action: "saveLink",
+          payload: { url: currentTab.url, collection },
         });
-        const hash = await saveLink(l);
-        await addToCollection(hash, collection);
-
-        if (!R.isEmpty(tabTopic)) {
-          // notify the main app
-          console.log("Sending msg to ", tabTopic);
-          // await ipfs.pubsub.publish(
-          //   tabTopic,
-          //   Buffer.from(JSON.stringify("yo")),
-          // );
-        }
-        setChecked(true);
-        setDisabled(false);
       } catch (e) {
         console.error(e);
       }
@@ -87,6 +48,37 @@ function PopupCollection({ collection, currentTab }: Props) {
       });
     }
   }, [currentTab]);
+
+  useEffect(() => {
+    browser.runtime.onMessage.addListener(r => {
+      // we must check that current collection is the only one that needs to make changes
+      // because this listener is created for EVERY collection in popup
+      if (
+        r.payload &&
+        r.payload.collection &&
+        r.payload.collection._id === collection._id
+      ) {
+        switch (r.action) {
+          case "linkRemovedFromCollection":
+            setChecked(false);
+            setDisabled(false);
+            break;
+
+          case "linkSaved":
+            console.log(`POPUP_COLLECTION:: action ${r.action}`, r.payload);
+            setChecked(true);
+            setDisabled(false);
+            break;
+
+          default:
+            break;
+        }
+      }
+    });
+    return () => {
+      browser.runtime.onMessage.removeListener(() => console.log("removed"));
+    };
+  }, []);
 
   return (
     <ListItem dense button disabled={disabled} onClick={handleToggle}>

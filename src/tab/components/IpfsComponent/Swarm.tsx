@@ -28,7 +28,6 @@ export function SwarmPeers() {
   const [peers, setPeers] = useState([] as Peer[]);
 
   function refreshPeers() {
-    console.debug("SWARM:: refreshing the peers");
     useIpfs("swarm.peers").then(peers => {
       setPeers(peers);
     });

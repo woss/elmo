@@ -127,6 +127,12 @@ export const Tab: FunctionComponent = () => {
         await syncDbDataWithStorage();
 
         console.timeEnd("TAB:: Load");
+
+        browser.runtime.sendMessage({
+          action: "connectToIpfsAndOrbitDB",
+        });
+        console.log("All storage", await getValuesByKey());
+
         setTimeout(() => setReady(true), 200);
       });
     }
@@ -139,8 +145,6 @@ export const Tab: FunctionComponent = () => {
     // https://juliangaramendy.dev/use-promise-subscription/
     let unsubscribe;
     console.time("TAB:: Load");
-
-    browser.runtime.sendMessage({ tabMounted: true });
 
     startIpfsNode()
       .then(async () => {
@@ -168,7 +172,6 @@ export const Tab: FunctionComponent = () => {
       setContinueToApp(continueToApp);
     });
     return () => {
-      console.debug("TAB:: un-mounted");
       unsubscribe();
     };
   }, []);

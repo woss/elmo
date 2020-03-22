@@ -20,7 +20,6 @@ export const Popup: FunctionComponent = () => {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    browser.runtime.sendMessage({ popupMounted: true });
     setReady(true);
   }, []);
 

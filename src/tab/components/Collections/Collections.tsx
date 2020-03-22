@@ -2,7 +2,7 @@ import { Grid } from "@material-ui/core";
 import Fab from "@material-ui/core/Fab";
 import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
-import { replaceKey } from "@src/databases/ChromeStorage";
+import { replaceKey, setValue } from "@src/databases/ChromeStorage";
 import {
   DB_NAME_COLLECTIONS,
   loadAllFromStore,
@@ -14,6 +14,7 @@ import nanoid from "nanoid";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import Collection from "./Collection";
+import { browser } from "webextension-polyfill-ts";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -71,9 +72,7 @@ export default function Collections() {
         persist: true,
       });
 
-      console.time("ORBITDB:: Add collection");
-      await store.put(collection, { pin: true });
-      console.timeEnd("ORBITDB:: Add collection");
+      await addCollection(collection);
 
       closeSnackbar(snackKey);
       setDisabled(false);

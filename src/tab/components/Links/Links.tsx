@@ -1,10 +1,9 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
+import { makeStyles } from "@material-ui/core/styles";
+import React from "react";
 import LinkCard from "./Link";
-import { withStore, loadAllFromStore } from "@src/databases/OrbitDB";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
   },
@@ -16,17 +15,7 @@ interface Props {
 
 function Links({ links }: Props) {
   const classes = useStyles();
-  const store = withStore("collections");
 
-  // store.events.on("replicate", address => {
-  //     console.log("replication started", address);
-  // });
-  // store.events.on("replicated", () => {
-  //     console.log("Got replication for ", store);
-  //     loadAllFromStore("links").then(c => {
-  //         console.log(c);
-  //     });
-  // });
   return (
     <Grid container className={classes.root}>
       {/* <List> */}

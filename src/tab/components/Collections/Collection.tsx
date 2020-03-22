@@ -9,21 +9,16 @@ import CheckIcon from "@material-ui/icons/Check";
 import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
 import ShareIcon from "@material-ui/icons/Share";
+import { withStore, DB_NAME_COLLECTIONS } from "@src/databases/OrbitDB";
 import { ICollection } from "@src/interfaces";
-import { addFileToIPFS, createCID, calculateHash } from "@src/ipfsNode/helpers";
-import { withStore } from "@src/databases/OrbitDB";
+import { createCID } from "@src/ipfsNode/helpers";
 import clsx from "clsx";
 import { useSnackbar } from "notistack";
 import React, { SyntheticEvent, useEffect, useState } from "react";
-import {
-  addToCollection,
-  saveLink,
-  createPageInstance,
-  getPageTitle,
-  toDocument,
-  createLink,
-} from "../Links/helpers";
+import { addToCollection, downloadAndSaveLink } from "../Links/helpers";
 import Links from "../Links/Links";
+import { browser } from "webextension-polyfill-ts";
+import { isEmpty } from "ramda";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -85,7 +80,7 @@ function Collection({ id, forceReload }: Props) {
   const classes = useStyles();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-  const store = withStore("collections");
+  const store = withStore(DB_NAME_COLLECTIONS);
   const defaultCollection: ICollection = {
     _id: "",
     createdAt: 0,
@@ -98,12 +93,15 @@ function Collection({ id, forceReload }: Props) {
   const [saving, setSaving] = useState(false);
 
   const [success, setSuccess] = React.useState(false);
+  const [links, setLinks] = React.useState([] as string[]);
 
   async function loadCollection() {
-    console.debug("Loading collection ", id);
+    // don;t forget to load the store from disk
+    await store.load();
     const r = await store.get(id);
-    // console.log(r[0], collection.links);
+
     setCollection(r[0]);
+    setLinks(r[0].links);
   }
 
   async function handleAddLink() {
@@ -115,28 +113,10 @@ function Collection({ id, forceReload }: Props) {
         persist: true,
       });
 
-      const doc = await createPageInstance(url);
-      const docObj = toDocument(doc);
-      const title = getPageTitle(docObj);
-      const ipfsPath = await addFileToIPFS(`${title}.html`, doc);
-
-      const hash = await calculateHash(url);
-
-      const l = await createLink({
-        createdAt: Date.now(),
-        hash,
-        title,
-        url,
-        ipfs: ipfsPath,
-      });
-
-      await saveLink(l);
-
-      console.time(`Adding link, hash ${hash}, to collection`);
+      const { hash } = await downloadAndSaveLink(url);
       await addToCollection(hash, collection);
-      console.timeEnd(`Adding link, hash ${hash}, to collection`);
-
       await loadCollection();
+
       closeSnackbar(snackKey);
     } else {
       // we have the url but it's invalid, don't show if user clicks on cancel
@@ -173,9 +153,7 @@ function Collection({ id, forceReload }: Props) {
 
     setSaving(true);
 
-    console.debug("Renaming collection", collection._id);
     console.time(`Renaming collection ${collection._id}`);
-
     await store.put(
       {
         ...collection,
@@ -193,6 +171,30 @@ function Collection({ id, forceReload }: Props) {
   useEffect(() => {
     loadCollection();
   }, []);
+
+  useEffect(() => {
+    async function onIncomingRuntimeMessage(r) {
+      // we must check that current collection is the only one that needs to make changes
+
+      if (r.payload.collection._id === collection._id) {
+        console.log(`COLLECTIONS:: action ${r.action}`, r.payload);
+        switch (r.action) {
+          case "newLink":
+            await loadCollection();
+            break;
+
+          default:
+            break;
+        }
+      }
+    }
+    if (!isEmpty(collection._id)) {
+      browser.runtime.onMessage.addListener(onIncomingRuntimeMessage);
+      return () => {
+        browser.runtime.onMessage.removeListener(() => console.log("removed"));
+      };
+    }
+  }, [collection]);
 
   useEffect(() => {
     if (forceReload) {
@@ -266,7 +268,7 @@ function Collection({ id, forceReload }: Props) {
       </AppBar>
 
       {/* Lets show the links */}
-      <Links links={collection.links} />
+      <Links links={links} />
     </div>
   );
 }
