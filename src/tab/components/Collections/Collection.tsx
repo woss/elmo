@@ -9,16 +9,15 @@ import CheckIcon from "@material-ui/icons/Check";
 import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
 import ShareIcon from "@material-ui/icons/Share";
-import { withStore, DB_NAME_COLLECTIONS } from "@src/databases/OrbitDB";
+import { DB_NAME_COLLECTIONS, withStore } from "@src/databases/OrbitDB";
 import { ICollection } from "@src/interfaces";
-import { createCID, calculateHash } from "@src/ipfsNode/helpers";
+import { calculateHash, createCID } from "@src/ipfsNode/helpers";
 import clsx from "clsx";
 import { useSnackbar } from "notistack";
-import React, { SyntheticEvent, useEffect, useState } from "react";
-import { addToCollection, downloadAndSaveLink } from "../Links/helpers";
-import Links from "../Links/Links";
-import { browser } from "webextension-polyfill-ts";
 import { isEmpty } from "ramda";
+import React, { SyntheticEvent, useEffect, useState } from "react";
+import { browser } from "webextension-polyfill-ts";
+import Links from "../Links/Links";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -94,7 +93,9 @@ function Collection({ id, forceReload }: Props) {
 
   const [success, setSuccess] = React.useState(false);
   const [links, setLinks] = React.useState([] as string[]);
-  const [addLinkNotificationKey, setAddLinkNotificationKey] = React.useState();
+  const [addLinkNotificationKey, setAddLinkNotificationKey] = React.useState(
+    "" as any,
+  );
 
   async function loadCollection() {
     // don;t forget to load the store from disk
