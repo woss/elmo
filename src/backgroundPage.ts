@@ -1,5 +1,9 @@
 import { browser } from "webextension-polyfill-ts";
-import { openAllDatabases, startOrbitDBInstance } from "./databases/OrbitDB";
+import {
+  openAllDatabases,
+  startOrbitDBInstance,
+  addCollection,
+} from "./databases/OrbitDB";
 import { startIpfsNode } from "./ipfsNode/ipfsFactory";
 import {
   addToCollection,
@@ -7,6 +11,7 @@ import {
   removeFromCollection,
 } from "./tab/components/Links/helpers";
 import { getValuesByKey } from "./databases/ChromeStorage";
+import { createBrowserRuntimeMessage } from "./messages/messages";
 
 // Listen for messages sent from other parts of the extension
 browser.runtime.onMessage.addListener(
@@ -29,18 +34,26 @@ browser.runtime.onMessage.addListener(
           await startOrbitDBInstance();
           await openAllDatabases();
           break;
+        case "addCollection":
+          const _c = await addCollection(r.payload.collection);
+          console.log(_c);
+
+          browser.runtime.sendMessage(
+            createBrowserRuntimeMessage("newCollection", {
+              collection: _c,
+            }),
+          );
+          break;
         case "saveLink":
           const link = await downloadAndSaveLink(r.payload.url);
           collection = await addToCollection(link.hash, r.payload.collection);
 
-          browser.runtime.sendMessage({
-            action: "linkSaved",
-            payload: { link, collection },
-          });
-          browser.runtime.sendMessage({
-            action: "newLink",
-            payload: { collection },
-          });
+          browser.runtime.sendMessage(
+            createBrowserRuntimeMessage("linkSaved", { link, collection }),
+          );
+          browser.runtime.sendMessage(
+            createBrowserRuntimeMessage("newLink", { collection }),
+          );
           break;
         case "removeLink":
           collection = await removeFromCollection(
@@ -48,14 +61,15 @@ browser.runtime.onMessage.addListener(
             r.payload.collection,
           );
 
-          browser.runtime.sendMessage({
-            action: "linkRemovedFromCollection",
-            payload: { link, collection },
-          });
-          browser.runtime.sendMessage({
-            action: "newLink",
-            payload: { collection },
-          });
+          browser.runtime.sendMessage(
+            createBrowserRuntimeMessage("linkRemovedFromCollection", {
+              link,
+              collection,
+            }),
+          );
+          browser.runtime.sendMessage(
+            createBrowserRuntimeMessage("newLink", { collection }),
+          );
           break;
 
         default:

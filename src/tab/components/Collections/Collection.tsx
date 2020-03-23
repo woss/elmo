@@ -9,7 +9,11 @@ import CheckIcon from "@material-ui/icons/Check";
 import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
 import ShareIcon from "@material-ui/icons/Share";
-import { DB_NAME_COLLECTIONS, withStore } from "@src/databases/OrbitDB";
+import {
+  DB_NAME_COLLECTIONS,
+  withStore,
+  renameCollection,
+} from "@src/databases/OrbitDB";
 import { ICollection } from "@src/interfaces";
 import { calculateHash, createCID } from "@src/ipfsNode/helpers";
 import clsx from "clsx";
@@ -18,6 +22,7 @@ import { isEmpty } from "ramda";
 import React, { SyntheticEvent, useEffect, useState } from "react";
 import { browser } from "webextension-polyfill-ts";
 import Links from "../Links/Links";
+import { createBrowserRuntimeMessage } from "@src/messages/messages";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -119,10 +124,9 @@ function Collection({ id, forceReload }: Props) {
 
       const hash = await calculateHash(url);
       if (!links.includes(hash)) {
-        browser.runtime.sendMessage({
-          action: "saveLink",
-          payload: { url, collection },
-        });
+        browser.runtime.sendMessage(
+          createBrowserRuntimeMessage("saveLink", { url, collection }),
+        );
       }
     } else {
       // we have the url but it's invalid, don't show if user clicks on cancel
@@ -159,15 +163,8 @@ function Collection({ id, forceReload }: Props) {
 
     setSaving(true);
 
-    console.time(`Renaming collection ${collection._id}`);
-    await store.put(
-      {
-        ...collection,
-        hash,
-      },
-      { pin: true },
-    );
-    console.timeEnd(`Renaming collection ${collection._id}`);
+    await renameCollection(collection);
+
     setSuccess(true);
     setSaving(false);
 
@@ -189,6 +186,8 @@ function Collection({ id, forceReload }: Props) {
             await loadCollection();
             closeSnackbar(addLinkNotificationKey);
             break;
+          case "newCollection":
+            console.log("new collection");
 
           default:
             break;

@@ -1,5 +1,5 @@
 import { IncomingMessage } from "@src/typings/ipfs";
-import { IElmoMessageActions } from "@src/interfaces";
+import { IElmoMessageActions, IKeyVal } from "@src/interfaces";
 import { formatMessage } from "@src/chat/chat";
 
 export function onMessage(msg: IncomingMessage) {
@@ -17,4 +17,11 @@ export function onMessage(msg: IncomingMessage) {
   } else {
     console.log(`Got ${message.message.action} ::  ${message.message.message}`);
   }
+}
+
+export function createBrowserRuntimeMessage(
+  action: string,
+  payload: IKeyVal = {},
+) {
+  return { action, payload };
 }

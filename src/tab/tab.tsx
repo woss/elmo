@@ -27,7 +27,7 @@ import {
   IElmoMessageDeclineReplicateDB,
 } from "@src/interfaces";
 import { startIpfsNode, useIpfsNode } from "@src/ipfsNode/ipfsFactory";
-import { onMessage } from "@src/messages/messages";
+import { onMessage, createBrowserRuntimeMessage } from "@src/messages/messages";
 import Collections from "@src/tab/components/Collections/Collections";
 import Database from "@src/tab/components/Database/Database";
 import Header from "@src/tab/components/Header/Header";
@@ -128,9 +128,9 @@ export const Tab: FunctionComponent = () => {
 
         console.timeEnd("TAB:: Load");
 
-        browser.runtime.sendMessage({
-          action: "connectToIpfsAndOrbitDB",
-        });
+        browser.runtime.sendMessage(
+          createBrowserRuntimeMessage("connectToIpfsAndOrbitDB"),
+        );
         console.log("All storage", await getValuesByKey());
 
         setTimeout(() => setReady(true), 200);

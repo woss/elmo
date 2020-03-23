@@ -10,6 +10,7 @@ import {
 } from "../interfaces";
 import { useIpfsNode } from "../ipfsNode/ipfsFactory";
 import { getValuesByKey, setValue } from "./ChromeStorage";
+import { calculateHash } from "@src/ipfsNode/helpers";
 
 //////////////////////////////////////
 /// MAIN DB CACHE
@@ -277,11 +278,11 @@ export function withStore(name: string): IOrbitDBStoreType {
 
 export function sortByCreatedAt(
   d: IOrbitDBItemBasicStructure[],
-  order: "DESC" | "ASC" = "DESC",
+  orderBy: "DESC" | "ASC" = "DESC",
 ): IOrbitDBItemBasicStructure[] {
   let r;
 
-  if (order === "DESC") {
+  if (orderBy === "DESC") {
     r = R.sortWith([R.descend(R.prop("createdAt"))]);
   } else {
     r = R.sortWith([R.ascend(R.prop("createdAt"))]);
@@ -293,10 +294,11 @@ export function sortByCreatedAt(
 export async function loadAllFromStore(name: string): Promise<any[]> {
   console.time(`${LOG_NAME}:: loadAllFromStore(${name})`);
   const store = withStore(name);
+  await store.load();
   const res: any[] = await store.get("");
-  sortByCreatedAt(res, "DESC"); // DESC
+  const sorted = sortByCreatedAt(res, "DESC"); // DESC
   console.timeEnd(`${LOG_NAME}:: loadAllFromStore(${name})`);
-  return res;
+  return sorted;
 }
 
 /**
@@ -324,10 +326,25 @@ export function setupReplicationListeners() {
   return dbs;
 }
 
-export async function addCollection(c: ICollection) {
+export async function addCollection(c: ICollection): Promise<ICollection> {
+  console.log("Adding collection");
   const store = withStore(DB_NAME_COLLECTIONS);
-  store.load();
-  console.time("ORBITDB:: Add collection");
+  // store.load();
+  console.time(`ORBITDB:: Add collection ${c._id}`);
   await store.put(c, { pin: true });
-  console.timeEnd("ORBITDB:: Add collection");
+  console.timeEnd(`ORBITDB:: Add collection ${c._id}`);
+
+  return c;
+}
+
+export async function renameCollection(c: ICollection): Promise<ICollection> {
+  const store = withStore(DB_NAME_COLLECTIONS);
+  const collection: ICollection = {
+    ...c,
+    hash: await calculateHash(c.title.trim()),
+  };
+  console.time(`Renaming collection ${c._id}`);
+  await store.put(collection, { pin: true });
+  console.timeEnd(`Renaming collection ${c._id}`);
+  return collection;
 }

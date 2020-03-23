@@ -16,6 +16,7 @@ import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import Collection from "./Collection";
 import { browser } from "webextension-polyfill-ts";
+import { createBrowserRuntimeMessage } from "@src/messages/messages";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -45,7 +46,7 @@ export default function Collections() {
   const [forceReload, setForceReload] = useState(false);
   const [collections, setCollections] = useState([] as ICollection[]);
 
-  async function createCollection(): Promise<ICollection> {
+  async function createCollectionTemplate(): Promise<ICollection> {
     const collectionName = "Collection " + Math.round(Math.random() * 100);
     /**
      * helper function for collection creation
@@ -67,13 +68,15 @@ export default function Collections() {
     setDisabled(true);
 
     try {
-      const collection = await createCollection();
+      const collection = await createCollectionTemplate();
       const snackKey = enqueueSnackbar(`Adding ${collection.title}`, {
         variant: "info",
         persist: true,
       });
 
-      await addCollection(collection);
+      browser.runtime.sendMessage(
+        createBrowserRuntimeMessage("addCollection", { collection }),
+      );
 
       closeSnackbar(snackKey);
       setDisabled(false);
@@ -115,6 +118,23 @@ export default function Collections() {
     loadAllFromStore(DB_NAME_COLLECTIONS).then(c => {
       setCollections(c);
     });
+
+    browser.runtime.onMessage.addListener(async r => {
+      // console.log(`COLLECTIONS:: action ${r.action}`, r.payload);
+      switch (r.action) {
+        case "newCollection":
+          const c = await loadAllFromStore(DB_NAME_COLLECTIONS);
+          console.log("new collection", c);
+          setCollections(c);
+        default:
+          break;
+      }
+    });
+
+    return () => {
+      console.log("COLLECTIONS:: un-mount");
+      browser.runtime.onMessage.removeListener(() => console.log("removed"));
+    };
   }, []);
 
   return (
