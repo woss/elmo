@@ -138,8 +138,15 @@ function Header() {
             className={classes.actionLinks}
             variant="contained"
             component={RouterLink}
+            to="/links"
+          >
+            Links
+          </Button>
+          <Button
+            className={classes.actionLinks}
+            variant="contained"
+            component={RouterLink}
             to="/"
-            color="secondary"
           >
             Collections
           </Button>
@@ -183,7 +190,7 @@ function Header() {
                     </IconButton> */}
           {/* {user && (
                         <div>
-                            
+
                             <IconButton
                                 aria-label="account of current user"
                                 aria-controls="menu-appbar"

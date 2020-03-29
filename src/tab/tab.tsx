@@ -33,6 +33,7 @@ import { Route, Switch } from "react-router-dom";
 import { browser } from "webextension-polyfill-ts";
 import ReplicateDatabase from "./components/CustomDialog/ReplicateDatabase";
 import FirstTime from "./components/FirstTime/FirstTime";
+import AllLinks from "./components/Links/AllLinks";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -199,6 +200,9 @@ export const Tab: FunctionComponent = () => {
             <Header />
             <Container className={classes.content}>
               <Switch>
+                <Route path="/links">
+                  <AllLinks />
+                </Route>
                 <Route path="/view/:cid">
                   <View />
                 </Route>
