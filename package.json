@@ -100,6 +100,8 @@
     "ramda": "^0.27.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-helmet": "^5.2.1",
+    "react-raw-html": "^0.4.0",
     "react-router-dom": "^5.1.2",
     "react-test-renderer": "^16.12.0",
     "readable-stream": "^3.6.0",

@@ -7,40 +7,32 @@ import {
   getValuesByKey,
   setValue,
   syncDbDataWithStorage,
-  clear,
 } from "@src/databases/ChromeStorage";
 import {
-  createDefaultDbs,
-  startOrbitDBInstance,
-  transformStoreToElmoDefinition,
-  useDBNode,
-  openDatabases,
-  openAllDatabases,
   createDatabaseDefinitions,
+  openAllDatabases,
+  startOrbitDBInstance,
+  useDBNode,
 } from "@src/databases/OrbitDB";
 import { bufferify } from "@src/helpers";
 import {
-  IDatabaseDefinition,
   IElmoIncomingMessage,
   IElmoMessageActions,
   IElmoMessageApproveReplicateDB,
   IElmoMessageDeclineReplicateDB,
 } from "@src/interfaces";
 import { startIpfsNode, useIpfsNode } from "@src/ipfsNode/ipfsFactory";
-import { onMessage, createBrowserRuntimeMessage } from "@src/messages/messages";
+import { createBrowserRuntimeMessage, onMessage } from "@src/messages/messages";
 import Collections from "@src/tab/components/Collections/Collections";
 import Database from "@src/tab/components/Database/Database";
 import Header from "@src/tab/components/Header/Header";
 import IpfsInfo from "@src/tab/components/IpfsComponent/IpfsInfo";
 import View from "@src/tab/components/Links/View";
-import { createHashHistory } from "history";
-import React, { FunctionComponent, useEffect, useState } from "react";
-import { Route, Router, Switch } from "react-router-dom";
+import React, { Fragment, FunctionComponent, useEffect, useState } from "react";
+import { Route, Switch } from "react-router-dom";
 import { browser } from "webextension-polyfill-ts";
 import ReplicateDatabase from "./components/CustomDialog/ReplicateDatabase";
 import FirstTime from "./components/FirstTime/FirstTime";
-
-export const history = createHashHistory();
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -200,7 +192,7 @@ export const Tab: FunctionComponent = () => {
 
   if (ready) {
     return (
-      <Router history={history}>
+      <Fragment>
         <Fade in={ready}>
           <div className={classes.root}>
             <CssBaseline />
@@ -240,7 +232,7 @@ export const Tab: FunctionComponent = () => {
             handleAgree={handleAgree}
           />
         )}
-      </Router>
+      </Fragment>
     );
   } else {
     return (

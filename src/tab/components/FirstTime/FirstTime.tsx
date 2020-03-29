@@ -6,9 +6,8 @@ import CardHeader from "@material-ui/core/CardHeader";
 import { makeStyles } from "@material-ui/core/styles";
 import { createChatListener } from "@src/chat/chat";
 import {
-  syncDbDataWithStorage,
   initChromeStorage,
-  getValuesByKey,
+  syncDbDataWithStorage,
 } from "@src/databases/ChromeStorage";
 import { createDbs, createDefaultDbs, useDBNode } from "@src/databases/OrbitDB";
 import {
@@ -20,7 +19,7 @@ import {
 } from "@src/interfaces";
 import { useIpfsNode } from "@src/ipfsNode/ipfsFactory";
 import useIpfsEffect from "@src/ipfsNode/use-ipfs";
-import { history } from "@src/tab/tab";
+import { history } from "@src/tab";
 import { IncomingMessage, PeerInfo } from "@src/typings/ipfs";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";

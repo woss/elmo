@@ -1,27 +1,116 @@
-import { CssBaseline } from "@material-ui/core";
-import { withStore } from "@src/databases/OrbitDB";
+import React, { useState, useEffect } from "react";
+import { useParams, useLocation } from "react-router-dom";
 import { ILink } from "@src/interfaces";
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-function View() {
-  const { cid } = useParams();
-  const store = withStore("links");
+import { useIpfsNode, startIpfsNode } from "@src/ipfsNode/ipfsFactory";
+import RawHtml from "react-raw-html";
+import { CssBaseline, Fade } from "@material-ui/core";
+import {
+  withStore,
+  DB_NAME_LINKS,
+  openAllDatabases,
+  startOrbitDBInstance,
+} from "@src/databases/OrbitDB";
+import { syncDbDataWithStorage } from "@src/databases/ChromeStorage";
+import { toDocument } from "./helpers";
 
-  const [link, setLink] = useState(null as ILink);
+import { Helmet } from "react-helmet";
+
+function getBaseURL(
+  url: string,
+): {
+  parts: string[];
+  url: string;
+} {
+  const parse_url = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
+  const parts = parse_url.exec(url);
+  const result = parts[1] + ":" + parts[2] + parts[3] + "/";
+
+  return {
+    parts,
+    url: result,
+  };
+}
+
+/**
+ * THIS IS WIP AND IT MIGHT NOT WORK FOR ALL THE WEBSITES
+ */
+function View() {
+  const { hash } = useParams();
+
+  const [ready, setReady] = useState(false);
+
+  const [baseURL, setBaseURL] = useState("");
+  const [content, setContent] = useState("");
 
   async function getContent() {
-    const [r] = (await store.get(cid)) as ILink[];
+    const store = withStore(DB_NAME_LINKS);
+    const { ipfs } = useIpfsNode();
 
-    setLink(r);
+    const [r] = (await store.get(hash)) as ILink[];
+    if (r) {
+      const c = await ipfs.cat(r.ipfs.cid);
+      // const _content = toDocument(c.toString());
+      // if slow try this https://www.w3schools.com/TAGs/tag_base.asp
+      const bu = getBaseURL(r.url);
+
+      // console.time("VIEW:: content replace");
+
+      // const base = _content.createElement("base");
+      // base.href = bu.url;
+      // _content.head.appendChild(base);
+      // const serializer = new XMLSerializer();
+      // const s = serializer.serializeToString(_content);
+
+      // replace "// to current protocol http(s)
+      let re = new RegExp(`"//`, "g");
+
+      let s = c.toString().replace(re, `"${bu.parts[1]}://`);
+
+      // relative links
+      re = new RegExp(`"/`, "g");
+      s = s.replace(re, `"${bu.url}/`);
+
+      // replaces the # links this will NOT work
+      re = new RegExp(`"#`, "g");
+      s = s.replace(re, `"${r.url}#`);
+
+      // console.timeEnd("VIEW:: content replace");
+      setBaseURL(bu.url);
+      setContent(s);
+    }
   }
   useEffect(() => {
-    getContent();
+    startIpfsNode()
+      .then(async () => {
+        try {
+          await startOrbitDBInstance();
+
+          await openAllDatabases();
+
+          // Sync latest DATA to the Storage
+          await syncDbDataWithStorage();
+
+          await getContent();
+
+          setTimeout(() => setReady(true), 200);
+        } catch (e) {
+          console.error(e);
+        }
+      })
+      .catch(e => {
+        console.error(e);
+      });
   }, []);
   return (
-    <div>
-      <div>TITLE :{link && link.title}</div>
-      <div>TODO add some info about the link.</div>
-    </div>
+    <Fade in={ready}>
+      <div>
+        <Helmet>
+          <base href={baseURL} />
+        </Helmet>
+        {/* <pre>{content}</pre> */}
+        <RawHtml.div>{content}</RawHtml.div>
+      </div>
+    </Fade>
   );
 }
 

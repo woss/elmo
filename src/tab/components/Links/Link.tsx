@@ -10,6 +10,7 @@ import { withStore, DB_NAME_LINKS } from "@src/databases/OrbitDB";
 import { ILink } from "@src/interfaces";
 import { isEmpty } from "ramda";
 import React, { useEffect, useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -91,11 +92,12 @@ export default function LinkCard({ linkHash }: Props) {
           Online
         </Button>
         <Button
-          href={link.ipfs ? `https://ipfs.io/ipfs/${link.ipfs.cid}` : "#"}
-          rel="noopener noreferrer"
-          target="_blank"
+          to={link.ipfs ? `/ipfs/cat/${link.hash}` : "#"}
+          // rel="noopener noreferrer"
+          // target="_blank"
           size="small"
           disabled={!link.ipfs.cid}
+          component={RouterLink}
           variant="outlined"
         >
           IPFS

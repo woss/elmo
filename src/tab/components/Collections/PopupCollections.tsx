@@ -15,8 +15,13 @@ const PopupCollections = () => {
         active: true,
         currentWindow: true,
       })
-      .then(async tabs => {
-        setCurrentTab(tabs[0]);
+      .then(async ([tab]) => {
+        console.log(tab);
+        if (tab.url === "chrome://newtab/") {
+          return null;
+        }
+
+        setCurrentTab(tab);
         setCollections(await getValuesByKey(DB_NAME_COLLECTIONS));
       });
   }, []);
