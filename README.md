@@ -15,7 +15,7 @@ graph LR
     link[Save Link from the web] --> coll[Add to collection] --> share{share}
     share -- Full sync --> me[full sync across devices]
     link --> share
-    link -->  offline[Have the link content offline]
+    link -- ipfs -->  offline[Have the link content offline]
     link --> online[For online view]
     share -- Collaboration with ACL --> friend[With a friend]
     friend -- Collaboration with ACL --> share
