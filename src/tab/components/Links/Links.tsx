@@ -4,31 +4,31 @@ import React from "react";
 import LinkCard from "./Link";
 
 const useStyles = makeStyles(() => ({
-    root: {
-        display: "flex",
-    },
+  root: {
+    display: "flex",
+  },
 }));
 
 interface Props {
-    links: string[];
+  links: string[];
 }
 
 function Links({ links }: Props) {
-    const classes = useStyles();
+  const classes = useStyles();
 
-    return (
-        <Grid container className={classes.root}>
-            {/* <List> */}
-            {links.map((hash, key) => {
-                return (
-                    <Grid key={key} item>
-                        <LinkCard linkHash={hash} />
-                    </Grid>
-                );
-            })}
-            {/* </List> */}
-        </Grid>
-    );
+  return (
+    <Grid container className={classes.root}>
+      {/* <List> */}
+      {links.map((hash, key) => {
+        return (
+          <Grid key={key} item>
+            <LinkCard linkHash={hash} />
+          </Grid>
+        );
+      })}
+      {/* </List> */}
+    </Grid>
+  );
 }
 
 export default Links;

@@ -6,35 +6,35 @@ import React, { useEffect, useState } from "react";
 import LinkCard from "./Link";
 
 const useStyles = makeStyles(() => ({
-    root: {
-        display: "flex",
-    },
+  root: {
+    display: "flex",
+  },
 }));
 
 function AllLinks() {
-    const classes = useStyles();
+  const classes = useStyles();
 
-    const [links, setLinks] = useState([] as ILink[]);
+  const [links, setLinks] = useState([] as ILink[]);
 
-    useEffect(() => {
-        loadAllFromStore(DB_NAME_LINKS).then(r => {
-            setLinks(r);
-        });
-    }, []);
-    return (
-        <Grid container className={classes.root}>
-            {/* <List> */}
-            {links.map(l => {
-                const { hash } = l;
-                return (
-                    <Grid key={hash} item>
-                        <LinkCard linkHash={hash} />
-                    </Grid>
-                );
-            })}
-            {/* </List> */}
-        </Grid>
-    );
+  useEffect(() => {
+    loadAllFromStore(DB_NAME_LINKS).then(r => {
+      setLinks(r);
+    });
+  }, []);
+  return (
+    <Grid container className={classes.root}>
+      {/* <List> */}
+      {links.map(l => {
+        const { hash } = l;
+        return (
+          <Grid key={hash} item>
+            <LinkCard linkHash={hash} />
+          </Grid>
+        );
+      })}
+      {/* </List> */}
+    </Grid>
+  );
 }
 
 export default AllLinks;

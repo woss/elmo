@@ -15,27 +15,27 @@ import View from "./components/Links/View";
 // };
 export const history = createHashHistory();
 browser.tabs.query({ active: true, currentWindow: true }).then(() => {
-    ReactDOM.render(
-        <Router history={history}>
-            <Switch>
-                <Route exact path="/ipfs/cat/:hash">
-                    <View />
-                </Route>
+  ReactDOM.render(
+    <Router history={history}>
+      <Switch>
+        <Route exact path="/ipfs/cat/:hash">
+          <View />
+        </Route>
 
-                <Route path="/">
-                    <ThemeProvider theme={theme}>
-                        <SnackbarProvider
-                            maxSnack={7}
-                            preventDuplicate
-                            // ref={notistackRef}
-                            // action={key => <Button onClick={onClickDismiss(key)}>Dismiss</Button>}
-                        >
-                            <Tab />
-                        </SnackbarProvider>
-                    </ThemeProvider>
-                </Route>
-            </Switch>
-        </Router>,
-        document.getElementById("tab"),
-    );
+        <Route path="/">
+          <ThemeProvider theme={theme}>
+            <SnackbarProvider
+              maxSnack={7}
+              preventDuplicate
+              // ref={notistackRef}
+              // action={key => <Button onClick={onClickDismiss(key)}>Dismiss</Button>}
+            >
+              <Tab />
+            </SnackbarProvider>
+          </ThemeProvider>
+        </Route>
+      </Switch>
+    </Router>,
+    document.getElementById("tab"),
+  );
 });
