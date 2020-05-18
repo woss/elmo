@@ -1,11 +1,11 @@
 import primaryColor from "@material-ui/core/colors/deepPurple";
 import secondaryColor from "@material-ui/core/colors/orange";
-import { createMuiTheme, responsiveFontSizes } from "@material-ui/core/styles";
+import { createMuiTheme } from "@material-ui/core/styles";
 
 const t = {
   palette: {
-    type: "light",
-    // type: "dark",
+    // type: "light",
+    type: "dark",
     primary: primaryColor,
     secondary: secondaryColor,
   },

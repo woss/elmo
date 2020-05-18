@@ -1,7 +1,7 @@
 import { browser } from "webextension-polyfill-ts";
 import {
   addCollection,
-  openAllDatabases,
+  openAllStores,
   startOrbitDBInstance,
 } from "./databases/OrbitDB";
 import { startIpfsNode } from "./ipfsNode/ipfsFactory";
@@ -31,7 +31,7 @@ browser.runtime.onMessage.addListener(
         case "connectToIpfsAndOrbitDB":
           await startIpfsNode();
           await startOrbitDBInstance();
-          await openAllDatabases();
+          await openAllStores();
           break;
         case "addCollection":
           const _c = await addCollection(r.payload.collection);

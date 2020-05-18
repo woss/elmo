@@ -7,9 +7,14 @@ import { makeStyles } from "@material-ui/core/styles";
 import { createChatListener } from "@src/chat/chat";
 import {
   initChromeStorage,
+  setValue,
   syncDbDataWithStorage,
 } from "@src/databases/ChromeStorage";
-import { createDbs, createDefaultDbs, useDBNode } from "@src/databases/OrbitDB";
+import {
+  createDefaultStores,
+  createStores,
+  useDBNode,
+} from "@src/databases/OrbitDB";
 import {
   IDatabaseDefinition,
   IElmoGenericMessage,
@@ -43,14 +48,11 @@ const useStyles = makeStyles(theme => ({
 }));
 
 interface Props {
-  handleContinueToApp: (e: {
-    continueToApp?: boolean;
-    continueAppWitRemote?: boolean;
-  }) => any;
+  handleAppInitialized: (boolean) => any;
   fromRoute?: boolean;
 }
 
-function FirstTime({ handleContinueToApp, fromRoute }: Props) {
+function FirstTime({ handleAppInitialized, fromRoute }: Props) {
   const classes = useStyles();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
@@ -80,11 +82,10 @@ function FirstTime({ handleContinueToApp, fromRoute }: Props) {
     // Create Default Databases and default ChromeStorage
     try {
       await initChromeStorage();
-      await createDefaultDbs();
+      await createDefaultStores();
       await syncDbDataWithStorage();
-      handleContinueToApp({
-        continueToApp: true,
-      });
+      await setValue({ appInitialized: true });
+      handleAppInitialized(true);
     } catch (error) {
       console.error(error);
     }
@@ -155,7 +156,7 @@ function FirstTime({ handleContinueToApp, fromRoute }: Props) {
           },
         );
         console.debug("Replication the dbs");
-        createDbs(m).then(d => {
+        createStores(m).then(d => {
           localStorage.setItem("remoteDatabases", JSON.stringify(m));
 
           if (fromRoute) {
@@ -199,7 +200,7 @@ function FirstTime({ handleContinueToApp, fromRoute }: Props) {
     //   setPeers(p);
     // });
     return () => {
-      console.log("un-mounted");
+      console.log("FIRST_TIME:: un-mount");
       unsubscribe();
       // isSubscribed = false;
     };

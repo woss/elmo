@@ -1,19 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
-import { ILink } from "@src/interfaces";
-import { useIpfsNode, startIpfsNode } from "@src/ipfsNode/ipfsFactory";
-import RawHtml from "react-raw-html";
-import { CssBaseline, Fade } from "@material-ui/core";
-import {
-  withStore,
-  DB_NAME_LINKS,
-  openAllDatabases,
-  startOrbitDBInstance,
-} from "@src/databases/OrbitDB";
+import { Fade } from "@material-ui/core";
 import { syncDbDataWithStorage } from "@src/databases/ChromeStorage";
-import { toDocument } from "./helpers";
-
+import {
+  DB_NAME_LINKS,
+  openAllStores,
+  startOrbitDBInstance,
+  withStore,
+} from "@src/databases/OrbitDB";
+import { ILink } from "@src/interfaces";
+import { startIpfsNode, useIpfsNode } from "@src/ipfsNode/ipfsFactory";
+import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
+import RawHtml from "react-raw-html";
+import { useParams } from "react-router-dom";
 
 function getBaseURL(
   url: string,
@@ -85,7 +83,7 @@ function View() {
         try {
           await startOrbitDBInstance();
 
-          await openAllDatabases();
+          await openAllStores();
 
           // Sync latest DATA to the Storage
           await syncDbDataWithStorage();

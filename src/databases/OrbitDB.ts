@@ -1,21 +1,21 @@
+import { calculateHash } from "@src/ipfsNode/helpers";
 import OrbitDB from "orbit-db";
 import * as R from "ramda";
 import {
-  IDbInstance,
-  IDatabaseDefinition,
-  IOrbitDBOptions,
-  IOrbitDBItemBasicStructure,
-  IOrbitDBStoreType,
   ICollection,
+  IDatabaseDefinition,
+  IOrbitDBItemBasicStructure,
+  IOrbitDBOptions,
+  IOrbitDBStoreType,
+  IStoreInstance,
 } from "../interfaces";
 import { useIpfsNode } from "../ipfsNode/ipfsFactory";
 import { getValuesByKey, setValue } from "./ChromeStorage";
-import { calculateHash } from "@src/ipfsNode/helpers";
 
 //////////////////////////////////////
 /// MAIN DB CACHE
 //////////////////////////////////////
-let dbInstance: IDbInstance;
+let storeInstance: IStoreInstance;
 
 export const LOG_NAME = "ORBITDB";
 
@@ -48,7 +48,7 @@ export const DEFAULT_DATABASES: IDatabaseDefinition[] = [
 ];
 
 function setDBsToInstance(dbs: IOrbitDBStoreType[]) {
-  dbInstance.dbs = dbs;
+  storeInstance.dbs = dbs;
 }
 
 /**
@@ -62,13 +62,13 @@ async function setCreatedDatabasesToChromeStorage(dbs: IDatabaseDefinition[]) {
 /**
  * Retrieve all the DBs that we creates
  */
-async function getCreatedDatabasesToChromeStorage(): Promise<
+async function getCreatedStoresToChromeStorage(): Promise<
   IDatabaseDefinition[]
 > {
   return await getValuesByKey("createdDBs");
 }
 
-export function generateDbName(
+export function generateStoreName(
   name: string,
   dbNamePrefix = "elmo",
   separator = ".",
@@ -94,45 +94,45 @@ export function removeDbPrefix(
   }
 }
 
-export function useDBNode(): IDbInstance {
-  if (!R.isEmpty(dbInstance)) {
-    return dbInstance;
+export function useDBNode(): IStoreInstance {
+  if (!R.isEmpty(storeInstance)) {
+    return storeInstance;
   } else {
     throw new Error("No connected OrbitDB nodes.");
   }
 }
 
-export async function startOrbitDBInstance(): Promise<IDbInstance> {
+export async function startOrbitDBInstance(): Promise<IStoreInstance> {
   // create instance of the server
   const { ipfs } = useIpfsNode();
 
-  if (!R.isNil(dbInstance)) {
+  if (!R.isNil(storeInstance)) {
     console.log("OrbitDB instance found. Returning first");
-    return dbInstance;
+    return storeInstance;
   } else {
     try {
       console.time(`${LOG_NAME}:: Start`);
       const node = await OrbitDB.createInstance(ipfs);
       console.timeEnd(`${LOG_NAME}:: Start`);
 
-      dbInstance = {
+      storeInstance = {
         instance: node,
         id: node.identity.id,
         isOrbitDBReady: true,
         dbs: [],
       };
 
-      return dbInstance;
+      return storeInstance;
     } catch (e) {
       console.log("Error in creating DB", e);
-      dbInstance = {
+      storeInstance = {
         instance: null,
         id: "",
         isOrbitDBReady: false,
         dbs: [],
         error: e,
       };
-      return dbInstance;
+      return storeInstance;
     }
   }
 }
@@ -170,7 +170,7 @@ export function transformStoreToElmoDefinition(
  * Create ELMO Database definitions for export
  * @param dbs
  */
-export function createDatabaseDefinitions(
+export function createStoreDefinitions(
   dbs: IOrbitDBStoreType[],
 ): IDatabaseDefinition[] {
   return Object.values(dbs).map(s => transformStoreToElmoDefinition(s));
@@ -180,32 +180,51 @@ export function createDatabaseDefinitions(
  * Create Databases
  * @param dbs
  */
-export async function createDbs(
+export async function createStores(
   dbs: IDatabaseDefinition[],
-): Promise<IDbInstance> {
+): Promise<IStoreInstance> {
   const { instance } = useDBNode();
 
-  console.time("Creating DBs");
+  console.time("Creating Stores");
   return Promise.all(
     dbs.map(db => instance[db.storeType](db.dbName, db.options)),
   ).then(stores => {
     return Promise.all(stores.map((store: any) => store.load())).then(
       async () => {
         // the load() modifies the actual store in prev call
-        dbInstance.dbs = stores;
-        console.timeEnd("Creating DBs");
+        storeInstance.dbs = stores;
+        console.timeEnd("Creating Stores");
 
-        return dbInstance;
+        return storeInstance;
       },
     );
   });
 }
 
 /**
+ * Open Store by name
+ * @param name
+ */
+export async function openStoreByName(
+  name: string,
+): Promise<IOrbitDBStoreType> {
+  const dbs = await getCreatedStoresToChromeStorage();
+  const { instance } = useDBNode();
+  const db = dbs.find(d => d.dbName === generateStoreName(name));
+  console.log(db, dbs, name);
+  const open = await instance.open(db.address, {
+    type: db.storeType,
+    ...db.options,
+  });
+  await open.load();
+  return open;
+}
+
+/**
  * Open single database, load from the disk as well
  * @param d IDatabaseDefinition
  */
-export async function openDatabase(
+export async function openStore(
   d: IDatabaseDefinition,
 ): Promise<IOrbitDBStoreType> {
   const { instance } = useDBNode();
@@ -221,12 +240,12 @@ export async function openDatabase(
  * Open Databases
  * @param dbs Array<IDatabaseDefinition>
  */
-export async function openDatabases(
+export async function openStores(
   dbs: IDatabaseDefinition[],
 ): Promise<IOrbitDBStoreType[]> {
   const s = await Promise.all(
     dbs.map(async db => {
-      return await openDatabase(db);
+      return await openStore(db);
     }),
   );
   setDBsToInstance(s);
@@ -236,40 +255,44 @@ export async function openDatabases(
  * Open ALL Databases
  * @param dbs Array<IDatabaseDefinition>
  */
-export async function openAllDatabases() {
-  const dbs = await getCreatedDatabasesToChromeStorage();
+export async function openAllStores() {
+  const dbs = await getCreatedStoresToChromeStorage();
 
-  const s = await Promise.all(
-    dbs.map(async db => {
-      return await openDatabase(db);
-    }),
-  );
-  setDBsToInstance(s);
-  return s;
+  return await openStores(dbs);
 }
 
-export async function createDefaultDbs(opts: IOrbitDBOptions = {}) {
+/**
+ * Create Default Databases
+ * @param opts
+ */
+export async function createDefaultStores(opts: IOrbitDBOptions = {}) {
   const databases = DEFAULT_DATABASES.map(d => {
     return {
-      dbName: generateDbName(d.dbName),
+      dbName: generateStoreName(d.dbName),
       options: buildOptions({ ...opts, ...d.options }),
       storeType: d.storeType,
     };
   });
 
-  const { dbs } = await createDbs(databases);
-  const d = createDatabaseDefinitions(dbs);
+  const { dbs } = await createStores(databases);
+  const d = createStoreDefinitions(dbs);
   await setCreatedDatabasesToChromeStorage(d);
 }
 
+/**
+ * Return selected store (database)
+ * @param name
+ */
 export function withStore(name: string): IOrbitDBStoreType {
-  const dbName = generateDbName(name);
-  if (!R.isEmpty(dbInstance)) {
-    const store = dbInstance.dbs.find(d => d.dbname === dbName);
+  const dbName = generateStoreName(name);
+  if (!R.isEmpty(storeInstance)) {
+    const store = storeInstance.dbs.find(d => d.dbname === dbName);
     if (store) {
       return store;
     } else {
-      throw new Error(`Store :: ${name} :: doesn't exist.`);
+      throw new Error(
+        `Store :: ${name} :: doesn't exist. Did you forget to open it?`,
+      );
     }
   } else {
     throw new Error("No connected OrbitDB nodes.");

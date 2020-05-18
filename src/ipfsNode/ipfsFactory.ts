@@ -1,9 +1,9 @@
-import { IIPFSInstance } from "../interfaces";
 import { Options } from "@src/typings/ipfs";
-import * as R from "ramda";
 import Ipfs from "ipfs";
-import { buildConfig } from "./config";
+import * as R from "ramda";
 import toMultiaddr from "uri-to-multiaddr";
+import { IIPFSInstance } from "../interfaces";
+import { buildConfig } from "./config";
 
 let nodes: IIPFSInstance[] = [];
 
@@ -14,6 +14,7 @@ let nodes: IIPFSInstance[] = [];
 export async function init(opts: Options): Promise<Ipfs> {
   const ipfsOpts = await buildConfig(opts);
   const node = await Ipfs.create(ipfsOpts);
+
   return node;
 }
 
@@ -31,13 +32,13 @@ export async function startIpfsNode(
       const ipfs = await init(opts);
       console.timeEnd("IPFS:: Start");
 
-      const version = await ipfs.version();
+      // const version = await ipfs.version();
 
-      if (version.version !== "0.40.0") {
-        throw new Error(
-          `IPFS version miss-match. Wanted "0.40.0" got ${version.version}`,
-        );
-      }
+      // if (version.version !== "0.40.0") {
+      //   throw new Error(
+      //     `IPFS version miss-match. Wanted "0.40.0" got ${version.version}`,
+      //   );
+      // }
 
       const node = await ipfs.id();
       const fullInstance = {

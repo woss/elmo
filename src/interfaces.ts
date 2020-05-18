@@ -49,7 +49,7 @@ export interface IIPFSInstance {
   error?: Error;
 }
 
-export interface IDbInstance {
+export interface IStoreInstance {
   instance: any;
   id: string;
   isOrbitDBReady: boolean;

@@ -1,7 +1,7 @@
 import { IKeyVal } from "@src/interfaces";
+import { isNil } from "ramda";
 import { browser } from "webextension-polyfill-ts";
 import { loadAllFromStore, removeDbPrefix, useDBNode } from "./OrbitDB";
-import { isNil } from "ramda";
 
 export async function getValuesByKey(s?: string) {
   // console.log("CHROME_STORAGE:: getValuesByKey", s
@@ -62,6 +62,7 @@ export async function syncDbDataWithStorage() {
 
 export async function initChromeStorage() {
   return await setValue({
-    continueToApp: false,
+    appReady: false,
+    appInitialized: false,
   });
 }

@@ -1,23 +1,25 @@
 {
-    "compilerOptions": {
-        "baseUrl": "./",
-        "paths": {
-            "@src/*": ["src/*"],
-            "@src/": ["src/"]
-        },
-        "target": "es5",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "rootDir": "./src",
-        "outDir": "dist/js",
-        "strict": false,
-        "sourceMap": true,
-        "jsx": "react",
-        "esModuleInterop": true,
-        "lib": ["es2015", "dom"],
-        "experimentalDecorators": true,
-        "allowSyntheticDefaultImports": true,
-        "suppressExcessPropertyErrors": true,
-        "typeRoots": ["src/typings", "node_modules/@types"]
-    }
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@src/*": ["src/*"],
+      "@src/": ["src/"],
+      "@tab/*": ["src/tab/*"],
+      "@tab/": ["src/tab/"]
+    },
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "rootDir": "./src",
+    "outDir": "dist/js",
+    "strict": false,
+    "sourceMap": true,
+    "jsx": "react",
+    "esModuleInterop": true,
+    "lib": ["es2015", "dom"],
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "suppressExcessPropertyErrors": true,
+    "typeRoots": ["src/typings", "node_modules/@types"]
+  }
 }
