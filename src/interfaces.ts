@@ -71,7 +71,8 @@ export interface IElmoIncomingMessage {
 
 export type IElmoGenericMessage = IElmoMessageApproveReplicateDB &
   IElmoMessageDeclineReplicateDB &
-  IElmoMessageReplicateDB & {
+  IElmoMessageReplicateDB &
+  IElmoIncomingMessage & {
     nonce?: string;
   };
 

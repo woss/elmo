@@ -23,7 +23,7 @@ import {
   IElmoMessageReplicateDB,
 } from "@src/interfaces";
 import { useIpfsNode } from "@src/ipfsNode/ipfsFactory";
-import useIpfsEffect from "@src/ipfsNode/use-ipfs";
+import useIpfsEffect, { useIpfs } from "@src/ipfsNode/use-ipfs";
 import { history } from "@src/tab";
 import { IncomingMessage, PeerInfo } from "@src/typings/ipfs";
 import { useSnackbar } from "notistack";
@@ -93,6 +93,7 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
 
   async function handleClickRemoteAddress() {
     console.log(`Message sent to ${remoteAddress}`);
+
     if (peers.includes(remoteAddress)) {
       console.log("address is on the list of connected peers");
     } else {
@@ -112,6 +113,7 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
 
   async function handleClickSendMessage() {
     console.log(`Message sent to ${remoteAddress}`);
+    console.log(peers);
     if (peers.includes(remoteAddress)) {
       console.log("address is on the list of connected peers");
     } else {
@@ -174,6 +176,11 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
           variant: "error",
         });
         break;
+      case IElmoMessageActions.PING:
+        enqueueSnackbar(message.message, {
+          variant: "info",
+        });
+        break;
       default:
         console.error("We don't support that just yet", message.action);
         enqueueSnackbar(`We don't support that just yet ${message.action}`, {
@@ -192,13 +199,12 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
       unsubscribe = unsub;
     });
     // }
-    // useIpfs("swarm.peers").then(peers => {
-    //   console.log(peers);
-    //   const p = peers.map(p => {
-    //     return p.addr.toString();
-    //   });
-    //   setPeers(p);
-    // });
+    useIpfs("swarm.peers").then(peers => {
+      const p = peers.map(p => {
+        return p.addr.toString();
+      });
+      setPeers(p);
+    });
     return () => {
       console.log("FIRST_TIME:: un-mount");
       unsubscribe();

@@ -38,7 +38,7 @@ export function SwarmPeers() {
 
   useEffect(() => {
     if (!intervalID) {
-      const p = setInterval(refreshPeers, 7000);
+      const p = setInterval(refreshPeers, 1000);
       setIntervalID(p);
     }
 
