@@ -28,12 +28,12 @@ import Database from "@src/tab/components/Database/Database";
 import Header from "@src/tab/components/Header/Header";
 import IpfsInfo from "@src/tab/components/IpfsComponent/IpfsInfo";
 import View from "@src/tab/components/Links/View";
+import ReplicateDatabase from "@tab/components/CustomDialog/ReplicateDatabase";
+import FirstTime from "@tab/components/FirstTime/FirstTime";
+import AllLinks from "@tab/components/Links/AllLinks";
 import React, { Fragment, FunctionComponent, useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import { browser } from "webextension-polyfill-ts";
-import ReplicateDatabase from "./components/CustomDialog/ReplicateDatabase";
-import FirstTime from "./components/FirstTime/FirstTime";
-import AllLinks from "./components/Links/AllLinks";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -53,8 +53,7 @@ const useStyles = makeStyles(theme => ({
 export const Tab: FunctionComponent = () => {
   const classes = useStyles();
 
-  const [continueToApp, setContinueToApp] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [appReady, setAppReady] = useState(false);
   const [ipfsReady, setIpfsReady] = useState(false);
 
   const [incomingMessage, setIncomingMessage] = useState(
@@ -63,9 +62,9 @@ export const Tab: FunctionComponent = () => {
 
   // Once fire when doc is loaded
 
-  async function handleContinueToApp({ continueToApp }) {
-    setContinueToApp(continueToApp);
-    await setValue({ continueToApp: true });
+  async function handleAppReady({ appReady }) {
+    await setValue({ appReady: true });
+    setAppReady(appReady);
   }
 
   async function handleAgree(decision) {
@@ -102,7 +101,7 @@ export const Tab: FunctionComponent = () => {
 
         await ipfs.pubsub.publish(from, bufferify(JSON.stringify(message)));
         // here we send msg back with payload of all OrbitDB remote addr
-
+        console.log(message);
         // set this to null after ALL is done, need the data from the msg
         setIncomingMessage(null);
       },
@@ -110,61 +109,51 @@ export const Tab: FunctionComponent = () => {
   }
 
   ///////////////////////////////////////////////
-  // SETTING UP THE APPLICATION
-  ///////////////////////////////////////////////
-  useEffect(() => {
-    if (ipfsReady && continueToApp) {
-      // Open all the DBs
-      openAllDatabases().then(async () => {
-        // Sync latest DATA to the Storage
-        await syncDbDataWithStorage();
-
-        console.timeEnd("TAB:: Load");
-
-        browser.runtime.sendMessage(
-          createBrowserRuntimeMessage("connectToIpfsAndOrbitDB"),
-        );
-        console.log("All storage", await getValuesByKey());
-
-        setTimeout(() => setReady(true), 200);
-      });
-    }
-  }, [continueToApp, ipfsReady]);
-
-  ///////////////////////////////////////////////
   // PAGE LOAD
   ///////////////////////////////////////////////
   useEffect(() => {
-    // https://juliangaramendy.dev/use-promise-subscription/
     let unsubscribe;
     console.time("TAB:: Load");
 
-    startIpfsNode()
-      .then(async () => {
-        try {
-          // Create Local Subscription
-          const { unsubscribe: _unsubscribe } = await createChatListener(
-            onMessage,
-          );
+    async function init() {
+      try {
+        await startIpfsNode();
 
-          // for unsubscribe
-          unsubscribe = _unsubscribe;
+        // Create Local Subscription
+        const { unsubscribe: _unsubscribe } = await createChatListener(
+          onMessage,
+        );
 
-          await startOrbitDBInstance();
+        // for unsubscribe
+        unsubscribe = _unsubscribe;
 
-          setIpfsReady(true);
-        } catch (e) {
-          console.error(e);
-        }
-      })
-      .catch(e => {
+        await startOrbitDBInstance();
+        await openAllDatabases();
+
+        // Sync latest DATA to the Storage
+        await syncDbDataWithStorage();
+
+        // Send msg to the background process so it will connect to the ipfs and be ready for saving and syncing
+        browser.runtime.sendMessage(
+          createBrowserRuntimeMessage("connectToIpfsAndOrbitDB"),
+        );
+
+        // app is initialized or not,
+        setAppReady(await getValuesByKey("appReady"));
+
+        setIpfsReady(true);
+
+        console.log("All storage", await getValuesByKey());
+        console.timeEnd("TAB:: Load");
+      } catch (e) {
         console.error(e);
-      });
+      }
+    }
 
-    getValuesByKey("continueToApp").then(continueToApp => {
-      setContinueToApp(continueToApp);
-    });
+    init();
+
     return () => {
+      console.log("TAB:: un-mount");
       unsubscribe();
     };
   }, []);
@@ -180,74 +169,60 @@ export const Tab: FunctionComponent = () => {
     );
   }
 
-  if (!continueToApp) {
+  if (!appReady) {
     return (
       <div>
         <CssBaseline />
         <div className={classes.flex}>
-          <FirstTime handleContinueToApp={handleContinueToApp} />
+          <FirstTime handleAppReady={handleAppReady} />
         </div>
       </div>
     );
   }
 
-  if (ready) {
-    return (
-      <Fragment>
-        <Fade in={ready}>
-          <div className={classes.root}>
-            <CssBaseline />
-            <Header />
-            <Container className={classes.content}>
-              <Switch>
-                <Route path="/links">
-                  <AllLinks />
-                </Route>
-                <Route path="/view/:cid">
-                  <View />
-                </Route>
+  return (
+    <Fragment>
+      <Fade in={appReady}>
+        <div className={classes.root}>
+          <CssBaseline />
+          <Header />
+          <Container className={classes.content}>
+            <Switch>
+              <Route path="/links">
+                <AllLinks />
+              </Route>
+              <Route path="/view/:cid">
+                <View />
+              </Route>
 
-                <Route path="/ipfs">
-                  <IpfsInfo />
-                </Route>
+              <Route path="/ipfs">
+                <IpfsInfo />
+              </Route>
 
-                <Route path="/db">
-                  <Database />
-                </Route>
+              <Route path="/db">
+                <Database />
+              </Route>
 
-                <Route path="/ahh-the-choices">
-                  <FirstTime
-                    fromRoute
-                    handleContinueToApp={handleContinueToApp}
-                  />
-                </Route>
+              <Route path="/ahh-the-choices">
+                <FirstTime fromRoute handleAppReady={handleAppReady} />
+              </Route>
 
-                <Route path="/">
-                  <Collections />
-                </Route>
-              </Switch>
-            </Container>
-          </div>
-        </Fade>
-        {incomingMessage && (
-          <ReplicateDatabase
-            open={!!incomingMessage}
-            {...incomingMessage}
-            handleAgree={handleAgree}
-          />
-        )}
-      </Fragment>
-    );
-  } else {
-    return (
-      <div>
-        <CssBaseline />
-        <div className={classes.flex}>
-          <div>Warming up the app ....</div>{" "}
+              <Route path="/">
+                <Collections />
+              </Route>
+            </Switch>
+          </Container>
         </div>
-      </div>
-    );
-  }
+      </Fade>
+      {incomingMessage && (
+        <ReplicateDatabase
+          open={!!incomingMessage}
+          {...incomingMessage}
+          handleAgree={handleAgree}
+        />
+      )}
+    </Fragment>
+  );
 };
 
 export default Tab;
