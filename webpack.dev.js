@@ -7,7 +7,8 @@ const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 
 module.exports = merge(common, {
   mode: "development",
-  devtool: "inline-cheap-source-map",
+  devtool: "cheap-module-source-map",
+
   plugins: [
     // new BundleAnalyzerPlugin()
     new WebpackBuildNotifierPlugin({
