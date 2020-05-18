@@ -4,13 +4,13 @@ import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
 import { replaceKey } from "@src/databases/ChromeStorage";
 import {
+  addCollection,
   DB_NAME_COLLECTIONS,
   loadAllFromStore,
   withStore,
 } from "@src/databases/OrbitDB";
 import { ICollection } from "@src/interfaces";
 import { createCID } from "@src/ipfsNode/helpers";
-import { createBrowserRuntimeMessage } from "@src/messages/messages";
 import nanoid from "nanoid";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
@@ -73,9 +73,11 @@ export default function Collections() {
         persist: true,
       });
 
-      browser.runtime.sendMessage(
-        createBrowserRuntimeMessage("addCollection", { collection }),
-      );
+      const _c = await addCollection(collection);
+      console.log(_c);
+      // browser.runtime.sendMessage(
+      //   createBrowserRuntimeMessage("addCollection", { collection }),
+      // );
 
       closeSnackbar(snackKey);
       setDisabled(false);

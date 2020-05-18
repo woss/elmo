@@ -121,7 +121,7 @@ export async function startOrbitDBInstance(): Promise<IStoreInstance> {
         isOrbitDBReady: true,
         dbs: [],
       };
-
+      console.log(storeInstance);
       return storeInstance;
     } catch (e) {
       console.log("Error in creating DB", e);
@@ -142,8 +142,12 @@ export function buildOptions(opts: IOrbitDBOptions = {}) {
   const defaultOptions: IOrbitDBOptions = {
     accessController: {
       // type: AccessControllerType.ORBITDB,
-      write: [instance.identity.id],
+      write: [
+        // Give access to ourselves
+        instance.identity.id,
+      ],
     },
+    meta: { hello: "meta hello" },
   };
   const o = Object.assign({}, defaultOptions, opts);
   // console.log("Options", o.accessController.write, opts);
@@ -184,20 +188,24 @@ export async function createStores(
   dbs: IDatabaseDefinition[],
 ): Promise<IStoreInstance> {
   const { instance } = useDBNode();
-
   console.time("Creating Stores");
   return Promise.all(
+    // creates and opens the storeType database orbitdb.docstore(name,opts)
+    // https://github.com/orbitdb/orbit-db/blob/master/API.md#orbitdbdocstorenameaddress-options
     dbs.map(db => instance[db.storeType](db.dbName, db.options)),
   ).then(stores => {
-    return Promise.all(stores.map((store: any) => store.load())).then(
-      async () => {
-        // the load() modifies the actual store in prev call
-        storeInstance.dbs = stores;
-        console.timeEnd("Creating Stores");
+    console.log(stores);
 
-        return storeInstance;
-      },
-    );
+    storeInstance.dbs = stores;
+    console.timeEnd("Creating Stores");
+
+    return storeInstance;
+    // return Promise.all(stores.map((store: any) => store.load())).then(
+    //   async () => {
+    //     // the load() modifies the actual store in prev call
+
+    //   },
+    // );
   });
 }
 
@@ -349,12 +357,15 @@ export function setupReplicationListeners() {
   return dbs;
 }
 
-export async function addCollection(c: ICollection): Promise<ICollection> {
+export async function addCollection(
+  c: ICollection,
+  pin = false,
+): Promise<ICollection> {
   console.log("Adding collection");
   const store = withStore(DB_NAME_COLLECTIONS);
   // store.load();
   console.time(`ORBITDB:: Add collection ${c._id}`);
-  await store.put(c, { pin: true });
+  await store.put(c, { pin });
   console.timeEnd(`ORBITDB:: Add collection ${c._id}`);
 
   return c;
@@ -367,7 +378,7 @@ export async function renameCollection(c: ICollection): Promise<ICollection> {
     hash: await calculateHash(c.title.trim()),
   };
   console.time(`Renaming collection ${c._id}`);
-  await store.put(collection, { pin: true });
+  await store.put(collection);
   console.timeEnd(`Renaming collection ${c._id}`);
   return collection;
 }

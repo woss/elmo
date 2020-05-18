@@ -62,7 +62,6 @@ export async function syncDbDataWithStorage() {
 
 export async function initChromeStorage() {
   return await setValue({
-    appReady: false,
     appInitialized: false,
   });
 }
