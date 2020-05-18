@@ -1,8 +1,8 @@
-import React from "react";
+import { ListItemText } from "@material-ui/core";
 import MaterialList from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import { ListItemText } from "@material-ui/core";
 import { isUndefined } from "lodash";
+import React from "react";
 interface Props {
   data: any[];
   transformValue?: any;
@@ -13,7 +13,6 @@ interface Props {
 }
 function CustomList(props: Props) {
   const { classes, data, transformValue, dense = true } = props;
-
   return (
     <div className={classes.root}>
       <MaterialList dense={dense}>
@@ -22,7 +21,9 @@ function CustomList(props: Props) {
             <ListItem key={k}>
               <ListItemText
                 className={classes.text}
-                primary={isUndefined(transformValue) ? v : transformValue(v)}
+                primary={
+                  isUndefined(transformValue) ? v.toString() : transformValue(v)
+                }
               />
             </ListItem>
           );

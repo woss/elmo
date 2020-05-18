@@ -121,7 +121,6 @@ export async function startOrbitDBInstance(): Promise<IStoreInstance> {
         isOrbitDBReady: true,
         dbs: [],
       };
-      console.log(storeInstance);
       return storeInstance;
     } catch (e) {
       console.log("Error in creating DB", e);
@@ -371,6 +370,10 @@ export async function addCollection(
   return c;
 }
 
+/**
+ * Rename the collection
+ * @param c
+ */
 export async function renameCollection(c: ICollection): Promise<ICollection> {
   const store = withStore(DB_NAME_COLLECTIONS);
   const collection: ICollection = {

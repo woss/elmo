@@ -167,7 +167,7 @@ declare namespace IPFS {
 
   export interface Peer {
     addr: Multiaddr;
-    peer: PeerInfo;
+    peer: string;
   }
 
   export interface SwarmAPI {

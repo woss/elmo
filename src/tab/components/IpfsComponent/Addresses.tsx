@@ -1,12 +1,8 @@
-import React, { useEffect, useState } from "react";
-
-import useIpfsEffect, { useIpfs } from "@src/ipfsNode/use-ipfs";
-import { Id } from "@src/typings/ipfs";
-
-import { Typography, ListItemText, makeStyles } from "@material-ui/core";
-
+import { makeStyles, Typography } from "@material-ui/core";
+import { useIpfs } from "@src/ipfsNode/use-ipfs";
 import CustomList from "@src/tab/components/Shared/CustomList";
-import Connect from "./Connect";
+import { Id } from "@src/typings/ipfs";
+import React, { useEffect, useState } from "react";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -34,19 +30,13 @@ function Addresses() {
   };
   const [identity, setIdentity] = useState(defaultValues);
 
-  function fetchIdentity() {
-    useIpfs("id").then(id => {
-      setIdentity(id);
-    });
-  }
   useEffect(() => {
+    async function fetchIdentity() {
+      setIdentity(await useIpfs("id"));
+    }
+
     fetchIdentity();
   }, []);
-
-  // useEffect(() => {
-  //     console.log("fetching identity");
-  //     fetchIdentity();
-  // }, [identity]);
 
   return (
     <div className={classes.root}>

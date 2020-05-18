@@ -51,7 +51,7 @@ const useStyles = makeStyles(theme => ({
 export const Tab: FunctionComponent = () => {
   const classes = useStyles();
 
-  const [appInitialized, setAppInitialized] = useState(false);
+  const [appInitialized, setAppInitialized] = useState(true);
   const [appReady, setAppReady] = useState(false);
   const [ipfsReady, setIpfsReady] = useState(false);
 
@@ -113,7 +113,6 @@ export const Tab: FunctionComponent = () => {
     let unsubscribe: () => void;
 
     console.time("TAB:: Load");
-
     async function init() {
       try {
         // 1. Start the IPFS node

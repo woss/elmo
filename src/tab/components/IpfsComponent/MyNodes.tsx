@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { useIpfs } from "@src/ipfsNode/use-ipfs";
-import { Peer } from "@src/typings/ipfs";
-
 import { makeStyles, Typography } from "@material-ui/core";
+import { Peer } from "@src/typings/ipfs";
+import React, { useState } from "react";
 import CustomList from "../Shared/CustomList";
 
 const useStyles = makeStyles(theme => ({
@@ -26,15 +24,13 @@ export function MyNodes() {
 
   const [nodes, setNodes] = useState([] as Peer[]);
 
-  useEffect(() => {}, []);
-
   function transformPeerToString(peer: Peer): string {
     if (peer.addr) {
       const addr = peer.addr.toString();
       if (addr.indexOf("ipfs") >= 0) {
         return addr;
       } else {
-        return addr + peer.peer.id.toB58String();
+        return peer.peer;
       }
     } else {
       return "";
