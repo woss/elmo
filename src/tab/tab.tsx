@@ -2,7 +2,6 @@ import { Container, Typography } from "@material-ui/core";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Fade from "@material-ui/core/Fade";
 import { makeStyles } from "@material-ui/core/styles";
-import { createChatListener } from "@src/chat/chat";
 import {
   getValuesByKey,
   syncDbDataWithStorage,
@@ -21,15 +20,14 @@ import {
   IElmoMessageDeclineReplicateDB,
 } from "@src/interfaces";
 import { startIpfsNode, useIpfsNode } from "@src/ipfsNode/ipfsFactory";
-import { onMessage } from "@src/messages/messages";
 import Collections from "@src/tab/components/Collections/Collections";
 import Database from "@src/tab/components/Database/Database";
 import Header from "@src/tab/components/Header/Header";
 import IpfsInfo from "@src/tab/components/IpfsComponent/IpfsInfo";
 import View from "@src/tab/components/Links/View";
-import ReplicateDatabase from "@tab/components/CustomDialog/ReplicateDatabase";
 import FirstTime from "@tab/components/FirstTime/FirstTime";
 import AllLinks from "@tab/components/Links/AllLinks";
+import Messages from "@tab/components/Messages/Messages";
 import React, { Fragment, FunctionComponent, useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 
@@ -55,9 +53,10 @@ export const Tab: FunctionComponent = () => {
   const [appReady, setAppReady] = useState(false);
   const [ipfsReady, setIpfsReady] = useState(false);
 
-  const [incomingMessage, setIncomingMessage] = useState(
-    null as IElmoIncomingMessage,
-  );
+  const [
+    incomingMessage,
+    setIncomingMessage,
+  ] = useState<IElmoIncomingMessage | null>();
 
   // Once fire when doc is loaded
 
@@ -110,7 +109,7 @@ export const Tab: FunctionComponent = () => {
   // PAGE LOAD
   ///////////////////////////////////////////////
   useEffect(() => {
-    let unsubscribe: () => void;
+    // let unsubscribe: () => void;
 
     console.time("TAB:: Load");
     async function init() {
@@ -118,13 +117,13 @@ export const Tab: FunctionComponent = () => {
         // 1. Start the IPFS node
         await startIpfsNode();
 
-        // 2. Create Local Subscription so we can communicate via ipfs
-        const { unsubscribe: _unsubscribe } = await createChatListener(
-          onMessage,
-        );
+        // // 2. Create Local Subscription so we can communicate via ipfs
+        // const { unsubscribe: _unsubscribe } = await createChatListener(
+        //   onMessage,
+        // );
 
-        // 3. set the unsub function for on exit cleanup
-        unsubscribe = _unsubscribe;
+        // // 3. set the unsub function for on exit cleanup
+        // unsubscribe = _unsubscribe;
 
         // 4. Start the DB
         await startOrbitDBInstance();
@@ -151,7 +150,7 @@ export const Tab: FunctionComponent = () => {
 
     return () => {
       console.log("TAB:: un-mount");
-      unsubscribe();
+      // unsubscribe();
     };
   }, []);
 
@@ -235,13 +234,7 @@ export const Tab: FunctionComponent = () => {
             </Container>
           </div>
         </Fade>
-        {incomingMessage && (
-          <ReplicateDatabase
-            open={!!incomingMessage}
-            {...incomingMessage}
-            handleAgree={handleAgree}
-          />
-        )}
+        <Messages />
       </Fragment>
     );
   } else {

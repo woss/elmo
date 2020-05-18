@@ -11,8 +11,8 @@ import SaveIcon from "@material-ui/icons/Save";
 import ShareIcon from "@material-ui/icons/Share";
 import {
   DB_NAME_COLLECTIONS,
-  withStore,
   renameCollection,
+  withStore,
 } from "@src/databases/OrbitDB";
 import { ICollection } from "@src/interfaces";
 import { calculateHash, createCID } from "@src/ipfsNode/helpers";
@@ -22,7 +22,6 @@ import { isEmpty } from "ramda";
 import React, { SyntheticEvent, useEffect, useState } from "react";
 import { browser } from "webextension-polyfill-ts";
 import Links from "../Links/Links";
-import { createBrowserRuntimeMessage } from "@src/messages/messages";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -123,14 +122,15 @@ function Collection({ id, forceReload }: Props) {
       setAddLinkNotificationKey(snackKey);
 
       const hash = await calculateHash(url);
-      if (!links.includes(hash)) {
-        browser.runtime.sendMessage(
-          createBrowserRuntimeMessage("saveLink", {
-            url,
-            collection,
-          }),
-        );
-      }
+      // !TODO fix me
+      // if (!links.includes(hash)) {
+      //   browser.runtime.sendMessage(
+      //     createBrowserRuntimeMessage("saveLink", {
+      //       url,
+      //       collection,
+      //     }),
+      //   );
+      // }
     } else {
       // we have the url but it's invalid, don't show if user clicks on cancel
       if (url) {

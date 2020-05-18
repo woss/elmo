@@ -360,6 +360,8 @@ declare namespace IPFS {
     from: string;
     seqno: Uint8Array;
     data: Uint8Array;
+    key: Uint8Array;
+    signature: Uint8Array;
     topicIDs: string[];
   }
   export interface Pubsub {

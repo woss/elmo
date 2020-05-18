@@ -6,7 +6,6 @@ import { ICollection } from "@src/interfaces";
 import { calculateHash } from "@src/ipfsNode/helpers";
 import React, { useEffect } from "react";
 import { browser, Tabs } from "webextension-polyfill-ts";
-import { createBrowserRuntimeMessage } from "@src/messages/messages";
 
 interface Props {
   collection: ICollection;
@@ -24,20 +23,20 @@ function PopupCollection({ collection, currentTab }: Props) {
     // Link exists, remove
     if (checked) {
       // now we are doing uncheck, remove
-
-      browser.runtime.sendMessage(
-        createBrowserRuntimeMessage("removeLink", {
-          linkHash: hash,
-          collection,
-        }),
-      );
+      // !TODO fix me
+      // browser.runtime.sendMessage(
+      //   createBrowserRuntimeMessage("removeLink", {
+      //     linkHash: hash,
+      //     collection,
+      //   }),
+      // );
     } else {
-      browser.runtime.sendMessage(
-        createBrowserRuntimeMessage("saveLink", {
-          url: currentTab.url,
-          collection,
-        }),
-      );
+      // browser.runtime.sendMessage(
+      //   createBrowserRuntimeMessage("saveLink", {
+      //     url: currentTab.url,
+      //     collection,
+      //   }),
+      // );
     }
   }
 

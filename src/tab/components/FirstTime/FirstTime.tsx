@@ -199,15 +199,19 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
       unsubscribe = unsub;
     });
     // }
-    useIpfs("swarm.peers").then(peers => {
-      const p = peers.map(p => {
-        return p.addr.toString();
+    const peersInterval = setInterval(() => {
+      useIpfs("swarm.peers").then(peers => {
+        const p = peers.map(p => {
+          return p.addr.toString();
+        });
+        setPeers(p);
       });
-      setPeers(p);
-    });
+    }, 1000);
+
     return () => {
       console.log("FIRST_TIME:: un-mount");
       unsubscribe();
+      clearInterval(peersInterval);
       // isSubscribed = false;
     };
   }, []);
@@ -297,9 +301,7 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
                 />
               </CardContent>
               <CardActions>
-                <Button color="primary" onClick={handleClickSendMessage}>
-                  Send!
-                </Button>
+                <Button onClick={handleClickSendMessage}>Send!</Button>
               </CardActions>
             </Card>
           </Grid>

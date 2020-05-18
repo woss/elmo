@@ -1,5 +1,5 @@
 import { bufferify } from "@src/helpers";
-import { IElmoIncomingMessage } from "@src/interfaces";
+import { IElmoIncomingMessage, IKeyVal } from "@src/interfaces";
 import { useIpfsNode } from "@src/ipfsNode/ipfsFactory";
 import { useIpfs } from "@src/ipfsNode/use-ipfs";
 import { IncomingMessage } from "@src/typings/ipfs";
@@ -25,16 +25,25 @@ export async function createChatListener(onMessage, peerId?: string) {
   }
 }
 
-// export async function createDialer(dialer: IIPFSPeer, listener: IIPFSPeer) {}
-
 export function formatMessage({
   data,
   from,
   topicIDs,
+  key,
+  signature,
 }: IncomingMessage): IElmoIncomingMessage {
   return {
     message: JSON.parse(bufferify(data).toString()),
     from: from,
     topics: topicIDs,
+    key: key ? key.toString() : "",
+    signature: signature.toString(),
   };
+}
+
+export function createBrowserRuntimeMessage(
+  action: string,
+  payload: IKeyVal = {},
+) {
+  return { action, payload };
 }

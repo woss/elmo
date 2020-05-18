@@ -5,13 +5,13 @@ import {
   startOrbitDBInstance,
 } from "./databases/OrbitDB";
 import { startIpfsNode } from "./ipfsNode/ipfsFactory";
-import { createBrowserRuntimeMessage } from "./messages/messages";
 import {
   addToCollection,
   downloadAndSaveLink,
   removeFromCollection,
 } from "./tab/components/Links/helpers";
 
+function createBrowserRuntimeMessage(params: any, c: any) {}
 // Listen for messages sent from other parts of the extension
 browser.runtime.onMessage.addListener(
   async (
