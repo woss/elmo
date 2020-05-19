@@ -1,3 +1,7 @@
+# TODO
+
+- finish the replication. it creates the stores but not sync
+
 # Welcome
 
 to ELMO - Efficient Link Management and Organizer
@@ -7,7 +11,6 @@ Elmo is available for chromium based browser. This is just a proof of concept to
 It is fairly stable and sometimes slow with replication, that is due to the mechanics of the underlying layer, OR it could be just me and my programming. In any case feel free to contribute with the code or the advice. All are much appreciated.
 
 ## Diagram of what we want to have
-
 
 ```mermaid
 
@@ -20,7 +23,6 @@ graph LR
     share -- Collaboration with ACL --> friend[With a friend]
     friend -- Collaboration with ACL --> share
 ```
-
 
 ## What will this do to my Browser
 

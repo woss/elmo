@@ -109,36 +109,24 @@ export const Tab: FunctionComponent = () => {
   // PAGE LOAD
   ///////////////////////////////////////////////
   useEffect(() => {
-    // let unsubscribe: () => void;
-
     console.time("TAB:: Load");
     async function init() {
       try {
         // 1. Start the IPFS node
         await startIpfsNode();
 
-        // // 2. Create Local Subscription so we can communicate via ipfs
-        // const { unsubscribe: _unsubscribe } = await createChatListener(
-        //   onMessage,
-        // );
-
-        // // 3. set the unsub function for on exit cleanup
-        // unsubscribe = _unsubscribe;
-
-        // 4. Start the DB
+        // 2. Start the DB
         await startOrbitDBInstance();
 
-        // 5. Set the states
+        // 3. Set the states
         setIpfsReady(true);
 
         // Send msg to the background process so it will connect to the ipfs and be ready for saving and syncing
         // browser.runtime.sendMessage(
         //   createBrowserRuntimeMessage("connectToIpfsAndOrbitDB"),
         // );
-
-        // app is initialized or not,
-        // await openAllStores();
-        setAppInitialized((await getValuesByKey("appInitialized")) || false);
+        const appInit = await getValuesByKey("appInitialized");
+        setAppInitialized(appInit === undefined ? false : appInit);
 
         console.timeEnd("TAB:: Load");
       } catch (e) {
@@ -160,6 +148,7 @@ export const Tab: FunctionComponent = () => {
   useEffect(() => {
     async function init() {
       if (appInitialized && ipfsReady) {
+        console.log("s");
         await openAllStores();
 
         // Sync latest DATA to the Storage
@@ -172,6 +161,7 @@ export const Tab: FunctionComponent = () => {
         return null;
       }
     }
+
     init();
   }, [appInitialized, ipfsReady]);
 

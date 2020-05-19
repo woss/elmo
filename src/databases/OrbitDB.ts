@@ -193,8 +193,6 @@ export async function createStores(
     // https://github.com/orbitdb/orbit-db/blob/master/API.md#orbitdbdocstorenameaddress-options
     dbs.map(db => instance[db.storeType](db.dbName, db.options)),
   ).then(stores => {
-    console.log(stores);
-
     storeInstance.dbs = stores;
     console.timeEnd("Creating Stores");
 
@@ -384,4 +382,16 @@ export async function renameCollection(c: ICollection): Promise<ICollection> {
   await store.put(collection);
   console.timeEnd(`Renaming collection ${c._id}`);
   return collection;
+}
+
+export async function replicateStores(pubKey: string) {
+  // Here is where we return the response back to the peer that wants to replicate the DB
+  const { dbs: defaultStores } = useDBNode();
+  return Promise.all(
+    defaultStores.map(d => d.access.grant("write", pubKey)),
+  ).then(r => {
+    console.log(r);
+    const dbs = createStoreDefinitions(defaultStores);
+    return dbs;
+  });
 }

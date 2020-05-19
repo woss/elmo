@@ -150,16 +150,18 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
       case IElmoMessageActions.APPROVE_REPLICATE_DB:
         // this is when the the request for replicateDB is approved
         const m: IDatabaseDefinition[] = message.dbs;
+        console.log(message);
         const k = enqueueSnackbar(
-          `Hold on, we are setting upt the replication ...`,
+          `Hold on, we are setting up the replication ...`,
           {
             variant: "info",
             persist: true,
           },
         );
         console.debug("Replication the dbs");
-        createStores(m).then(d => {
-          localStorage.setItem("remoteDatabases", JSON.stringify(m));
+        createStores(m).then(async d => {
+          console.log(d);
+          await setValue({ remoteDatabases: m });
 
           if (fromRoute) {
             closeSnackbar(k);

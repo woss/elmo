@@ -8,13 +8,16 @@ import { IElmoIncomingMessage, IOneParamFunction } from "@src/interfaces";
 import React from "react";
 import BoldText from "../Custom/BoldText";
 
-interface Props extends IElmoIncomingMessage {
+interface Props {
+  message: IElmoIncomingMessage;
   open: boolean;
   handleAgree: IOneParamFunction;
 }
 export default function ReplicateDatabase({
-  message: { dbs, all, action },
-  from,
+  message: {
+    message: { dbs, all, action },
+    from,
+  },
   open: openFromProps,
   handleAgree,
 }: Props) {
@@ -28,7 +31,7 @@ export default function ReplicateDatabase({
     setOpen(false);
     handleAgree(false);
   };
-  console.log(dbs, from, action, all);
+
   return (
     <div>
       <Dialog
