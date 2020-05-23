@@ -2,7 +2,7 @@ import { Grid } from "@material-ui/core";
 import Fab from "@material-ui/core/Fab";
 import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
-import { replaceKey } from "@src/databases/ChromeStorage";
+import { replaceKey, getValuesByKey } from "@src/databases/ChromeStorage";
 import {
   addCollection,
   DB_NAME_COLLECTIONS,
@@ -42,8 +42,26 @@ export default function Collections() {
   // const linksDB = withStore("links");
 
   const [disabled, setDisabled] = useState(false);
-  const [forceReload, setForceReload] = useState(false);
+
   const [collections, setCollections] = useState([] as ICollection[]);
+
+  store.events.on("write", async (dbname, event) => {
+    console.debug("COLLECTIONS:: write", dbname, event);
+
+    const collections = await loadAllFromStore(DB_NAME_COLLECTIONS);
+    await replaceKey(DB_NAME_COLLECTIONS, collections);
+    setCollections(collections);
+  });
+
+  store.events.on("replicate", address => {
+    console.debug("COLLECTIONS:: replication started", address);
+  });
+  store.events.on("replicated", async () => {
+    console.debug("COLLECTIONS:: replicated");
+
+    const c = await loadAllFromStore(DB_NAME_COLLECTIONS);
+    setCollections(c);
+  });
 
   async function createCollectionTemplate(): Promise<ICollection> {
     const collectionName = "Collection " + Math.round(Math.random() * 100);
@@ -73,11 +91,7 @@ export default function Collections() {
         persist: true,
       });
 
-      const _c = await addCollection(collection);
-      console.log(_c);
-      // browser.runtime.sendMessage(
-      //   createBrowserRuntimeMessage("addCollection", { collection }),
-      // );
+      await addCollection(collection);
 
       closeSnackbar(snackKey);
       setDisabled(false);
@@ -96,36 +110,14 @@ export default function Collections() {
   useEffect(() => {
     // must do this since we get false too
 
-    store.events.on("write", async (dbname, event) => {
-      console.debug("COLLECTIONS:: write", dbname, event);
-
-      const collections = await loadAllFromStore(DB_NAME_COLLECTIONS);
-      await replaceKey(DB_NAME_COLLECTIONS, collections);
-      setCollections(collections);
-    });
-
-    store.events.on("replicate", address => {
-      console.debug("COLLECTIONS:: replication started", address);
-    });
-    store.events.on("replicated", async () => {
-      console.debug("COLLECTIONS:: replicated");
-
-      const c = await loadAllFromStore(DB_NAME_COLLECTIONS);
-      setCollections(c);
-
-      setForceReload(true);
-    });
-
     loadAllFromStore(DB_NAME_COLLECTIONS).then(c => {
       setCollections(c);
     });
 
     browser.runtime.onMessage.addListener(async r => {
-      // console.log(`COLLECTIONS:: action ${r.action}`, r.payload);
       switch (r.action) {
         case "newCollection":
           const c = await loadAllFromStore(DB_NAME_COLLECTIONS);
-          console.log("new collection", c);
           setCollections(c);
         default:
           break;
@@ -133,18 +125,19 @@ export default function Collections() {
     });
 
     return () => {
-      console.log("COLLECTIONS:: un-mount");
-      browser.runtime.onMessage.removeListener(() => console.log("removed"));
+      browser.runtime.onMessage.removeListener(() =>
+        console.log("removed listener"),
+      );
     };
   }, []);
 
   return (
     <div>
       <Grid container spacing={2} direction="column">
-        {collections.map(({ _id }) => {
+        {collections.map(c => {
           return (
-            <Grid item key={_id}>
-              <Collection forceReload={forceReload} id={_id} />
+            <Grid item key={c._id}>
+              <Collection data={c} id={c._id} />
             </Grid>
           );
         })}

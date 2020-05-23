@@ -9,11 +9,14 @@ import {
   initChromeStorage,
   setValue,
   syncDbDataWithStorage,
+  getValuesByKey,
+  clear,
 } from "@src/databases/ChromeStorage";
 import {
   createDefaultStores,
   createStores,
   useDBNode,
+  setDBsToInstance,
 } from "@src/databases/OrbitDB";
 import {
   IDatabaseDefinition,
@@ -103,6 +106,7 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
       action: IElmoMessageActions.REPLICATE_DB,
       all: true,
       dbID: instance.identity.id,
+      pubKey: instance.identity.publicKey,
     };
     console.debug("Message:: ", message);
     await ipfs.pubsub.publish(
@@ -150,7 +154,6 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
       case IElmoMessageActions.APPROVE_REPLICATE_DB:
         // this is when the the request for replicateDB is approved
         const m: IDatabaseDefinition[] = message.dbs;
-        console.log(message);
         const k = enqueueSnackbar(
           `Hold on, we are setting up the replication ...`,
           {
@@ -158,18 +161,26 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
             persist: true,
           },
         );
-        console.debug("Replication the dbs");
-        createStores(m).then(async d => {
-          console.log(d);
-          await setValue({ remoteDatabases: m });
+        console.debug("Replication the dbs", m);
 
-          if (fromRoute) {
-            closeSnackbar(k);
-            history.push("/");
-          } else {
-            handleClickCreateNew();
-            closeSnackbar(k);
-          }
+        createStores(m, true).then(async ({ dbs }) => {
+          // dbs.forEach(db => {
+          //   console.log(db);
+          //   db.events.on("replicated", async () => {
+          //     await db.load();
+          //     const res: any[] = await db.get("");
+          //     console.log(res);
+          //   });
+          // });
+
+          await initChromeStorage();
+          await syncDbDataWithStorage();
+          await setValue({ appInitialized: true });
+
+          getValuesByKey().then(console.log);
+
+          closeSnackbar(k);
+          handleAppInitialized(true);
         });
         break;
       case IElmoMessageActions.DECLINE_REPLICATE_DB:
@@ -192,6 +203,8 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
     }
   };
   useEffect(() => {
+    clear();
+    getValuesByKey().then(console.log);
     // let isSubscribed = true;
     let unsubscribe;
     // if (isSubscribed) {

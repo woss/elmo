@@ -60,8 +60,8 @@ export const Tab: FunctionComponent = () => {
 
   // Once fire when doc is loaded
 
-  async function handleAppInitialized(data) {
-    setAppInitialized(data);
+  async function handleAppInitialized(status: boolean) {
+    setAppInitialized(status);
   }
 
   async function handleAgree(decision) {
@@ -148,7 +148,6 @@ export const Tab: FunctionComponent = () => {
   useEffect(() => {
     async function init() {
       if (appInitialized && ipfsReady) {
-        console.log("s");
         await openAllStores();
 
         // Sync latest DATA to the Storage

@@ -1,5 +1,10 @@
 import { createChatListener, formatMessage } from "@src/chat/chat";
-import { replicateStores } from "@src/databases/OrbitDB";
+import {
+  giveFullAccessToStores,
+  setupReplicationListeners,
+  useDBNode,
+  createStoreDefinitions,
+} from "@src/databases/OrbitDB";
 import { bufferify } from "@src/helpers";
 import {
   IElmoIncomingMessage,
@@ -22,9 +27,7 @@ const Messages = () => {
     setMessages(messages => [...messages, message]);
 
     if (message.message.action === IElmoMessageActions.REPLICATE_DB) {
-      // setIncomingMessage(message);
       setShowReplication(true);
-      console.error(message);
     } else if (
       message.message.action === IElmoMessageActions.APPROVE_REPLICATE_DB
     ) {
@@ -64,48 +67,57 @@ const Messages = () => {
       unsubscribe();
     };
   }, []);
+
   function replicationMessage() {
     const found = messages.find(
       m => m.message.action === IElmoMessageActions.REPLICATE_DB,
     );
-    console.log(found);
 
-    if (found) {
-      return found;
-    } else {
+    if (!found) {
       throw new Error("Replication message not found");
     }
+
+    return found;
+  }
+
+  async function handleAgreeForReplication(decision: boolean) {
+    const { ipfs } = useIpfsNode();
+    const msg = replicationMessage();
+    if (!decision) {
+      const m: IElmoMessageDeclineReplicateDB = {
+        action: IElmoMessageActions.DECLINE_REPLICATE_DB,
+        message: "",
+      };
+
+      // Send the message beck to the sender
+      await ipfs.pubsub.publish(msg.from, bufferify(JSON.stringify(m)));
+    } else {
+      await giveFullAccessToStores(msg.message.pubKey);
+      const { dbs: defaultStores } = useDBNode();
+
+      const dbs = createStoreDefinitions(defaultStores);
+
+      const message: IElmoMessageApproveReplicateDB = {
+        action: IElmoMessageActions.APPROVE_REPLICATE_DB,
+        dbs: dbs.map(db => {
+          delete db.options.accessController;
+          return db;
+        }),
+        message: "",
+      };
+
+      // Send the message beck to the sender
+      await ipfs.pubsub.publish(msg.from, bufferify(JSON.stringify(message)));
+    }
+
+    setShowReplication(false);
   }
 
   if (showReplication) {
     return (
       <ReplicateDatabase
         message={replicationMessage()}
-        handleAgree={async decision => {
-          const { ipfs } = useIpfsNode();
-          const msg = replicationMessage();
-          if (!decision) {
-            const m: IElmoMessageDeclineReplicateDB = {
-              action: IElmoMessageActions.DECLINE_REPLICATE_DB,
-            };
-
-            await ipfs.pubsub.publish(msg.from, bufferify(JSON.stringify(m)));
-          } else {
-            const replicated = await replicateStores(msg.message.dbID);
-            console.log(replicated);
-            const message: IElmoMessageApproveReplicateDB = {
-              action: IElmoMessageActions.APPROVE_REPLICATE_DB,
-              dbs: replicated,
-            };
-
-            await ipfs.pubsub.publish(
-              msg.from,
-              bufferify(JSON.stringify(message)),
-            );
-          }
-
-          setShowReplication(false);
-        }}
+        handleAgree={handleAgreeForReplication}
         open={showReplication}
       ></ReplicateDatabase>
     );

@@ -88,6 +88,7 @@ export interface IElmoMessageReplicateDB extends IElmoMessage {
   dbs?: IDatabaseDefinition[];
   all?: boolean;
   dbID: string;
+  pubKey?: string;
   action: IElmoMessageActions.REPLICATE_DB;
 }
 

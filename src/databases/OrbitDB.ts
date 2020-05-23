@@ -47,7 +47,7 @@ export const DEFAULT_DATABASES: IDatabaseDefinition[] = [
   // },
 ];
 
-function setDBsToInstance(dbs: IOrbitDBStoreType[]) {
+export function setDBsToInstance(dbs: IOrbitDBStoreType[]) {
   storeInstance.dbs = dbs;
 }
 
@@ -107,7 +107,6 @@ export async function startOrbitDBInstance(): Promise<IStoreInstance> {
   const { ipfs } = useIpfsNode();
 
   if (!R.isNil(storeInstance)) {
-    console.log("OrbitDB instance found. Returning first");
     return storeInstance;
   } else {
     try {
@@ -123,7 +122,7 @@ export async function startOrbitDBInstance(): Promise<IStoreInstance> {
       };
       return storeInstance;
     } catch (e) {
-      console.log("Error in creating DB", e);
+      console.error("Error in creating DB", e);
       storeInstance = {
         instance: null,
         id: "",
@@ -160,14 +159,21 @@ export function buildOptions(opts: IOrbitDBOptions = {}) {
 export function transformStoreToElmoDefinition(
   s: IOrbitDBStoreType,
 ): IDatabaseDefinition {
-  return {
+  const ret = {
     address: s.address.toString(),
     dbName: s.dbname,
     storeType: s._type,
-    options: {
+    // options: {
+    //   indexBy: s.options.indexBy,
+    // },
+    options: buildOptions({
       indexBy: s.options.indexBy,
-    },
+      meta: {
+        remote: true,
+      },
+    }),
   };
+  return ret;
 }
 /**
  * Create ELMO Database definitions for export
@@ -185,24 +191,26 @@ export function createStoreDefinitions(
  */
 export async function createStores(
   dbs: IDatabaseDefinition[],
+  remote = false,
 ): Promise<IStoreInstance> {
   const { instance } = useDBNode();
   console.time("Creating Stores");
   return Promise.all(
     // creates and opens the storeType database orbitdb.docstore(name,opts)
     // https://github.com/orbitdb/orbit-db/blob/master/API.md#orbitdbdocstorenameaddress-options
-    dbs.map(db => instance[db.storeType](db.dbName, db.options)),
-  ).then(stores => {
+    dbs.map(db =>
+      instance[db.storeType](
+        remote ? db.address : db.dbName,
+        remote ? undefined : db.options,
+      ),
+    ),
+  ).then(async stores => {
+    console.log("stores", stores);
     storeInstance.dbs = stores;
     console.timeEnd("Creating Stores");
-
+    const d = createStoreDefinitions(stores);
+    await setCreatedDatabasesToChromeStorage(d);
     return storeInstance;
-    // return Promise.all(stores.map((store: any) => store.load())).then(
-    //   async () => {
-    //     // the load() modifies the actual store in prev call
-
-    //   },
-    // );
   });
 }
 
@@ -216,7 +224,6 @@ export async function openStoreByName(
   const dbs = await getCreatedStoresToChromeStorage();
   const { instance } = useDBNode();
   const db = dbs.find(d => d.dbName === generateStoreName(name));
-  console.log(db, dbs, name);
   const open = await instance.open(db.address, {
     type: db.storeType,
     ...db.options,
@@ -262,6 +269,8 @@ export async function openStores(
  */
 export async function openAllStores() {
   const dbs = await getCreatedStoresToChromeStorage();
+
+  if (dbs.length === 0) return null;
 
   return await openStores(dbs);
 }
@@ -321,8 +330,7 @@ export function sortByCreatedAt(
 
 export async function loadAllFromStore(name: string): Promise<any[]> {
   console.time(`${LOG_NAME}:: loadAllFromStore(${name})`);
-  const store = withStore(name);
-  await store.load();
+  const store = await openStoreByName(name);
   const res: any[] = await store.get("");
   const sorted = sortByCreatedAt(res, "DESC"); // DESC
   console.timeEnd(`${LOG_NAME}:: loadAllFromStore(${name})`);
@@ -333,17 +341,15 @@ export async function loadAllFromStore(name: string): Promise<any[]> {
  * Currently unused but good ref
  */
 export function setupReplicationListeners() {
-  console.warn("Dangerous method");
-  return null;
   const { dbs } = useDBNode();
 
   dbs.map(db => {
-    // db.events.on("peer", peer => {
-    //     console.log("event peer", peer.id);
-    // });
-    // db.events.on("replicate.progress", () => {
-    //     console.log(" event replicate.progress started", db);
-    // });
+    db.events.on("peer", peer => {
+      console.log("event peer", peer.id);
+    });
+    db.events.on("replicate.progress", () => {
+      console.log(" event replicate.progress started", db);
+    });
     db.events.on("replicate", address => {
       console.log(" event replication started  from address", address);
     });
@@ -358,7 +364,6 @@ export async function addCollection(
   c: ICollection,
   pin = false,
 ): Promise<ICollection> {
-  console.log("Adding collection");
   const store = withStore(DB_NAME_COLLECTIONS);
   // store.load();
   console.time(`ORBITDB:: Add collection ${c._id}`);
@@ -384,14 +389,8 @@ export async function renameCollection(c: ICollection): Promise<ICollection> {
   return collection;
 }
 
-export async function replicateStores(pubKey: string) {
+export async function giveFullAccessToStores(pubKey: string) {
   // Here is where we return the response back to the peer that wants to replicate the DB
   const { dbs: defaultStores } = useDBNode();
-  return Promise.all(
-    defaultStores.map(d => d.access.grant("write", pubKey)),
-  ).then(r => {
-    console.log(r);
-    const dbs = createStoreDefinitions(defaultStores);
-    return dbs;
-  });
+  return Promise.all(defaultStores.map(d => d.access.grant("write", pubKey)));
 }

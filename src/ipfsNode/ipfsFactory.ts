@@ -24,7 +24,7 @@ export async function startIpfsNode(
 ): Promise<IIPFSInstance> {
   if (!R.isEmpty(nodes) && returnFirst) {
     const firstNode = nodes[0];
-    console.log("IPFS instance found. Returning first");
+
     return firstNode;
   } else {
     try {
@@ -47,7 +47,7 @@ export async function startIpfsNode(
         id: node.id,
       };
       nodes.push(fullInstance);
-      console.log(`IPFS ID: ${node.id}`);
+      console.debug(`IPFS ID: ${node.id}`);
 
       return fullInstance;
     } catch (error) {
@@ -71,9 +71,8 @@ export function useIpfsNode(id?: string): IIPFSInstance {
 }
 
 export async function cleanup() {
-  console.log("ipfs cleanup");
   return nodes.map(async (node, k) => {
-    console.log("Stopping IPFS");
+    console.debug("Stopping IPFS");
     try {
       await node.ipfs.stop();
       delete nodes[k];
@@ -86,7 +85,7 @@ export async function cleanup() {
 export async function startMultipleIpfsNodes(
   amount: number,
 ): Promise<IIPFSInstance[]> {
-  console.log(
+  console.error(
     "startMultipleIpfsNodes is not fully supported, use at your own risk",
   );
   const promisedNodes: Promise<IIPFSInstance>[] = [];
@@ -123,6 +122,5 @@ export async function connectToExternal({
     },
   });
   await stop();
-  console.log("ipfs stopped");
   return await startIpfsNode(newConfig);
 }

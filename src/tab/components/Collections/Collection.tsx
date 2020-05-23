@@ -74,12 +74,12 @@ const useStyles = makeStyles(theme => ({
 }));
 interface Props {
   id: string;
-  forceReload: boolean;
+  data: any;
 }
 
 const VALID_URL_REGEX = /^(ftp|http|https|file):\/\/[^ "]+$/;
 
-function Collection({ id, forceReload }: Props) {
+function Collection({ id, data }: Props) {
   const classes = useStyles();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
@@ -100,16 +100,6 @@ function Collection({ id, forceReload }: Props) {
   const [addLinkNotificationKey, setAddLinkNotificationKey] = React.useState(
     "" as any,
   );
-
-  async function loadCollection() {
-    // don;t forget to load the store from disk
-    await store.load();
-    const r = await store.get(id);
-    if (!isEmpty(r)) {
-      setCollection(r[0]);
-      setLinks(r[0].links);
-    }
-  }
 
   async function handleAddLink() {
     const url = prompt("Please enter the URL");
@@ -175,42 +165,26 @@ function Collection({ id, forceReload }: Props) {
   }
 
   useEffect(() => {
-    loadCollection();
-  }, []);
-
-  useEffect(() => {
-    async function onIncomingRuntimeMessage(r) {
-      // we must check that current collection is the only one that needs to make changes
-
-      if (r.payload.collection._id === collection._id) {
-        // console.log(`COLLECTIONS:: action ${r.action}`, r.payload);
-        switch (r.action) {
-          case "newLink":
-            await loadCollection();
-            closeSnackbar(addLinkNotificationKey);
-            break;
-          case "newCollection":
-            console.log("new collection");
-
-          default:
-            break;
-        }
-      }
+    if (data) {
+      setCollection(data);
+      setLinks(data.links);
     }
-    if (!isEmpty(collection._id)) {
-      browser.runtime.onMessage.addListener(onIncomingRuntimeMessage);
-      return () => {
-        browser.runtime.onMessage.removeListener(() => console.log("removed"));
-      };
-    }
-  }, [collection]);
 
-  useEffect(() => {
-    if (forceReload) {
-      console.log("got force reload");
-      loadCollection();
-    }
-  }, [forceReload]);
+    // async function loadCollection() {
+    //   // don;t forget to load the store from disk
+    //   await store.load();
+    //   const r = await store.get(id);
+
+    //   if (!isEmpty(r)) {
+    //     setCollection(r[0]);
+    //     setLinks(r[0].links);
+    //   }
+    // }
+    // loadCollection();
+    return () => {
+      closeSnackbar(addLinkNotificationKey);
+    };
+  }, [data]);
 
   const buttonClassname = clsx({
     [classes.buttonSuccess]: success,
