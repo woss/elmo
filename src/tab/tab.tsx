@@ -6,20 +6,8 @@ import {
   getValuesByKey,
   syncDbDataWithStorage,
 } from "@src/databases/ChromeStorage";
-import {
-  createStoreDefinitions,
-  openAllStores,
-  startOrbitDBInstance,
-  useDBNode,
-} from "@src/databases/OrbitDB";
-import { bufferify } from "@src/helpers";
-import {
-  IElmoIncomingMessage,
-  IElmoMessageActions,
-  IElmoMessageApproveReplicateDB,
-  IElmoMessageDeclineReplicateDB,
-} from "@src/interfaces";
-import { startIpfsNode, useIpfsNode } from "@src/ipfsNode/ipfsFactory";
+import { openAllStores, startOrbitDBInstance } from "@src/databases/OrbitDB";
+import { startIpfsNode } from "@src/ipfsNode/ipfsFactory";
 import Collections from "@src/tab/components/Collections/Collections";
 import Database from "@src/tab/components/Database/Database";
 import Header from "@src/tab/components/Header/Header";
@@ -53,56 +41,8 @@ export const Tab: FunctionComponent = () => {
   const [appReady, setAppReady] = useState(false);
   const [ipfsReady, setIpfsReady] = useState(false);
 
-  const [
-    incomingMessage,
-    setIncomingMessage,
-  ] = useState<IElmoIncomingMessage | null>();
-
-  // Once fire when doc is loaded
-
   async function handleAppInitialized(status: boolean) {
     setAppInitialized(status);
-  }
-
-  async function handleAgree(decision) {
-    const { ipfs } = useIpfsNode();
-
-    const {
-      from,
-      message: { dbID },
-    } = incomingMessage;
-
-    if (!decision) {
-      setIncomingMessage(null);
-      const m: IElmoMessageDeclineReplicateDB = {
-        action: IElmoMessageActions.DECLINE_REPLICATE_DB,
-      };
-
-      await ipfs.pubsub.publish(from, bufferify(JSON.stringify(m)));
-      return null;
-    }
-
-    // Here is where we return the response back to the peer that wants to replicate the DB
-    const { dbs: defaultStores } = useDBNode();
-
-    // prepare message
-
-    Promise.all(defaultStores.map(d => d.access.grant("write", dbID))).then(
-      async () => {
-        const dbs = createStoreDefinitions(defaultStores);
-        console.log("SEND THE DBS", dbs);
-        const message: IElmoMessageApproveReplicateDB = {
-          action: IElmoMessageActions.APPROVE_REPLICATE_DB,
-          dbs,
-        };
-
-        await ipfs.pubsub.publish(from, bufferify(JSON.stringify(message)));
-        // here we send msg back with payload of all OrbitDB remote addr
-        console.log(message);
-        // set this to null after ALL is done, need the data from the msg
-        setIncomingMessage(null);
-      },
-    );
   }
 
   ///////////////////////////////////////////////
@@ -110,6 +50,7 @@ export const Tab: FunctionComponent = () => {
   ///////////////////////////////////////////////
   useEffect(() => {
     console.time("TAB:: Load");
+
     async function init() {
       try {
         // 1. Start the IPFS node

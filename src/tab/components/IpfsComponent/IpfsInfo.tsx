@@ -1,25 +1,23 @@
-import React, { useEffect, useState } from "react";
-
-import { useIpfsNode } from "@src/ipfsNode/ipfsFactory";
 import {
+  Button,
   Grid,
-  Typography,
+  GridSpacing,
+  IconButton,
   makeStyles,
   Paper,
-  GridSpacing,
-  Button,
-  IconButton,
+  Typography,
 } from "@material-ui/core";
-import Addresses from "./Addresses";
-import { SwarmPeers } from "./Swarm";
-import Connect from "./Connect";
-import useIpfsEffect from "@src/ipfsNode/use-ipfs";
-import { MyNodes } from "./MyNodes";
-
-import OfflineBoltIcon from "@material-ui/icons/OfflineBolt";
 import { green } from "@material-ui/core/colors";
+import OfflineBoltIcon from "@material-ui/icons/OfflineBolt";
+import { useIpfsNode } from "@src/ipfsNode/ipfsFactory";
+import useIpfsEffect from "@src/ipfsNode/use-ipfs";
 import { red } from "bn.js";
+import React, { useEffect, useState } from "react";
+import Addresses from "./Addresses";
 import Config from "./Config";
+import Connect from "./Connect";
+import { MyNodes } from "./MyNodes";
+import SwarmPeers from "./SwarmPeers";
 
 const useStyles = makeStyles(theme => ({
   root: {},

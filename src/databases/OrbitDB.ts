@@ -270,7 +270,7 @@ export async function openStores(
 export async function openAllStores() {
   const dbs = await getCreatedStoresToChromeStorage();
 
-  if (dbs.length === 0) return null;
+  if (!dbs || dbs.length === 0) return null;
 
   return await openStores(dbs);
 }

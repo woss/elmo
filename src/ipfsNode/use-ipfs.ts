@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import dotProp from "dot-prop";
 import { useIpfsNode } from "@src/ipfsNode/ipfsFactory";
-import { isUndefined } from "lodash";
+import { Peer } from "@src/typings/ipfs";
+import dotProp from "dot-prop";
+import { difference, isNil } from "ramda";
+import { useEffect, useRef, useState } from "react";
 
 /*
  * Pass the command you'd like to call on an ipfs instance.
@@ -19,7 +20,7 @@ async function callIpfs(cmd, opts, setRes?) {
   const res = await ipfsCmd(opts);
   // console.log(`Result ipfs.${cmd}`, res);
 
-  if (isUndefined(setRes)) {
+  if (isNil(setRes)) {
     return res;
   } else {
     setRes(res);
@@ -37,4 +38,42 @@ export default function useIpfsEffect(cmd, opts?) {
 
 export async function useIpfs(cmd, opts?): Promise<any> {
   return callIpfs(cmd, opts);
+}
+
+/**
+ * Swarm peers effect with the Interval
+ * @param callback
+ * @param interval
+ */
+export function useSwarmPeersEffect(callback, interval = 1000) {
+  const { ipfs } = useIpfsNode();
+  const savedCallback = useRef((p: Peer[]) => {
+    return p;
+  });
+
+  let peers: Peer[] = [];
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    async function tick() {
+      const newPeers = await ipfs.swarm.peers();
+      const diff = difference(newPeers, peers);
+      if (diff.length > 0) {
+        console.log(
+          "New peer(s) connected",
+          diff.map(d => d.peer),
+        );
+        peers = newPeers;
+        savedCallback.current(peers);
+      }
+    }
+
+    const id = setInterval(tick, interval);
+    return () => clearInterval(id);
+  }, [interval]);
 }

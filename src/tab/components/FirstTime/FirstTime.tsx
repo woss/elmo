@@ -6,17 +6,15 @@ import CardHeader from "@material-ui/core/CardHeader";
 import { makeStyles } from "@material-ui/core/styles";
 import { createChatListener } from "@src/chat/chat";
 import {
+  getValuesByKey,
   initChromeStorage,
   setValue,
   syncDbDataWithStorage,
-  getValuesByKey,
-  clear,
 } from "@src/databases/ChromeStorage";
 import {
   createDefaultStores,
   createStores,
   useDBNode,
-  setDBsToInstance,
 } from "@src/databases/OrbitDB";
 import {
   IDatabaseDefinition,
@@ -27,7 +25,6 @@ import {
 } from "@src/interfaces";
 import { useIpfsNode } from "@src/ipfsNode/ipfsFactory";
 import useIpfsEffect, { useIpfs } from "@src/ipfsNode/use-ipfs";
-import { history } from "@src/tab";
 import { IncomingMessage, PeerInfo } from "@src/typings/ipfs";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
@@ -55,14 +52,13 @@ interface Props {
   fromRoute?: boolean;
 }
 
-function FirstTime({ handleAppInitialized, fromRoute }: Props) {
+function FirstTime({ handleAppInitialized }: Props) {
   const classes = useStyles();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const [randomMessage, setRandomMessage] = useState("");
   const [remoteAddress, setRemoteAddress] = useState("");
   const [peers, setPeers] = useState([]);
-  const [selfTopic, setSelfTopic] = useState("");
   const { ipfs } = useIpfsNode();
   const { instance } = useDBNode();
 
@@ -163,7 +159,7 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
         );
         console.debug("Replication the dbs", m);
 
-        createStores(m, true).then(async ({ dbs }) => {
+        createStores(m, true).then(async () => {
           // dbs.forEach(db => {
           //   console.log(db);
           //   db.events.on("replicated", async () => {
@@ -203,14 +199,13 @@ function FirstTime({ handleAppInitialized, fromRoute }: Props) {
     }
   };
   useEffect(() => {
-    clear();
+    // clear();
     getValuesByKey().then(console.log);
     // let isSubscribed = true;
     let unsubscribe;
     // if (isSubscribed) {
     // Self listener, local messages or incoming
-    createChatListener(onMessage).then(({ topic, unsubscribe: unsub }) => {
-      setSelfTopic(topic);
+    createChatListener(onMessage).then(({ unsubscribe: unsub }) => {
       unsubscribe = unsub;
     });
     // }

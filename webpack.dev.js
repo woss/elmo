@@ -3,7 +3,7 @@ const common = require("./webpack.common.js");
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 //https://webpack.js.org/configuration/devtool/
 const path = require("path");
-const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
+const WebpackBuildNotifications = require("webpack-build-notifications");
 
 module.exports = merge(common, {
   mode: "development",
@@ -11,9 +11,9 @@ module.exports = merge(common, {
 
   plugins: [
     // new BundleAnalyzerPlugin()
-    new WebpackBuildNotifierPlugin({
+    new WebpackBuildNotifications({
       title: "ELMO",
-      logo: path.resolve("dist/assets/logo.png"),
+      logo: path.resolve("./dist/assets/logo.png"),
     }),
   ],
 });

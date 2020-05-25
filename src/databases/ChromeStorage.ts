@@ -44,7 +44,6 @@ export async function syncDbDataWithStorage() {
   // const storage = await getValuesByKey();
   // console.log(await getValuesByKey());
   if (dbs.length === 0) {
-    console.error("dbs are not set");
     return null;
   }
   console.time("ChromeStorage:: SYNC USER DATABASES");

@@ -2,7 +2,7 @@ import { Grid } from "@material-ui/core";
 import Fab from "@material-ui/core/Fab";
 import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
-import { replaceKey, getValuesByKey } from "@src/databases/ChromeStorage";
+import { replaceKey } from "@src/databases/ChromeStorage";
 import {
   addCollection,
   DB_NAME_COLLECTIONS,
@@ -14,7 +14,6 @@ import { createCID } from "@src/ipfsNode/helpers";
 import nanoid from "nanoid";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
-import { browser } from "webextension-polyfill-ts";
 import Collection from "./Collection";
 
 const useStyles = makeStyles(theme => ({
@@ -114,21 +113,21 @@ export default function Collections() {
       setCollections(c);
     });
 
-    browser.runtime.onMessage.addListener(async r => {
-      switch (r.action) {
-        case "newCollection":
-          const c = await loadAllFromStore(DB_NAME_COLLECTIONS);
-          setCollections(c);
-        default:
-          break;
-      }
-    });
+    // browser.runtime.onMessage.addListener(async r => {
+    //   switch (r.action) {
+    //     case "newCollection":
+    //       const c = await loadAllFromStore(DB_NAME_COLLECTIONS);
+    //       setCollections(c);
+    //     default:
+    //       break;
+    //   }
+    // });
 
-    return () => {
-      browser.runtime.onMessage.removeListener(() =>
-        console.log("removed listener"),
-      );
-    };
+    // return () => {
+    //   browser.runtime.onMessage.removeListener(() =>
+    //     console.log("removed listener"),
+    //   );
+    // };
   }, []);
 
   return (

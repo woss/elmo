@@ -1,7 +1,7 @@
 import { makeStyles, Typography } from "@material-ui/core";
-import { useIpfs } from "@src/ipfsNode/use-ipfs";
+import { useSwarmPeersEffect } from "@src/ipfsNode/use-ipfs";
 import { Peer } from "@src/typings/ipfs";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import CustomList from "../Shared/CustomList";
 
 const useStyles = makeStyles(theme => ({
@@ -20,32 +20,14 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export function SwarmPeers() {
+export default function SwarmPeers() {
   const classes = useStyles();
 
-  const [intervalID, setIntervalID] = useState(null);
   const [peers, setPeers] = useState([] as Peer[]);
 
-  function refreshPeers() {
-    useIpfs("swarm.peers").then(peers => {
-      setPeers(peers);
-    });
-  }
-
-  useEffect(() => {
-    refreshPeers();
-  }, []);
-
-  useEffect(() => {
-    if (!intervalID) {
-      const p = setInterval(refreshPeers, 1000);
-      setIntervalID(p);
-    }
-
-    return () => {
-      clearInterval(intervalID);
-    };
-  }, [peers]);
+  useSwarmPeersEffect((p: Peer[]) => {
+    setPeers(p);
+  });
 
   function transformPeerToString(peer: Peer): string {
     if (peer.addr) {

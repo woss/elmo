@@ -1,9 +1,8 @@
 import { createChatListener, formatMessage } from "@src/chat/chat";
 import {
-  giveFullAccessToStores,
-  setupReplicationListeners,
-  useDBNode,
   createStoreDefinitions,
+  giveFullAccessToStores,
+  useDBNode,
 } from "@src/databases/OrbitDB";
 import { bufferify } from "@src/helpers";
 import {
@@ -40,9 +39,6 @@ const Messages = () => {
       );
     }
   }
-  useEffect(() => {
-    console.log("messages", messages);
-  }, [messages]);
 
   useEffect(() => {
     let unsubscribe: () => void;
