@@ -44,24 +44,6 @@ export default function Collections() {
 
   const [collections, setCollections] = useState([] as ICollection[]);
 
-  store.events.on("write", async (dbname, event) => {
-    console.debug("COLLECTIONS:: write", dbname, event);
-
-    const collections = await loadAllFromStore(DB_NAME_COLLECTIONS);
-    await replaceKey(DB_NAME_COLLECTIONS, collections);
-    setCollections(collections);
-  });
-
-  store.events.on("replicate", address => {
-    console.debug("COLLECTIONS:: replication started", address);
-  });
-  store.events.on("replicated", async () => {
-    console.debug("COLLECTIONS:: replicated");
-
-    const c = await loadAllFromStore(DB_NAME_COLLECTIONS);
-    setCollections(c);
-  });
-
   async function createCollectionTemplate(): Promise<ICollection> {
     const collectionName = "Collection " + Math.round(Math.random() * 100);
     /**
@@ -110,6 +92,23 @@ export default function Collections() {
     // must do this since we get false too
 
     loadAllFromStore(DB_NAME_COLLECTIONS).then(c => {
+      setCollections(c);
+    });
+    store.events.on("write", async (dbname, event) => {
+      console.debug("COLLECTIONS:: write", dbname, event);
+
+      const collections = await loadAllFromStore(DB_NAME_COLLECTIONS);
+      await replaceKey(DB_NAME_COLLECTIONS, collections);
+      setCollections(collections);
+    });
+
+    store.events.on("replicate", address => {
+      console.debug("COLLECTIONS:: replication started", address);
+    });
+    store.events.on("replicated", async () => {
+      console.debug("COLLECTIONS:: replicated");
+
+      const c = await loadAllFromStore(DB_NAME_COLLECTIONS);
       setCollections(c);
     });
 

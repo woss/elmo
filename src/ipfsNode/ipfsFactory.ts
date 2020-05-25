@@ -1,6 +1,6 @@
 import { Options, Peer } from "@src/typings/ipfs";
 import Ipfs from "ipfs";
-import { difference, isEmpty, isNil } from "ramda";
+import { difference, isEmpty, isNil, uniq } from "ramda";
 import toMultiaddr from "uri-to-multiaddr";
 import { IIPFSInstance } from "../interfaces";
 import { buildConfig } from "./config";
@@ -145,7 +145,7 @@ export async function listenOnPeers(
         "New peer(s) connected",
         diff.map(d => d.peer),
       );
-      peers = newPeers;
+      peers = uniq(newPeers);
       if (!isNil(callback)) {
         callback(peers);
       }
