@@ -25,9 +25,7 @@ export default function SwarmPeers() {
 
   const [peers, setPeers] = useState([] as Peer[]);
 
-  useSwarmPeersEffect((p: Peer[]) => {
-    setPeers(p);
-  });
+  useSwarmPeersEffect(setPeers);
 
   function transformPeerToString(peer: Peer): string {
     if (peer.addr) {

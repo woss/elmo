@@ -7,7 +7,7 @@ import {
   syncDbDataWithStorage,
 } from "@src/databases/ChromeStorage";
 import { openAllStores, startOrbitDBInstance } from "@src/databases/OrbitDB";
-import { startIpfsNode } from "@src/ipfsNode/ipfsFactory";
+import { listenOnPeers, startIpfsNode } from "@src/ipfsNode/ipfsFactory";
 import Collections from "@src/tab/components/Collections/Collections";
 import Database from "@src/tab/components/Database/Database";
 import Header from "@src/tab/components/Header/Header";
@@ -95,6 +95,8 @@ export const Tab: FunctionComponent = () => {
         await syncDbDataWithStorage();
 
         console.log("All storage", await getValuesByKey());
+
+        listenOnPeers();
 
         setAppReady(true);
       } else {

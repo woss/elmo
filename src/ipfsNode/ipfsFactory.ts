@@ -1,6 +1,6 @@
-import { Options } from "@src/typings/ipfs";
+import { Options, Peer } from "@src/typings/ipfs";
 import Ipfs from "ipfs";
-import * as R from "ramda";
+import { difference, isEmpty, isNil } from "ramda";
 import toMultiaddr from "uri-to-multiaddr";
 import { IIPFSInstance } from "../interfaces";
 import { buildConfig } from "./config";
@@ -22,7 +22,7 @@ export async function startIpfsNode(
   opts: Options = {},
   returnFirst = true,
 ): Promise<IIPFSInstance> {
-  if (!R.isEmpty(nodes) && returnFirst) {
+  if (!isEmpty(nodes) && returnFirst) {
     const firstNode = nodes[0];
 
     return firstNode;
@@ -62,7 +62,7 @@ export function useIpfsNode(id?: string): IIPFSInstance {
   if (id) {
     console.log("return specific node");
   } else {
-    if (!R.isEmpty(nodes)) {
+    if (!isEmpty(nodes)) {
       return nodes[0];
     } else {
       throw new Error("No connected IPFS nodes.");
@@ -121,6 +121,37 @@ export async function connectToExternal({
       },
     },
   });
-  await stop();
+  stop();
   return await startIpfsNode(newConfig);
+}
+
+/**
+ * Poll the list of the connected peers
+ * @param callback
+ * @param interval
+ */
+export async function listenOnPeers(
+  callback?: (p: Peer[]) => {},
+  interval = 1000,
+) {
+  const { ipfs } = useIpfsNode();
+  let peers: Peer[] = [];
+
+  async function tick() {
+    const newPeers = await ipfs.swarm.peers();
+    const diff = difference(newPeers, peers);
+    if (diff.length > 0) {
+      console.log(
+        "New peer(s) connected",
+        diff.map(d => d.peer),
+      );
+      peers = newPeers;
+      if (!isNil(callback)) {
+        callback(peers);
+      }
+    }
+  }
+
+  const id = setInterval(tick, interval);
+  return id;
 }
