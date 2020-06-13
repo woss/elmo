@@ -139,13 +139,14 @@ export async function listenOnPeers(
 
   async function tick() {
     const newPeers = await ipfs.swarm.peers();
+    peers = uniq(newPeers);
     const diff = difference(newPeers, peers);
     if (diff.length > 0) {
       console.log(
         "New peer(s) connected",
         diff.map(d => d.peer),
       );
-      peers = uniq(newPeers);
+
       if (!isNil(callback)) {
         callback(peers);
       }

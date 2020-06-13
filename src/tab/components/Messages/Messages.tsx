@@ -88,17 +88,19 @@ const Messages = () => {
       // Send the message beck to the sender
       await ipfs.pubsub.publish(msg.from, bufferify(JSON.stringify(m)));
     } else {
-      await giveFullAccessToStores(msg.message.pubKey);
-      const { dbs: defaultStores } = useDBNode();
+      await giveFullAccessToStores(msg.message.dbID);
+
+      const { dbs: defaultStores, instance } = useDBNode();
 
       const dbs = createStoreDefinitions(defaultStores);
 
       const message: IElmoMessageApproveReplicateDB = {
         action: IElmoMessageActions.APPROVE_REPLICATE_DB,
-        dbs: dbs.map(db => {
-          delete db.options.accessController;
-          return db;
-        }),
+        // dbs: dbs.map(db => {
+        //   // db.options.accessController.write.push(instance.identity.id);
+        //   return db;
+        // }),
+        dbs,
         message: "",
       };
 

@@ -116,6 +116,7 @@ export interface IDatabaseDefinition {
 export interface IOrbitDBOptions {
   indexBy?: string;
   accessController?: IOrbitDBAccessControllerOption;
+  overwrite?: boolean;
 }
 export interface IOrbitDBAccessControllerOption {
   type?: AccessControllerType;
@@ -150,6 +151,7 @@ export interface IOrbitDBStoreType {
   dbname: string;
   options: {
     type: string;
+    accessController: { write: string[] };
     accessControllerAddress: string;
     replicate: boolean;
     indexBy: string;

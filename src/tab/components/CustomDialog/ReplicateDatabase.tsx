@@ -50,7 +50,7 @@ export default function ReplicateDatabase({
           </DialogContentText>
 
           <DialogContentText id="alert-dialog-description">
-            If you don't know this Peer, don't agree on anything.
+            {"If you don't know this Peer, don't agree on anything."}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

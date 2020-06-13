@@ -1,6 +1,6 @@
-import React from "react";
+import { makeStyles, Paper, Typography } from "@material-ui/core";
 import { useDBNode } from "@src/databases/OrbitDB";
-import { Typography, Paper, useTheme, makeStyles } from "@material-ui/core";
+import React from "react";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -15,6 +15,7 @@ const useStyles = makeStyles(theme => ({
 
 function Identity() {
   const { instance } = useDBNode();
+  console.log(instance);
   const classes = useStyles();
   return (
     <div className={classes.root}>

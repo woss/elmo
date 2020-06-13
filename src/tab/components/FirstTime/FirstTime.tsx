@@ -157,9 +157,15 @@ function FirstTime({ handleAppInitialized }: Props) {
             persist: true,
           },
         );
-        console.debug("Replication the dbs", m);
+        const dbsWithOurIdentity = m.map(db => {
+          db.options.accessController.write.push(instance.identity.id);
+          db.options.overwrite = true;
+          return db;
+        });
+        console.debug("Replication the dbs", dbsWithOurIdentity);
 
-        createStores(m, true).then(async () => {
+        createStores(dbsWithOurIdentity, true).then(async () => {
+          // await giveFullAccessToStores(instance.identity.id);
           // dbs.forEach(db => {
           //   console.log(db);
           //   db.events.on("replicated", async () => {

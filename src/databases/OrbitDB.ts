@@ -185,6 +185,17 @@ export function createStoreDefinitions(
   return Object.values(dbs).map(s => transformStoreToElmoDefinition(s));
 }
 
+const ops = [
+  [
+    "meta_lens_info",
+    [["meta_copyright", [["perceptual_hash", [["meta_create_date"]]]]]],
+  ],
+  ["meta_lens_serial_number"],
+  ["meta_lens_model"],
+];
+
+console.log(ops);
+
 /**
  * Create Databases
  * @param dbs
@@ -201,7 +212,7 @@ export async function createStores(
     dbs.map(db =>
       instance[db.storeType](
         remote ? db.address : db.dbName,
-        remote ? undefined : db.options,
+        !remote || db.options,
       ),
     ),
   ).then(async stores => {
@@ -362,7 +373,7 @@ export function setupReplicationListeners() {
 
 export async function addCollection(
   c: ICollection,
-  pin = false,
+  pin = true,
 ): Promise<ICollection> {
   const store = withStore(DB_NAME_COLLECTIONS);
   // store.load();
@@ -389,8 +400,21 @@ export async function renameCollection(c: ICollection): Promise<ICollection> {
   return collection;
 }
 
-export async function giveFullAccessToStores(pubKey: string) {
+export async function giveFullAccessToStores(dbId: string) {
   // Here is where we return the response back to the peer that wants to replicate the DB
-  const { dbs: defaultStores } = useDBNode();
-  return Promise.all(defaultStores.map(d => d.access.grant("write", pubKey)));
+  const { dbs: defaultStores, instance } = useDBNode();
+  return Promise.all(
+    defaultStores.map(async d => {
+      d = await instance.create(d.dbname, d._type, {
+        accessController: {
+          write: [...d.options.accessController.write, dbId],
+        },
+        overwrite: true,
+        replicate: true,
+        meta: { hello: "meta hello", remote: true },
+      });
+      console.log(d);
+      return d.access.grant("write", dbId);
+    }),
+  );
 }
