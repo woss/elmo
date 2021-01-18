@@ -22,7 +22,7 @@ import TCP from "libp2p-tcp";
  * @param {libp2pBundle~options} opts The options to use when generating the libp2p node
  * @returns {Libp2p} Our new libp2p node
  */
-export const libp2pBundle = opts => {
+export const libp2pBundle = (opts) => {
   // Set convenience variables to clearly showcase some of the useful things that are available
   const peerInfo = opts.peerInfo;
   const peerBook = opts.peerBook;

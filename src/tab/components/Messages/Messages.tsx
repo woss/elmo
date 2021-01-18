@@ -23,7 +23,7 @@ const Messages = () => {
   function onMessage(msg: IncomingMessage) {
     const message = formatMessage(msg);
 
-    setMessages(messages => [...messages, message]);
+    setMessages((messages) => [...messages, message]);
 
     if (message.message.action === IElmoMessageActions.REPLICATE_DB) {
       setShowReplication(true);
@@ -66,7 +66,7 @@ const Messages = () => {
 
   function replicationMessage() {
     const found = messages.find(
-      m => m.message.action === IElmoMessageActions.REPLICATE_DB,
+      (m) => m.message.action === IElmoMessageActions.REPLICATE_DB,
     );
 
     if (!found) {

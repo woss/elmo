@@ -19,7 +19,7 @@ import Messages from "@tab/components/Messages/Messages";
 import React, { Fragment, FunctionComponent, useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {},
   flex: {
     display: "flex",

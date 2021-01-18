@@ -12,7 +12,7 @@ import { isEmpty } from "ramda";
 import React, { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     minWidth: 275,
     maxWidth: 275,

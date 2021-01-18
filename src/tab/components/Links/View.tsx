@@ -95,7 +95,7 @@ function View() {
           console.error(e);
         }
       })
-      .catch(e => {
+      .catch((e) => {
         console.error(e);
       });
   }, []);

@@ -49,17 +49,17 @@ export async function startStar() {
   libp2p.peerInfo.multiaddrs.add(webrtcAddr);
 
   // Listen for new peers
-  libp2p.on("peer:discovery", peerInfo => {
+  libp2p.on("peer:discovery", (peerInfo) => {
     log(`Found peer ${peerInfo.id.toB58String()}`);
   });
 
   // Listen for new connections to peers
-  libp2p.on("peer:connect", peerInfo => {
+  libp2p.on("peer:connect", (peerInfo) => {
     log(`Connected to ${peerInfo.id.toB58String()}`);
   });
 
   // Listen for peers disconnecting
-  libp2p.on("peer:disconnect", peerInfo => {
+  libp2p.on("peer:disconnect", (peerInfo) => {
     log(`Disconnected from ${peerInfo.id.toB58String()}`);
   });
 

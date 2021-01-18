@@ -99,7 +99,7 @@ export async function startMultipleIpfsNodes(
       ),
     );
   }
-  return Promise.all(promisedNodes).then(n => {
+  return Promise.all(promisedNodes).then((n) => {
     nodes = n;
     return nodes;
   });
@@ -144,7 +144,7 @@ export async function listenOnPeers(
     if (diff.length > 0) {
       console.log(
         "New peer(s) connected",
-        diff.map(d => d.peer),
+        diff.map((d) => d.peer),
       );
 
       if (!isNil(callback)) {

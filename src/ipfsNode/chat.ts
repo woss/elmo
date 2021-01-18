@@ -10,18 +10,18 @@ const mkRoomName = (name: string) => {
 export function createRoom(name: string, ipfs: IPFS, peersSet) {
   const room = new Room(ipfs, mkRoomName(name));
 
-  room.on("peer joined", peer => {
+  room.on("peer joined", (peer) => {
     console.log("peer " + peer + " joined");
     peersSet.add(peer);
   });
 
-  room.on("peer left", peer => {
+  room.on("peer left", (peer) => {
     console.log("peer " + peer + " left");
     peersSet.delete(peer);
   });
 
   // send and receive messages
-  room.on("message", message => {
+  room.on("message", (message) => {
     console.log(
       "got message from " + message.from + ": " + message.data.toString(),
     );

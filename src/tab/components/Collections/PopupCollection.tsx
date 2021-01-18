@@ -42,14 +42,14 @@ function PopupCollection({ collection, currentTab }: Props) {
 
   useEffect(() => {
     if (currentTab) {
-      calculateHash(currentTab.url).then(async hash => {
+      calculateHash(currentTab.url).then(async (hash) => {
         if (collection.links.includes(hash)) setChecked(true);
       });
     }
   }, [currentTab]);
 
   useEffect(() => {
-    browser.runtime.onMessage.addListener(r => {
+    browser.runtime.onMessage.addListener((r) => {
       // we must check that current collection is the only one that needs to make changes
       // because this listener is created for EVERY collection in popup
       if (

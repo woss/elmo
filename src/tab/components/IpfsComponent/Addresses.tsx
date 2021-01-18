@@ -4,7 +4,7 @@ import CustomList from "@src/tab/components/Shared/CustomList";
 import { Id } from "@src/typings/ipfs";
 import React, { useEffect, useState } from "react";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     // maxWidth: 752,

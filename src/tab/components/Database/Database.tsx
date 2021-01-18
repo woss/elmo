@@ -4,7 +4,7 @@ import { Typography, Grid, makeStyles, Paper, Button } from "@material-ui/core";
 import Identity from "./Identity";
 import { clear } from "@src/databases/ChromeStorage";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {},
   paper: {
     padding: theme.spacing(2),
@@ -41,7 +41,7 @@ function Database() {
         <Typography variant="h4">Database Settings and Info</Typography>
         <Paper className={classes.paper}>
           <ul>
-            {dbs.map(store => {
+            {dbs.map((store) => {
               return (
                 <li key={store.address.toString()}>
                   DB name: {store.dbname}

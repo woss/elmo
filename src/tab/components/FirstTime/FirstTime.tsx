@@ -29,7 +29,7 @@ import { IncomingMessage, PeerInfo } from "@src/typings/ipfs";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: { width: "60vw" },
   flex: {
     display: "flex",
@@ -157,7 +157,7 @@ function FirstTime({ handleAppInitialized }: Props) {
             persist: true,
           },
         );
-        const dbsWithOurIdentity = m.map(db => {
+        const dbsWithOurIdentity = m.map((db) => {
           db.options.accessController.write.push(instance.identity.id);
           db.options.overwrite = true;
           return db;
@@ -216,8 +216,8 @@ function FirstTime({ handleAppInitialized }: Props) {
     });
     // }
     const peersInterval = setInterval(() => {
-      useIpfs("swarm.peers").then(peers => {
-        const p = peers.map(p => {
+      useIpfs("swarm.peers").then((peers) => {
+        const p = peers.map((p) => {
           return p.addr.toString();
         });
         setPeers(p);

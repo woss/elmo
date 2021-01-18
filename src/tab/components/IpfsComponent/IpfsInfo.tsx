@@ -19,7 +19,7 @@ import Connect from "./Connect";
 import { MyNodes } from "./MyNodes";
 import SwarmPeers from "./SwarmPeers";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {},
   left: {
     // backgroundColor: theme.palette.primary[300],

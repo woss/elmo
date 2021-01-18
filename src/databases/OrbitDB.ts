@@ -182,7 +182,7 @@ export function transformStoreToElmoDefinition(
 export function createStoreDefinitions(
   dbs: IOrbitDBStoreType[],
 ): IDatabaseDefinition[] {
-  return Object.values(dbs).map(s => transformStoreToElmoDefinition(s));
+  return Object.values(dbs).map((s) => transformStoreToElmoDefinition(s));
 }
 
 const ops = [
@@ -209,13 +209,13 @@ export async function createStores(
   return Promise.all(
     // creates and opens the storeType database orbitdb.docstore(name,opts)
     // https://github.com/orbitdb/orbit-db/blob/master/API.md#orbitdbdocstorenameaddress-options
-    dbs.map(db =>
+    dbs.map((db) =>
       instance[db.storeType](
         remote ? db.address : db.dbName,
         !remote || db.options,
       ),
     ),
-  ).then(async stores => {
+  ).then(async (stores) => {
     console.log("stores", stores);
     storeInstance.dbs = stores;
     console.timeEnd("Creating Stores");
@@ -234,7 +234,7 @@ export async function openStoreByName(
 ): Promise<IOrbitDBStoreType> {
   const dbs = await getCreatedStoresToChromeStorage();
   const { instance } = useDBNode();
-  const db = dbs.find(d => d.dbName === generateStoreName(name));
+  const db = dbs.find((d) => d.dbName === generateStoreName(name));
   const open = await instance.open(db.address, {
     type: db.storeType,
     ...db.options,
@@ -267,7 +267,7 @@ export async function openStores(
   dbs: IDatabaseDefinition[],
 ): Promise<IOrbitDBStoreType[]> {
   const s = await Promise.all(
-    dbs.map(async db => {
+    dbs.map(async (db) => {
       return await openStore(db);
     }),
   );
@@ -291,7 +291,7 @@ export async function openAllStores() {
  * @param opts
  */
 export async function createDefaultStores(opts: IOrbitDBOptions = {}) {
-  const databases = DEFAULT_DATABASES.map(d => {
+  const databases = DEFAULT_DATABASES.map((d) => {
     return {
       dbName: generateStoreName(d.dbName),
       options: buildOptions({ ...opts, ...d.options }),
@@ -311,7 +311,7 @@ export async function createDefaultStores(opts: IOrbitDBOptions = {}) {
 export function withStore(name: string): IOrbitDBStoreType {
   const dbName = generateStoreName(name);
   if (!R.isEmpty(storeInstance)) {
-    const store = storeInstance.dbs.find(d => d.dbname === dbName);
+    const store = storeInstance.dbs.find((d) => d.dbname === dbName);
     if (store) {
       return store;
     } else {
@@ -354,14 +354,14 @@ export async function loadAllFromStore(name: string): Promise<any[]> {
 export function setupReplicationListeners() {
   const { dbs } = useDBNode();
 
-  dbs.map(db => {
-    db.events.on("peer", peer => {
+  dbs.map((db) => {
+    db.events.on("peer", (peer) => {
       console.log("event peer", peer.id);
     });
     db.events.on("replicate.progress", () => {
       console.log(" event replicate.progress started", db);
     });
-    db.events.on("replicate", address => {
+    db.events.on("replicate", (address) => {
       console.log(" event replication started  from address", address);
     });
     db.events.on("replicated", () => {
@@ -404,7 +404,7 @@ export async function giveFullAccessToStores(dbId: string) {
   // Here is where we return the response back to the peer that wants to replicate the DB
   const { dbs: defaultStores, instance } = useDBNode();
   return Promise.all(
-    defaultStores.map(async d => {
+    defaultStores.map(async (d) => {
       d = await instance.create(d.dbname, d._type, {
         accessController: {
           write: [...d.options.accessController.write, dbId],

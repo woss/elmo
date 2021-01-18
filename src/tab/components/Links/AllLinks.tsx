@@ -17,14 +17,14 @@ function AllLinks() {
   const [links, setLinks] = useState([] as ILink[]);
 
   useEffect(() => {
-    loadAllFromStore(DB_NAME_LINKS).then(r => {
+    loadAllFromStore(DB_NAME_LINKS).then((r) => {
       setLinks(r);
     });
   }, []);
   return (
     <Grid container className={classes.root}>
       {/* <List> */}
-      {links.map(l => {
+      {links.map((l) => {
         const { hash } = l;
         return (
           <Grid key={hash} item>

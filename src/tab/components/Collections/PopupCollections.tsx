@@ -27,7 +27,7 @@ const PopupCollections = () => {
   }, []);
   return (
     <List>
-      {collections.map(collection => {
+      {collections.map((collection) => {
         return (
           <PopupCollection
             key={collection._id}

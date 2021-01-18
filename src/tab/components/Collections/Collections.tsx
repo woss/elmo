@@ -16,7 +16,7 @@ import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import Collection from "./Collection";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {},
   loading: {
     width: 300,
@@ -91,7 +91,7 @@ export default function Collections() {
   useEffect(() => {
     // must do this since we get false too
 
-    loadAllFromStore(DB_NAME_COLLECTIONS).then(c => {
+    loadAllFromStore(DB_NAME_COLLECTIONS).then((c) => {
       setCollections(c);
     });
     store.events.on("write", async (dbname, event) => {
@@ -102,7 +102,7 @@ export default function Collections() {
       setCollections(collections);
     });
 
-    store.events.on("replicate", address => {
+    store.events.on("replicate", (address) => {
       console.debug("COLLECTIONS:: replication started", address);
     });
     store.events.on("replicated", async () => {
@@ -132,7 +132,7 @@ export default function Collections() {
   return (
     <div>
       <Grid container spacing={2} direction="column">
-        {collections.map(c => {
+        {collections.map((c) => {
           return (
             <Grid item key={c._id}>
               <Collection data={c} id={c._id} />

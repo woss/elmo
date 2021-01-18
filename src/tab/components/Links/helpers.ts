@@ -61,7 +61,7 @@ export async function saveCollectionToChromeStorage(c: ICollection) {
   );
   const all: ICollection[] = await getValuesByKey(DB_NAME_COLLECTIONS);
 
-  const collections = all.map(collection => {
+  const collections = all.map((collection) => {
     if (c._id === collection._id) {
       return c;
     } else {
@@ -116,7 +116,7 @@ export async function removeFromCollection(
   linkHash: string,
   collection: ICollection,
 ): Promise<ICollection> {
-  const links = collection.links.filter(e => e !== linkHash);
+  const links = collection.links.filter((e) => e !== linkHash);
   const newCollection: ICollection = {
     ...collection,
     links,
@@ -164,6 +164,6 @@ export async function downloadAndSaveLink(url: string): Promise<ILink> {
     return l;
   } else {
     console.log("LINK:HELPER:: Link exists, skip adding", all, hash);
-    return all.find(a => a.hash === hash);
+    return all.find((a) => a.hash === hash);
   }
 }

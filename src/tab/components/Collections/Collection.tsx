@@ -23,7 +23,7 @@ import React, { SyntheticEvent, useEffect, useState } from "react";
 import { browser } from "webextension-polyfill-ts";
 import Links from "../Links/Links";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexDirection: "column",

@@ -3,7 +3,7 @@ import { Peer } from "@src/typings/ipfs";
 import React, { useState } from "react";
 import CustomList from "../Shared/CustomList";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     // maxWidth: 752,

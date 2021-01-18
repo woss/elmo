@@ -4,7 +4,7 @@ import React from "react";
 import useIpfsEffect from "@src/ipfsNode/use-ipfs";
 import { Typography, makeStyles } from "@material-ui/core";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     overflow: "auto",
   },

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Select, MenuItem, makeStyles, FormControl } from "@material-ui/core";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   select: {
     margin: theme.spacing(1),
     color: theme.palette.primary.contrastText,
@@ -42,7 +42,7 @@ function SearchEngineSelector({ selectCurrentEngine, current }) {
         id="search-engine-selector"
         name="search-engine-selector"
         value={current}
-        onChange={e => selectCurrentEngine(e.target.value as string)}
+        onChange={(e) => selectCurrentEngine(e.target.value as string)}
         className={classes.select}
       >
         {searchEngines.map((v, k) => {
