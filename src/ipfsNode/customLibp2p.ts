@@ -1,11 +1,11 @@
-import Libp2p from "libp2p";
-import Bootstrap from "libp2p-bootstrap";
-import KadDHT from "libp2p-kad-dht";
-import MulticastDNS from "libp2p-mdns";
-import MPLEX from "libp2p-mplex";
-import SECIO from "libp2p-secio";
-import SPDY from "libp2p-spdy";
-import TCP from "libp2p-tcp";
+import Libp2p from 'libp2p'
+import Bootstrap from 'libp2p-bootstrap'
+import KadDHT from 'libp2p-kad-dht'
+import MulticastDNS from 'libp2p-mdns'
+import MPLEX from 'libp2p-mplex'
+import SECIO from 'libp2p-secio'
+import SPDY from 'libp2p-spdy'
+import TCP from 'libp2p-tcp'
 
 /**
  * Options for the libp2p bundle
@@ -24,9 +24,9 @@ import TCP from "libp2p-tcp";
  */
 export const libp2pBundle = (opts) => {
   // Set convenience variables to clearly showcase some of the useful things that are available
-  const peerInfo = opts.peerInfo;
-  const peerBook = opts.peerBook;
-  const bootstrapList = opts.config.Bootstrap;
+  const peerInfo = opts.peerInfo
+  const peerBook = opts.peerBook
+  const bootstrapList = opts.config.Bootstrap
 
   // Build and return our libp2p node
   // n.b. for full configuration options, see https://github.com/libp2p/js-libp2p/blob/master/doc/CONFIGURATION.md
@@ -92,5 +92,5 @@ export const libp2pBundle = (opts) => {
     //   ],
     //   maxOldPeersRetention: 50, // How many disconnected peers we will retain stats for
     // },
-  });
-};
+  })
+}

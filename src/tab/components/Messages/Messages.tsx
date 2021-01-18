@@ -1,98 +1,84 @@
-import { createChatListener, formatMessage } from "@src/chat/chat";
-import {
-  createStoreDefinitions,
-  giveFullAccessToStores,
-  useDBNode,
-} from "@src/databases/OrbitDB";
-import { bufferify } from "@src/helpers";
+import { createChatListener, formatMessage } from '@src/chat/chat'
+import { createStoreDefinitions, giveFullAccessToStores, useDBNode } from '@src/databases/OrbitDB'
+import { bufferify } from '@src/helpers'
 import {
   IElmoIncomingMessage,
   IElmoMessageActions,
   IElmoMessageApproveReplicateDB,
   IElmoMessageDeclineReplicateDB,
-} from "@src/interfaces";
-import { useIpfsNode } from "@src/ipfsNode/ipfsFactory";
-import { IncomingMessage } from "@src/typings/ipfs";
-import React, { useEffect, useState } from "react";
-import ReplicateDatabase from "../CustomDialog/ReplicateDatabase";
+} from '@src/interfaces'
+import { useIpfsNode } from '@src/ipfsNode/ipfsFactory'
+import { IncomingMessage } from '@src/typings/ipfs'
+import React, { useEffect, useState } from 'react'
+import ReplicateDatabase from '../CustomDialog/ReplicateDatabase'
 
 const Messages = () => {
-  const [messages, setMessages] = useState<IElmoIncomingMessage[]>([]);
-  const [showReplication, setShowReplication] = useState(false);
+  const [messages, setMessages] = useState<IElmoIncomingMessage[]>([])
+  const [showReplication, setShowReplication] = useState(false)
 
   function onMessage(msg: IncomingMessage) {
-    const message = formatMessage(msg);
+    const message = formatMessage(msg)
 
-    setMessages((messages) => [...messages, message]);
+    setMessages((messages) => [...messages, message])
 
     if (message.message.action === IElmoMessageActions.REPLICATE_DB) {
-      setShowReplication(true);
-    } else if (
-      message.message.action === IElmoMessageActions.APPROVE_REPLICATE_DB
-    ) {
-      console.debug(
-        `Got ${message.message.action} ::  ${message.message.message}`,
-      );
+      setShowReplication(true)
+    } else if (message.message.action === IElmoMessageActions.APPROVE_REPLICATE_DB) {
+      console.debug(`Got ${message.message.action} ::  ${message.message.message}`)
     } else {
-      console.log(
-        `Got ${message.message.action} ::  ${message.message.message}`,
-      );
+      console.log(`Got ${message.message.action} ::  ${message.message.message}`)
     }
   }
 
   useEffect(() => {
-    let unsubscribe: () => void;
+    let unsubscribe: () => void
     async function init() {
       try {
         // 2. Create Local Subscription so we can communicate via ipfs
-        const { unsubscribe: _unsubscribe } = await createChatListener(
-          onMessage,
-        );
+        const { unsubscribe: _unsubscribe } = await createChatListener(onMessage)
 
         // 3. set the unsub function for on exit cleanup
-        unsubscribe = _unsubscribe;
+        unsubscribe = _unsubscribe
       } catch (error) {
-        console.error(error);
+        console.error(error)
       }
     }
 
-    init();
+    init()
 
     return () => {
-      console.log("MESSAGES:: un-mount");
-      unsubscribe();
-    };
-  }, []);
+      console.log('MESSAGES:: un-mount')
+      unsubscribe()
+    }
+  }, [])
 
   function replicationMessage() {
-    const found = messages.find(
-      (m) => m.message.action === IElmoMessageActions.REPLICATE_DB,
-    );
+    const found = messages.find((m) => m.message.action === IElmoMessageActions.REPLICATE_DB)
 
     if (!found) {
-      throw new Error("Replication message not found");
+      throw new Error('Replication message not found')
     }
 
-    return found;
+    return found
   }
 
   async function handleAgreeForReplication(decision: boolean) {
-    const { ipfs } = useIpfsNode();
-    const msg = replicationMessage();
+    const { ipfs } = useIpfsNode()
+    const msg = replicationMessage()
     if (!decision) {
       const m: IElmoMessageDeclineReplicateDB = {
         action: IElmoMessageActions.DECLINE_REPLICATE_DB,
-        message: "",
-      };
+        message: '',
+      }
 
       // Send the message beck to the sender
-      await ipfs.pubsub.publish(msg.from, bufferify(JSON.stringify(m)));
+      await ipfs.pubsub.publish(msg.from, bufferify(JSON.stringify(m)))
     } else {
-      await giveFullAccessToStores(msg.message.dbID);
+      await giveFullAccessToStores(msg.message.dbID)
 
-      const { dbs: defaultStores, instance } = useDBNode();
+      const { dbs: defaultStores, instance } = useDBNode()
 
-      const dbs = createStoreDefinitions(defaultStores);
+      const dbs = createStoreDefinitions(defaultStores)
 
       const message: IElmoMessageApproveReplicateDB = {
         action: IElmoMessageActions.APPROVE_REPLICATE_DB,
@@ -101,14 +87,14 @@ const Messages = () => {
         //   return db;
         // }),
         dbs,
-        message: "",
-      };
+        message: '',
+      }
 
       // Send the message beck to the sender
-      await ipfs.pubsub.publish(msg.from, bufferify(JSON.stringify(message)));
+      await ipfs.pubsub.publish(msg.from, bufferify(JSON.stringify(message)))
     }
 
-    setShowReplication(false);
+    setShowReplication(false)
   }
 
   if (showReplication) {
@@ -118,7 +104,7 @@ const Messages = () => {
         handleAgree={handleAgreeForReplication}
         open={showReplication}
       ></ReplicateDatabase>
-    );
+    )
   }
 
   return (
@@ -126,11 +112,11 @@ const Messages = () => {
       <ol>
         {messages &&
           messages.map((m, k) => {
-            return <li key={k}>{m.message.message}</li>;
+            return <li key={k}>{m.message.message}</li>
           })}
       </ol>
     </div>
-  );
-};
+  )
+}
 
-export default Messages;
+export default Messages

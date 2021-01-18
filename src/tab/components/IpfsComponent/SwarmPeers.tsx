@@ -1,8 +1,8 @@
-import { makeStyles, Typography } from "@material-ui/core";
-import { useSwarmPeersEffect } from "@src/ipfsNode/use-ipfs";
-import { Peer } from "@src/typings/ipfs";
-import React, { useState } from "react";
-import CustomList from "../Shared/CustomList";
+import { makeStyles, Typography } from '@material-ui/core'
+import { useSwarmPeersEffect } from '@src/ipfsNode/use-ipfs'
+import { Peer } from '@src/typings/ipfs'
+import React, { useState } from 'react'
+import CustomList from '../Shared/CustomList'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -16,37 +16,33 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(2, 0, 2),
   },
   text: {
-    overflowWrap: "anywhere",
+    overflowWrap: 'anywhere',
   },
-}));
+}))
 
 export default function SwarmPeers() {
-  const classes = useStyles();
+  const classes = useStyles()
 
-  const [peers, setPeers] = useState([] as Peer[]);
+  const [peers, setPeers] = useState([] as Peer[])
 
-  useSwarmPeersEffect(setPeers);
+  useSwarmPeersEffect(setPeers)
 
   function transformPeerToString(peer: Peer): string {
     if (peer.addr) {
-      const addr = peer.addr.toString();
-      if (addr.indexOf("ipfs") >= 0) {
-        return addr;
+      const addr = peer.addr.toString()
+      if (addr.indexOf('ipfs') >= 0) {
+        return addr
       } else {
-        return peer.peer;
+        return peer.peer
       }
     } else {
-      return "";
+      return ''
     }
   }
   return (
     <div className={classes.root}>
       <Typography variant="h6">Connected Peers: {peers.length}</Typography>
-      <CustomList
-        data={peers}
-        classes={classes}
-        transformValue={transformPeerToString}
-      />
+      <CustomList data={peers} classes={classes} transformValue={transformPeerToString} />
     </div>
-  );
+  )
 }

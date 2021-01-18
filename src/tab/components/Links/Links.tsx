@@ -1,20 +1,20 @@
-import Grid from "@material-ui/core/Grid";
-import { makeStyles } from "@material-ui/core/styles";
-import React from "react";
-import LinkCard from "./Link";
+import Grid from '@material-ui/core/Grid'
+import { makeStyles } from '@material-ui/core/styles'
+import React from 'react'
+import LinkCard from './Link'
 
 const useStyles = makeStyles(() => ({
   root: {
-    display: "flex",
+    display: 'flex',
   },
-}));
+}))
 
 interface Props {
-  links: string[];
+  links: string[]
 }
 
 function Links({ links }: Props) {
-  const classes = useStyles();
+  const classes = useStyles()
 
   return (
     <Grid container className={classes.root}>
@@ -24,11 +24,11 @@ function Links({ links }: Props) {
           <Grid key={key} item>
             <LinkCard linkHash={hash} />
           </Grid>
-        );
+        )
       })}
       {/* </List> */}
     </Grid>
-  );
+  )
 }
 
-export default Links;
+export default Links

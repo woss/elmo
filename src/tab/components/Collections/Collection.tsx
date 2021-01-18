@@ -1,117 +1,111 @@
-import { IconButton, InputBase, Typography } from "@material-ui/core";
-import AppBar from "@material-ui/core/AppBar";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import { green } from "@material-ui/core/colors";
-import { makeStyles } from "@material-ui/core/styles";
-import Toolbar from "@material-ui/core/Toolbar";
-import AddIcon from "@material-ui/icons/Add";
-import CheckIcon from "@material-ui/icons/Check";
-import DeleteIcon from "@material-ui/icons/Delete";
-import SaveIcon from "@material-ui/icons/Save";
-import ShareIcon from "@material-ui/icons/Share";
-import {
-  DB_NAME_COLLECTIONS,
-  renameCollection,
-  withStore,
-} from "@src/databases/OrbitDB";
-import { ICollection } from "@src/interfaces";
-import { calculateHash, createCID } from "@src/ipfsNode/helpers";
-import clsx from "clsx";
-import { useSnackbar } from "notistack";
-import { isEmpty } from "ramda";
-import React, { SyntheticEvent, useEffect, useState } from "react";
-import { browser } from "webextension-polyfill-ts";
-import Links from "../Links/Links";
+import { IconButton, InputBase, Typography } from '@material-ui/core'
+import AppBar from '@material-ui/core/AppBar'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import { green } from '@material-ui/core/colors'
+import { makeStyles } from '@material-ui/core/styles'
+import Toolbar from '@material-ui/core/Toolbar'
+import AddIcon from '@material-ui/icons/Add'
+import CheckIcon from '@material-ui/icons/Check'
+import DeleteIcon from '@material-ui/icons/Delete'
+import SaveIcon from '@material-ui/icons/Save'
+import ShareIcon from '@material-ui/icons/Share'
+import { DB_NAME_COLLECTIONS, renameCollection, withStore } from '@src/databases/OrbitDB'
+import { ICollection } from '@src/interfaces'
+import { calculateHash, createCID } from '@src/ipfsNode/helpers'
+import clsx from 'clsx'
+import { useSnackbar } from 'notistack'
+import { isEmpty } from 'ramda'
+import React, { SyntheticEvent, useEffect, useState } from 'react'
+import { browser } from 'webextension-polyfill-ts'
+import Links from '../Links/Links'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
-    flexDirection: "column",
+    display: 'flex',
+    flexDirection: 'column',
   },
   title: {
-    display: "flex",
-    justifyItems: "center",
+    display: 'flex',
+    justifyItems: 'center',
     flexGrow: 1,
   },
   grow: {
     flexGrow: 1,
   },
   inputRoot: {
-    color: "inherit",
-    width: "100%",
+    color: 'inherit',
+    width: '100%',
   },
   inputInput: {
     // padding: theme.spacing(1, 1, 1, 7),
-    transition: theme.transitions.create("width"),
-    width: "100%",
+    transition: theme.transitions.create('width'),
+    width: '100%',
     // [theme.breakpoints.up("xl")]: {
     //     width: 200,
     // },
   },
   button: {
-    color: "inherit",
+    color: 'inherit',
   },
   createdAt: {
     paddingLeft: theme.spacing(2),
   },
   wrapper: {
     margin: theme.spacing(1),
-    position: "relative",
+    position: 'relative',
   },
   buttonSuccess: {
     backgroundColor: green[500],
-    "&:hover": {
+    '&:hover': {
       backgroundColor: green[700],
     },
   },
   fabProgress: {
     color: green[500],
-    position: "absolute",
+    position: 'absolute',
     width: theme.spacing(8),
     height: theme.spacing(8),
     zIndex: 1,
   },
-}));
+}))
 interface Props {
-  id: string;
-  data: any;
+  id: string
+  data: any
 }
 
-const VALID_URL_REGEX = /^(ftp|http|https|file):\/\/[^ "]+$/;
+const VALID_URL_REGEX = /^(ftp|http|https|file):\/\/[^ "]+$/
 
 function Collection({ id, data }: Props) {
-  const classes = useStyles();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const classes = useStyles()
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
-  const store = withStore(DB_NAME_COLLECTIONS);
+  const store = withStore(DB_NAME_COLLECTIONS)
   const defaultCollection: ICollection = {
-    _id: "",
+    _id: '',
     createdAt: 0,
-    hash: "",
+    hash: '',
     links: [],
-    title: "",
+    title: '',
     workspaces: [],
-  };
-  const [collection, setCollection] = useState(defaultCollection);
-  const [saving, setSaving] = useState(false);
+  }
+  const [collection, setCollection] = useState(defaultCollection)
+  const [saving, setSaving] = useState(false)
 
-  const [success, setSuccess] = React.useState(false);
-  const [links, setLinks] = React.useState([] as string[]);
-  const [addLinkNotificationKey, setAddLinkNotificationKey] = React.useState(
-    "" as any,
-  );
+  const [success, setSuccess] = React.useState(false)
+  const [links, setLinks] = React.useState([] as string[])
+  const [addLinkNotificationKey, setAddLinkNotificationKey] = React.useState('' as any)
 
   async function handleAddLink() {
-    const url = prompt("Please enter the URL");
+    const url = prompt('Please enter the URL')
 
     if (VALID_URL_REGEX.test(url)) {
-      const snackKey = enqueueSnackbar("Saving link ...", {
-        varian: "info",
+      const snackKey = enqueueSnackbar('Saving link ...', {
+        varian: 'info',
         persist: true,
-      });
-      setAddLinkNotificationKey(snackKey);
+      })
+      setAddLinkNotificationKey(snackKey)
 
-      const hash = await calculateHash(url);
+      const hash = await calculateHash(url)
       // !TODO fix me
       // if (!links.includes(hash)) {
       //   browser.runtime.sendMessage(
@@ -124,50 +118,50 @@ function Collection({ id, data }: Props) {
     } else {
       // we have the url but it's invalid, don't show if user clicks on cancel
       if (url) {
-        enqueueSnackbar("Incorrect or empty URL", { variant: "error" });
+        enqueueSnackbar('Incorrect or empty URL', { variant: 'error' })
       }
     }
   }
   function handleShareCollection() {
-    console.log("share collection");
+    console.log('share collection')
   }
 
   async function handleDelete(): Promise<void> {
-    const r = confirm("SRSLY?");
+    const r = confirm('SRSLY?')
     if (r === true) {
-      await store.del(collection._id);
+      await store.del(collection._id)
     }
   }
 
   function handleTitleChange(e) {
-    const t = e.target.value;
+    const t = e.target.value
     setCollection({
       ...collection,
       title: t,
-    });
+    })
   }
 
   async function handleTitleSave(e: SyntheticEvent): Promise<void> {
-    e.preventDefault();
-    const hash = await createCID(collection.title.trim());
-    if (hash === collection.hash) return null;
+    e.preventDefault()
+    const hash = await createCID(collection.title.trim())
+    if (hash === collection.hash) return null
 
-    if (saving) return null;
+    if (saving) return null
 
-    setSaving(true);
+    setSaving(true)
 
-    await renameCollection(collection);
+    await renameCollection(collection)
 
-    setSuccess(true);
-    setSaving(false);
+    setSuccess(true)
+    setSaving(false)
 
-    setTimeout(() => setSuccess(false), 3000);
+    setTimeout(() => setSuccess(false), 3000)
   }
 
   useEffect(() => {
     if (data) {
-      setCollection(data);
-      setLinks(data.links);
+      setCollection(data)
+      setLinks(data.links)
     }
 
     // async function loadCollection() {
@@ -182,14 +176,14 @@ function Collection({ id, data }: Props) {
     // }
     // loadCollection();
     return () => {
-      closeSnackbar(addLinkNotificationKey);
-    };
-  }, [data]);
+      closeSnackbar(addLinkNotificationKey)
+    }
+  }, [data])
 
   const buttonClassname = clsx({
     [classes.buttonSuccess]: success,
     [classes.button]: true,
-  });
+  })
 
   return (
     <div className={classes.root}>
@@ -213,11 +207,7 @@ function Collection({ id, data }: Props) {
           </Typography>
           <div className={classes.grow} />
           <div>
-            <IconButton
-              aria-label="save"
-              color="primary"
-              className={buttonClassname}
-            >
+            <IconButton aria-label="save" color="primary" className={buttonClassname}>
               {saving && <CircularProgress className={classes.fabProgress} />}
               {success ? <CheckIcon /> : <SaveIcon />}
             </IconButton>
@@ -253,7 +243,7 @@ function Collection({ id, data }: Props) {
       {/* Lets show the links */}
       <Links links={links} />
     </div>
-  );
+  )
 }
 
-export default Collection;
+export default Collection

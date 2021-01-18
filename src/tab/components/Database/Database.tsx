@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useDBNode } from "@src/databases/OrbitDB";
-import { Typography, Grid, makeStyles, Paper, Button } from "@material-ui/core";
-import Identity from "./Identity";
-import { clear } from "@src/databases/ChromeStorage";
+import React, { useState } from 'react'
+import { useDBNode } from '@src/databases/OrbitDB'
+import { Typography, Grid, makeStyles, Paper, Button } from '@material-ui/core'
+import Identity from './Identity'
+import { clear } from '@src/databases/ChromeStorage'
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -13,15 +13,15 @@ const useStyles = makeStyles((theme) => ({
   title: {
     margin: theme.spacing(1),
   },
-}));
+}))
 
 function Database() {
-  const { dbs } = useDBNode();
-  const classes = useStyles();
+  const { dbs } = useDBNode()
+  const classes = useStyles()
 
   async function handleClear() {
-    await clear();
-    console.log("Clear DONE");
+    await clear()
+    console.log('Clear DONE')
   }
   // async function handleClearSiteData() {
   //   localStorage.clear();
@@ -48,7 +48,7 @@ function Database() {
                   <br />
                   DB address: {store.address.toString()}
                 </li>
-              );
+              )
             })}
           </ul>
         </Paper>
@@ -69,7 +69,7 @@ function Database() {
         </Button> */}
       </Grid>
     </Grid>
-  );
+  )
 }
 
-export default Database;
+export default Database
