@@ -1,7 +1,7 @@
 import { ListItemText } from '@material-ui/core'
 import MaterialList from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
-import { isUndefined } from 'lodash'
+import { isNil } from 'ramda'
 import React from 'react'
 interface Props {
   data: any[]
@@ -21,7 +21,7 @@ function CustomList(props: Props) {
             <ListItem key={k}>
               <ListItemText
                 className={classes.text}
-                primary={isUndefined(transformValue) ? v.toString() : transformValue(v)}
+                primary={isNil(transformValue) ? v.toString() : transformValue(v)}
               />
             </ListItem>
           )

@@ -1,4 +1,5 @@
-import { browser } from 'webextension-polyfill-ts'
+/* eslint-disable no-case-declarations */
+import browser from 'webextension-polyfill'
 import { addCollection, openAllStores, startOrbitDBInstance } from './databases/OrbitDB'
 import { startIpfsNode } from './ipfsNode/ipfsFactory'
 import {
@@ -7,7 +8,9 @@ import {
   removeFromCollection,
 } from './tab/components/Links/helpers'
 
-function createBrowserRuntimeMessage(params: any, c: any) {}
+function createBrowserRuntimeMessage(params: any, c: any) {
+  console.log(params, c)
+}
 // Listen for messages sent from other parts of the extension
 browser.runtime.onMessage.addListener(
   async (

@@ -1,7 +1,7 @@
 import { List } from '@material-ui/core'
 import { getValuesByKey } from '@src/databases/ChromeStorage'
 import React, { useEffect, useState } from 'react'
-import { browser, Tabs } from 'webextension-polyfill-ts'
+import browser, { Tabs } from 'webextension-polyfill'
 import PopupCollection from './PopupCollection'
 import { DB_NAME_COLLECTIONS } from '@src/databases/OrbitDB'
 

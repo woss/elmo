@@ -64,7 +64,7 @@ export default function LinkCard({ linkHash }: Props) {
   return (
     <Card className={classes.root}>
       <CardContent>
-        <Typography variant="h5" component="h2" noWrap>
+        <Typography variant='h5' component='h2' noWrap>
           {link.title}
         </Typography>
         {/* <Typography className={classes.pos} color="textSecondary">
@@ -77,11 +77,11 @@ export default function LinkCard({ linkHash }: Props) {
       <CardActions>
         <Button
           href={link.url}
-          rel="noopener noreferrer"
-          target="_blank"
-          size="small"
+          rel='noopener noreferrer'
+          target='_blank'
+          size='small'
           // color="primary"
-          variant="outlined"
+          variant='outlined'
         >
           Online
         </Button>
@@ -89,10 +89,10 @@ export default function LinkCard({ linkHash }: Props) {
           to={link.ipfs ? `/ipfs/cat/${link.hash}` : '#'}
           // rel="noopener noreferrer"
           // target="_blank"
-          size="small"
+          size='small'
           disabled={!link.ipfs.cid}
           component={RouterLink}
-          variant="outlined"
+          variant='outlined'
         >
           IPFS
         </Button>

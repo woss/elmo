@@ -41,7 +41,7 @@ export default function SwarmPeers() {
   }
   return (
     <div className={classes.root}>
-      <Typography variant="h6">Connected Peers: {peers.length}</Typography>
+      <Typography variant='h6'>Connected Peers: {peers.length}</Typography>
       <CustomList data={peers} classes={classes} transformValue={transformPeerToString} />
     </div>
   )

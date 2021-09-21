@@ -75,13 +75,13 @@ export const IpfsInfo = () => {
       <Grid item md xs>
         <Grid
           container
-          direction="column"
+          direction='column'
           // spacing={spacing}
           // className={classes.root}
         >
           <Grid item>
             <Paper className={classes.titleContainer}>
-              <Typography variant="h6" className={classes.title}>
+              <Typography variant='h6' className={classes.title}>
                 Peer ID: {node && node.id}
               </Typography>
               <div className={classes.nodeInfo}>
@@ -93,7 +93,7 @@ export const IpfsInfo = () => {
                   />
                 </IconButton>
                 {version && (
-                  <Button component="span" disabled>
+                  <Button component='span' disabled>
                     {version.version}
                   </Button>
                 )}

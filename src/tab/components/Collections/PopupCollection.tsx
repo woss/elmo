@@ -5,7 +5,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 import { ICollection } from '@src/interfaces'
 import { calculateHash } from '@src/ipfsNode/helpers'
 import React, { useEffect } from 'react'
-import { browser, Tabs } from 'webextension-polyfill-ts'
+import browser, { Tabs } from 'webextension-polyfill'
 
 interface Props {
   collection: ICollection
@@ -79,13 +79,13 @@ function PopupCollection({ collection, currentTab }: Props) {
     <ListItem dense button disabled={disabled} onClick={handleToggle}>
       <ListItemIcon>
         <Checkbox
-          edge="start"
+          edge='start'
           checked={checked}
           tabIndex={-1}
           disableRipple
-          color="primary"
+          color='primary'
 
-          // inputProps={{ "aria-labelledby": labelId }}
+        // inputProps={{ "aria-labelledby": labelId }}
         />
       </ListItemIcon>
       <ListItemText primary={collection.title} />

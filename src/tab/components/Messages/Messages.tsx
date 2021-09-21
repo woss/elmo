@@ -1,12 +1,7 @@
 import { createChatListener, formatMessage } from '@src/chat/chat'
 import { createStoreDefinitions, giveFullAccessToStores, useDBNode } from '@src/databases/OrbitDB'
 import { bufferify } from '@src/helpers'
-import {
-  IElmoIncomingMessage,
-  IElmoMessageActions,
-  IElmoMessageApproveReplicateDB,
-  IElmoMessageDeclineReplicateDB,
-} from '@src/interfaces'
+import { IElmoIncomingMessage, IElmoMessageActions } from '@src/interfaces'
 import { useIpfsNode } from '@src/ipfsNode/ipfsFactory'
 import { IncomingMessage } from '@src/typings/ipfs'
 import React, { useEffect, useState } from 'react'
@@ -66,9 +61,11 @@ const Messages = () => {
     const { ipfs } = useIpfsNode()
     const msg = replicationMessage()
     if (!decision) {
-      const m: IElmoMessageDeclineReplicateDB = {
+      const m: IElmoIncomingMessage = {
         action: IElmoMessageActions.DECLINE_REPLICATE_DB,
-        message: '',
+        message: null,
+        from: '',
+        topics: [],
       }
 
       // Send the message beck to the sender
@@ -80,14 +77,16 @@ const Messages = () => {
 
       const dbs = createStoreDefinitions(defaultStores)
 
-      const message: IElmoMessageApproveReplicateDB = {
+      const message: IElmoIncomingMessage = {
         action: IElmoMessageActions.APPROVE_REPLICATE_DB,
         // dbs: dbs.map(db => {
         //   // db.options.accessController.write.push(instance.identity.id);
         //   return db;
         // }),
         dbs,
-        message: '',
+        message: null,
+        from: '',
+        topics: [],
       }
 
       // Send the message beck to the sender

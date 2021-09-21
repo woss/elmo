@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IKeyVal } from '@src/interfaces'
 import { isNil } from 'ramda'
-import { browser } from 'webextension-polyfill-ts'
+import browser from 'webextension-polyfill'
 import { loadAllFromStore, removeDbPrefix, useDBNode } from './OrbitDB'
 
 export async function getValuesByKey(s?: string) {

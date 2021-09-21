@@ -98,10 +98,10 @@ function Header() {
 
   // }, isOrbitDBReady)
   return (
-    <AppBar position="static">
+    <AppBar position='static'>
       <Toolbar>
-        <Typography className={classes.title} variant="h6" noWrap>
-          <Button className={classes.logo} component={RouterLink} to="/">
+        <Typography className={classes.title} variant='h6' noWrap>
+          <Button className={classes.logo} component={RouterLink} to='/'>
             ELMO - Links and more
           </Button>
         </Typography>
@@ -136,36 +136,36 @@ function Header() {
         <div className={classes.sectionDesktop}>
           <Button
             className={classes.actionLinks}
-            variant="contained"
+            variant='contained'
             component={RouterLink}
-            to="/links"
+            to='/links'
           >
             Links
           </Button>
-          <Button className={classes.actionLinks} variant="contained" component={RouterLink} to="/">
+          <Button className={classes.actionLinks} variant='contained' component={RouterLink} to='/'>
             Collections
           </Button>
           <Button
             className={classes.actionLinks}
-            variant="contained"
+            variant='contained'
             component={RouterLink}
-            to="/ipfs"
+            to='/ipfs'
           >
             IPFS
           </Button>
           <Button
             className={classes.actionLinks}
-            variant="contained"
+            variant='contained'
             component={RouterLink}
-            to="/db"
+            to='/db'
           >
             OrbitDB
           </Button>
           <Button
             className={classes.actionLinks}
-            variant="contained"
+            variant='contained'
             component={RouterLink}
-            to="/ahh-the-choices"
+            to='/ahh-the-choices'
           >
             Choices
           </Button>

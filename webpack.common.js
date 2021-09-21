@@ -1,6 +1,8 @@
+/* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
 module.exports = {
   entry: {
@@ -22,6 +24,7 @@ module.exports = {
         },
       ],
     }),
+    new NodePolyfillPlugin(),
   ],
   module: {
     rules: [
@@ -47,9 +50,9 @@ module.exports = {
   },
   node: {
     global: true, // https://github.com/webpack/webpack/issues/5627#issuecomment-394309966
-    Buffer: true,
-    fs: 'empty',
-    tls: 'empty',
-    cluster: 'empty', // expected by js-ipfs dependency: node_modules/prom-client/lib/cluster.js
+    // Buffer: true,
+    // fs: 'empty',
+    // tls: 'empty',
+    // cluster: 'empty', // expected by js-ipfs dependency: node_modules/prom-client/lib/cluster.js
   },
 }

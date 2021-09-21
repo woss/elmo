@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { calculateHash } from '@src/ipfsNode/helpers'
 import OrbitDB from 'orbit-db'
 import * as R from 'ramda'
@@ -95,7 +96,7 @@ export function useDBNode(): IStoreInstance {
 export async function startOrbitDBInstance(): Promise<IStoreInstance> {
   // create instance of the server
   const { ipfs } = useIpfsNode()
-
+  console.log(ipfs)
   if (!R.isNil(storeInstance)) {
     return storeInstance
   } else {
@@ -189,6 +190,7 @@ export async function createStores(
 ): Promise<IStoreInstance> {
   const { instance } = useDBNode()
   console.time('Creating Stores')
+  console.log('dasdasdsads')
   return Promise.all(
     // creates and opens the storeType database orbitdb.docstore(name,opts)
     // https://github.com/orbitdb/orbit-db/blob/master/API.md#orbitdbdocstorenameaddress-options

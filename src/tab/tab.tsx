@@ -134,26 +134,26 @@ export const Tab: FunctionComponent = () => {
             <Header />
             <Container className={classes.content}>
               <Switch>
-                <Route path="/links">
+                <Route path='/links'>
                   <AllLinks />
                 </Route>
-                <Route path="/view/:cid">
+                <Route path='/view/:cid'>
                   <View />
                 </Route>
 
-                <Route path="/ipfs">
+                <Route path='/ipfs'>
                   <IpfsInfo />
                 </Route>
 
-                <Route path="/db">
+                <Route path='/db'>
                   <Database />
                 </Route>
 
-                <Route path="/ahh-the-choices">
+                <Route path='/ahh-the-choices'>
                   <FirstTime fromRoute handleAppInitialized={handleAppInitialized} />
                 </Route>
 
-                <Route path="/">
+                <Route path='/'>
                   <Collections />
                 </Route>
               </Switch>

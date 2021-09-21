@@ -36,11 +36,11 @@ function SearchEngineSelector({ selectCurrentEngine, current }) {
   const classes = useStyles()
 
   return (
-    <FormControl variant="outlined" className={classes.formControl}>
+    <FormControl variant='outlined' className={classes.formControl}>
       <Select
-        labelId="search-engine-selector"
-        id="search-engine-selector"
-        name="search-engine-selector"
+        labelId='search-engine-selector'
+        id='search-engine-selector'
+        name='search-engine-selector'
         value={current}
         onChange={(e) => selectCurrentEngine(e.target.value as string)}
         className={classes.select}

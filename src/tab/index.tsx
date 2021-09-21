@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { browser } from 'webextension-polyfill-ts'
+import browser from 'webextension-polyfill'
 import Tab from './tab'
 import { ThemeProvider, Button } from '@material-ui/core'
 import { theme } from '@src/theme'
@@ -18,18 +18,13 @@ browser.tabs.query({ active: true, currentWindow: true }).then(() => {
   ReactDOM.render(
     <Router history={history}>
       <Switch>
-        <Route exact path="/ipfs/cat/:hash">
+        <Route exact path='/ipfs/cat/:hash'>
           <View />
         </Route>
 
-        <Route path="/">
+        <Route path='/'>
           <ThemeProvider theme={theme}>
-            <SnackbarProvider
-              maxSnack={7}
-              preventDuplicate
-              // ref={notistackRef}
-              // action={key => <Button onClick={onClickDismiss(key)}>Dismiss</Button>}
-            >
+            <SnackbarProvider maxSnack={7} preventDuplicate>
               <Tab />
             </SnackbarProvider>
           </ThemeProvider>

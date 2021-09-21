@@ -1,6 +1,6 @@
 import React from 'react'
 import * as ReactDOM from 'react-dom'
-import { browser } from 'webextension-polyfill-ts'
+import browser from 'webextension-polyfill'
 import { Popup } from './popup'
 import { ThemeProvider } from '@material-ui/core'
 import { theme } from '@src/theme'

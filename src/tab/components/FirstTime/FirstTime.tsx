@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import { Button, Grid, TextField, Typography } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
@@ -17,7 +18,6 @@ import {
   IElmoGenericMessage,
   IElmoMessage,
   IElmoMessageActions,
-  IElmoMessageReplicateDB,
 } from '@src/interfaces'
 import { useIpfsNode } from '@src/ipfsNode/ipfsFactory'
 import useIpfsEffect, { useIpfs } from '@src/ipfsNode/use-ipfs'
@@ -94,7 +94,7 @@ function FirstTime({ handleAppInitialized }: Props) {
     } else {
       console.log('address not on the list of connected peers')
     }
-    const message: IElmoMessageReplicateDB = {
+    const message: IElmoMessage = {
       action: IElmoMessageActions.REPLICATE_DB,
       all: true,
       dbID: instance.identity.id,
@@ -220,28 +220,28 @@ function FirstTime({ handleAppInitialized }: Props) {
   return (
     <Grid
       container
-      direction="column"
+      direction='column'
       className={[classes.root, classes.flex].join(' ')}
       spacing={2}
     >
       <Grid item className={classes.title}>
-        <Typography variant="h3">Welcome to ELMO :) </Typography>
-        <Typography variant="subtitle2">PEER ID: {identity && identity.id}</Typography>
+        <Typography variant='h3'>Welcome to ELMO :) </Typography>
+        <Typography variant='subtitle2'>PEER ID: {identity && identity.id}</Typography>
       </Grid>
       <Grid item>
         <Grid container spacing={4}>
           <Grid item md={6} xs={12}>
             <Card className={classes.card}>
-              <CardHeader title="Remote" />
+              <CardHeader title='Remote' />
               <CardContent>
-                <Typography variant="body2" color="textSecondary" component="p">
+                <Typography variant='body2' color='textSecondary' component='p'>
                   You have the ELMO instance running somewhere else and you want to connect to it.
                 </Typography>
 
                 <TextField
-                  id="remoteAddress"
-                  label="Remote address"
-                  variant="outlined"
+                  id='remoteAddress'
+                  label='Remote address'
+                  variant='outlined'
                   className={classes.input}
                   onChange={handleChange}
                   value={remoteAddress}
@@ -249,7 +249,7 @@ function FirstTime({ handleAppInitialized }: Props) {
                 />
               </CardContent>
               <CardActions>
-                <Button color="primary" onClick={handleClickRemoteAddress}>
+                <Button color='primary' onClick={handleClickRemoteAddress}>
                   Connect to Remote ELMO
                 </Button>
               </CardActions>
@@ -257,15 +257,15 @@ function FirstTime({ handleAppInitialized }: Props) {
           </Grid>
           <Grid item md={6} xs={12}>
             <Card className={classes.card}>
-              <CardHeader title="New" />
+              <CardHeader title='New' />
               <CardContent>
-                <Typography variant="body2" color="textSecondary" component="p">
+                <Typography variant='body2' color='textSecondary' component='p'>
                   Starting a new ELMO instance will make it MASTER, all other will replicate from
                   this instance.The more instances you have higher availability of your data.
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button color="primary" onClick={handleClickCreateNew}>
+                <Button color='primary' onClick={handleClickCreateNew}>
                   Create new ELMO
                 </Button>
               </CardActions>
@@ -273,24 +273,24 @@ function FirstTime({ handleAppInitialized }: Props) {
           </Grid>
           <Grid item md={6} xs={12}>
             <Card className={classes.card}>
-              <CardHeader title="Send a message" />
+              <CardHeader title='Send a message' />
               <CardContent>
-                <Typography variant="body2" color="textSecondary" component="p">
+                <Typography variant='body2' color='textSecondary' component='p'>
                   Send a message to a peer
                 </Typography>
                 <TextField
-                  id="message"
-                  label="Message"
-                  variant="outlined"
+                  id='message'
+                  label='Message'
+                  variant='outlined'
                   className={classes.input}
                   onChange={handleChangeRandomMessage}
                   value={randomMessage}
                   fullWidth
                 />
                 <TextField
-                  id="remoteAddress"
-                  label="Remote address"
-                  variant="outlined"
+                  id='remoteAddress'
+                  label='Remote address'
+                  variant='outlined'
                   className={classes.input}
                   onChange={handleChange}
                   value={remoteAddress}

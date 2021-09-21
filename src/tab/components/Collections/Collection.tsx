@@ -16,7 +16,7 @@ import clsx from 'clsx'
 import { useSnackbar } from 'notistack'
 import { isEmpty } from 'ramda'
 import React, { SyntheticEvent, useEffect, useState } from 'react'
-import { browser } from 'webextension-polyfill-ts'
+import browser from 'webextension-polyfill'
 import Links from '../Links/Links'
 
 const useStyles = makeStyles((theme) => ({
@@ -187,12 +187,12 @@ function Collection({ id, data }: Props) {
 
   return (
     <div className={classes.root}>
-      <AppBar position="static">
+      <AppBar position='static'>
         <Toolbar>
-          <Typography variant="h4" component="h4" className={classes.title}>
+          <Typography variant='h4' component='h4' className={classes.title}>
             <form onSubmit={handleTitleSave}>
               <InputBase
-                id="title"
+                id='title'
                 classes={{
                   root: classes.inputRoot,
                   input: classes.inputInput,
@@ -201,38 +201,38 @@ function Collection({ id, data }: Props) {
                 onBlur={handleTitleSave}
                 onChange={handleTitleChange}
                 fullWidth
-                color="secondary"
+                color='secondary'
               />
             </form>
           </Typography>
           <div className={classes.grow} />
           <div>
-            <IconButton aria-label="save" color="primary" className={buttonClassname}>
+            <IconButton aria-label='save' color='primary' className={buttonClassname}>
               {saving && <CircularProgress className={classes.fabProgress} />}
               {success ? <CheckIcon /> : <SaveIcon />}
             </IconButton>
 
             <IconButton
-              id="add-link"
+              id='add-link'
               onClick={handleAddLink}
               className={classes.button}
-              aria-label="add link"
+              aria-label='add link'
             >
               <AddIcon />
             </IconButton>
             <IconButton
-              id="share-collection"
+              id='share-collection'
               onClick={handleShareCollection}
               className={classes.button}
-              aria-label="share"
+              aria-label='share'
             >
               <ShareIcon />
             </IconButton>
             <IconButton
               onClick={handleDelete}
               className={classes.button}
-              aria-label="delete"
-              variant="contained"
+              aria-label='delete'
+              variant='contained'
             >
               <DeleteIcon />
             </IconButton>

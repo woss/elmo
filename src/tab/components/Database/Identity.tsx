@@ -19,7 +19,7 @@ function Identity() {
   const classes = useStyles()
   return (
     <div className={classes.root}>
-      <Typography className={classes.title} variant="h4">
+      <Typography className={classes.title} variant='h4'>
         Database Identity
       </Typography>
       <Paper className={classes.paper}>

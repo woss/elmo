@@ -59,7 +59,7 @@ export function useSwarmPeersEffect(callback, interval = 1000) {
   useEffect(() => {
     let id = null
     async function tick() {
-      id = await listenOnPeers(savedCallback.current, interval)
+      id = await listenOnPeers(savedCallback.current)
     }
     tick()
     return () => clearInterval(id)

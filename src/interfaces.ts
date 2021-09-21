@@ -63,33 +63,19 @@ export interface IIPFSPeer {
   publicKey: string
 }
 
-export interface IElmoIncomingMessage {
-  message: IElmoGenericMessage
-  from: string
-  topics: string[]
-}
-
-export type IElmoGenericMessage = IElmoMessageApproveReplicateDB &
-  IElmoMessageDeclineReplicateDB &
-  IElmoMessageReplicateDB &
-  IElmoIncomingMessage & {
-    nonce?: string
-  }
-
-export interface IElmoMessageDeclineReplicateDB extends IElmoMessage {
-  action: IElmoMessageActions.DECLINE_REPLICATE_DB
-}
-
-export interface IElmoMessageApproveReplicateDB extends IElmoMessage {
-  dbs?: IDatabaseDefinition[]
-  action: IElmoMessageActions.APPROVE_REPLICATE_DB
-}
-export interface IElmoMessageReplicateDB extends IElmoMessage {
+export interface IElmoGenericMessage {
   dbs?: IDatabaseDefinition[]
   all?: boolean
   dbID: string
   pubKey?: string
-  action: IElmoMessageActions.REPLICATE_DB
+  nonce?: string
+  message?: string
+  action: IElmoMessageActions
+}
+export interface IElmoIncomingMessage {
+  message: IElmoGenericMessage
+  from: string
+  topics: string[]
 }
 
 export interface IElmoMessage {

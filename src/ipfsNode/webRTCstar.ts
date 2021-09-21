@@ -4,6 +4,7 @@ import Mplex from 'libp2p-mplex'
 import Secio from 'libp2p-secio'
 import WebRTCStar from 'libp2p-webrtc-star'
 import Websockets from 'libp2p-websockets'
+import { Multiaddr } from 'multiaddr'
 
 export async function startStar() {
   // Create our libp2p node
@@ -45,8 +46,8 @@ export async function startStar() {
   // Add the signaling server address, along with our PeerId to our multiaddrs list
   // libp2p will automatically attempt to dial to the signaling server so that it can
   // receive inbound connections from other peers
-  const webrtcAddr = '/ip4/0.0.0.0/tcp/9090/wss/p2p-webrtc-star'
-  libp2p.peerInfo.multiaddrs.add(webrtcAddr)
+  const webrtcAddr = new Multiaddr('/ip4/0.0.0.0/tcp/9090/wss/p2p-webrtc-star')
+  libp2p.multiaddrs.push(webrtcAddr)
 
   // Listen for new peers
   libp2p.on('peer:discovery', (peerInfo) => {
@@ -65,7 +66,7 @@ export async function startStar() {
 
   await libp2p.start()
   status.innerText = 'libp2p started!'
-  log(`libp2p id is ${libp2p.peerInfo.id.toB58String()}`)
+  log(`libp2p id is ${libp2p.peerId.toB58String()}`)
 
   console.log(libp2p)
 }

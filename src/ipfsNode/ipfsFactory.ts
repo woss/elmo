@@ -11,9 +11,9 @@ let nodes: IIPFSInstance[] = []
  * Init the IPFS node
  * @param opts
  */
-export async function init(opts: Options): Promise<Ipfs> {
+export async function init(opts: Options): Promise<any> {
   const ipfsOpts = await buildConfig(opts)
-  const node = await Ipfs.create(ipfsOpts)
+  const node = await Ipfs.create(ipfsOpts as any)
 
   return node
 }
@@ -126,7 +126,7 @@ export async function connectToExternal({
  * @param callback
  * @param interval
  */
-export async function listenOnPeers(callback?: (p: Peer[]) => {}, interval = 1000) {
+export async function listenOnPeers(callback?: (p: Peer[]) => Peer[]) {
   const { ipfs } = useIpfsNode()
   let peers: Peer[] = []
 
@@ -146,6 +146,6 @@ export async function listenOnPeers(callback?: (p: Peer[]) => {}, interval = 100
     }
   }
 
-  const id = setInterval(tick, interval)
+  const id = setInterval(tick, 1000)
   return id
 }

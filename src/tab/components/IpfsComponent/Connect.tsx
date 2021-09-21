@@ -57,34 +57,34 @@ function Connect() {
   }
   return (
     <Fragment>
-      <Typography variant="h6">Connections:</Typography>
-      <form className={classes.root} name="connect-to-another-peer" onSubmit={handleConnect}>
+      <Typography variant='h6'>Connections:</Typography>
+      <form className={classes.root} name='connect-to-another-peer' onSubmit={handleConnect}>
         <TextField
           fullWidth
-          id="ipfs-peer"
-          label="Peer"
-          variant="outlined"
+          id='ipfs-peer'
+          label='Peer'
+          variant='outlined'
           value={address}
           onChange={handleChange}
         />
         <TextField
           fullWidth
-          id="ipfs-api"
-          label="API"
-          variant="outlined"
+          id='ipfs-api'
+          label='API'
+          variant='outlined'
           value={api}
           onChange={handleChange}
         />
         <TextField
           fullWidth
-          id="ipfs-gateway"
-          label="Gateway"
-          variant="outlined"
+          id='ipfs-gateway'
+          label='Gateway'
+          variant='outlined'
           value={gateway}
           onChange={handleChange}
         />
 
-        <Button onClick={handleConnect} variant="contained" color="primary">
+        <Button onClick={handleConnect} variant='contained' color='primary'>
           Connect
         </Button>
       </form>

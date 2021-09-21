@@ -38,7 +38,7 @@ export function MyNodes() {
   }
   return (
     <div className={classes.root}>
-      <Typography variant="h6">My Nodes: {nodes.length}</Typography>
+      <Typography variant='h6'>My Nodes: {nodes.length}</Typography>
       <CustomList data={nodes} classes={classes} transformValue={transformPeerToString} />
     </div>
   )

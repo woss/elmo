@@ -40,9 +40,9 @@ function Addresses() {
 
   return (
     <div className={classes.root}>
-      <Typography variant="h6">Public Key:</Typography>
+      <Typography variant='h6'>Public Key:</Typography>
       <span className={classes.text}>{identity.publicKey}</span>
-      <Typography variant="h6">Swarm Addresses: {identity.addresses.length}</Typography>
+      <Typography variant='h6'>Swarm Addresses: {identity.addresses.length}</Typography>
       <CustomList data={identity.addresses} classes={classes} />
     </div>
   )

@@ -22,7 +22,7 @@ function Config() {
   const classes = useStyles()
   return (
     <div className={classes.root}>
-      <Typography variant="h6">Config</Typography>
+      <Typography variant='h6'>Config</Typography>
       <pre className={classes.pre}>{JSON.stringify(config, null, 2)}</pre>
     </div>
   )

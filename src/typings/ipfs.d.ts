@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 // source https://github.com/beenotung/typestub-ipfs/blob/master/index.d.ts
 
 import { EventEmitter } from 'events'
@@ -62,10 +63,13 @@ declare namespace IPFS {
     config?: any
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  type LogTypeFunction = Function
+
   export interface InitOptions {
     emptyRepo?: boolean
     bits?: number
-    log?: Function
+    log?: LogTypeFunction
   }
 
   export interface Multiaddr {
@@ -298,6 +302,7 @@ declare namespace IPFS {
 
     tree(cid: string | CID, path: string, options: any, callback: Callback<any>): void
     qaz
+    // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
     tree(cid: string | CID, path: string, options: any): Promise<any>
     tree(cid: string | CID, path: string, callback: Callback<any>): void
     tree(cid: string | CID, path: string): Promise<any>

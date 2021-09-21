@@ -50,7 +50,7 @@ module.exports = {
   //   "node_modules"
   // ],
   // An array of file extensions your modules use
-  moduleFileExtensions: ["js", "json", "jsx", "ts", "tsx", "node"],
+  moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx', 'node'],
   // A map from regular expressions to module names that allow to stub out resources with a single module
   // moduleNameMapper: {
   //     "@src/(.*)": "<rootDir>/src/$1",
@@ -80,7 +80,7 @@ module.exports = {
   // The root directory that Jest should scan for tests and modules within
   // rootDir: null,
   // A list of paths to directories that Jest should use to search for files in
-  roots: ["<rootDir>/src"],
+  roots: ['<rootDir>/src'],
   // Allows you to use a custom runner instead of Jest's default test runner
   // runner: "jest-runner",
   // The paths to modules that run some code to configure or set up the testing environment before each test
@@ -101,7 +101,7 @@ module.exports = {
   //   "**/?(*.)+(spec|test).[tj]s?(x)"
   // ],
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: ["/node_modules/", "stories.tsx"],
+  testPathIgnorePatterns: ['/node_modules/', 'stories.tsx'],
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],
   // This option allows the use of a custom results processor
@@ -115,7 +115,7 @@ module.exports = {
   // A map from regular expressions to paths to transformers
   // transform: null,
   transform: {
-    "\\.tsx?$": "ts-jest",
+    '\\.tsx?$': 'ts-jest',
   },
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   // transformIgnorePatterns: ["/node_modules/"],
@@ -127,4 +127,4 @@ module.exports = {
   // watchPathIgnorePatterns: [],
   // Whether to use watchman for file crawling
   // watchman: true,
-};
+}

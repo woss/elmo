@@ -11,7 +11,7 @@ import {
 } from '@src/databases/OrbitDB'
 import { ICollection } from '@src/interfaces'
 import { createCID } from '@src/ipfsNode/helpers'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import { useSnackbar } from 'notistack'
 import React, { useEffect, useState } from 'react'
 import Collection from './Collection'
@@ -131,7 +131,7 @@ export default function Collections() {
 
   return (
     <div>
-      <Grid container spacing={2} direction="column">
+      <Grid container spacing={2} direction='column'>
         {collections.map((c) => {
           return (
             <Grid item key={c._id}>
@@ -143,8 +143,8 @@ export default function Collections() {
       <div className={classes.fabButton}>
         <Fab
           disabled={disabled}
-          color="secondary"
-          aria-label="Create Collection"
+          color='secondary'
+          aria-label='Create Collection'
           className={classes.fabButton}
           onClick={handleAddCollection}
         >

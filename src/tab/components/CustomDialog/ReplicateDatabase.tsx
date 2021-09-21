@@ -36,26 +36,26 @@ export default function ReplicateDatabase({
     <div>
       <Dialog
         open={open}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        aria-labelledby='alert-dialog-title'
+        aria-describedby='alert-dialog-description'
       >
-        <DialogTitle id="alert-dialog-title">Incoming message request</DialogTitle>
+        <DialogTitle id='alert-dialog-title'>Incoming message request</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
+          <DialogContentText id='alert-dialog-description'>
             This message is from <BoldText>{from}</BoldText> and they wish to{' '}
             <BoldText>{action}</BoldText> <BoldText>{all ? 'all' : dbs.join(',')}</BoldText>{' '}
             databases.
           </DialogContentText>
 
-          <DialogContentText id="alert-dialog-description">
+          <DialogContentText id='alert-dialog-description'>
             {"If you don't know this Peer, don't agree on anything."}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseAndDisagree} color="primary">
+          <Button onClick={handleCloseAndDisagree} color='primary'>
             Disagree
           </Button>
-          <Button onClick={handleCloseAndAgree} color="primary" autoFocus>
+          <Button onClick={handleCloseAndAgree} color='primary' autoFocus>
             Agree
           </Button>
         </DialogActions>

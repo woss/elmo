@@ -38,7 +38,7 @@ function Database() {
   return (
     <Grid container spacing={4}>
       <Grid item>
-        <Typography variant="h4">Database Settings and Info</Typography>
+        <Typography variant='h4'>Database Settings and Info</Typography>
         <Paper className={classes.paper}>
           <ul>
             {dbs.map((store) => {
@@ -57,7 +57,7 @@ function Database() {
         <Identity />
       </Grid>
       <Grid item>
-        <Button onClick={handleClear} variant="outlined" color="secondary">
+        <Button onClick={handleClear} variant='outlined' color='secondary'>
           Clear Chrome Storage
         </Button>
         {/* <Button

@@ -2,7 +2,7 @@ import { getValuesByKey, setValue } from '@src/databases/ChromeStorage'
 import { DB_NAME_COLLECTIONS, DB_NAME_LINKS, withStore } from '@src/databases/OrbitDB'
 import { ICollection, IKeyVal, ILink } from '@src/interfaces'
 import { addFileToIPFS, calculateHash } from '@src/ipfsNode/helpers'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import * as R from 'ramda'
 export async function createPageInstance(url: string): Promise<string> {
   const r = await fetch(url)
