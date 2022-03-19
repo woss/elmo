@@ -1,32 +1,21 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
-import LinkCard from "./Link";
-import { withStore, loadAllFromStore } from "@src/databases/OrbitDB";
+import Grid from '@material-ui/core/Grid'
+import { makeStyles } from '@material-ui/core/styles'
+import React from 'react'
+import LinkCard from './Link'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   root: {
-    display: "flex",
+    display: 'flex',
   },
-}));
+}))
 
 interface Props {
-  links: string[];
+  links: string[]
 }
 
 function Links({ links }: Props) {
-  const classes = useStyles();
-  const store = withStore("collections");
+  const classes = useStyles()
 
-  // store.events.on("replicate", address => {
-  //     console.log("replication started", address);
-  // });
-  // store.events.on("replicated", () => {
-  //     console.log("Got replication for ", store);
-  //     loadAllFromStore("links").then(c => {
-  //         console.log(c);
-  //     });
-  // });
   return (
     <Grid container className={classes.root}>
       {/* <List> */}
@@ -35,11 +24,11 @@ function Links({ links }: Props) {
           <Grid key={key} item>
             <LinkCard linkHash={hash} />
           </Grid>
-        );
+        )
       })}
       {/* </List> */}
     </Grid>
-  );
+  )
 }
 
-export default Links;
+export default Links

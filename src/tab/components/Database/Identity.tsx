@@ -1,8 +1,8 @@
-import React from "react";
-import { useDBNode } from "@src/databases/OrbitDB";
-import { Typography, Paper, useTheme, makeStyles } from "@material-ui/core";
+import { makeStyles, Paper, Typography } from '@material-ui/core'
+import { useDBNode } from '@src/databases/OrbitDB'
+import React from 'react'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {},
   paper: {
     padding: theme.spacing(2),
@@ -11,14 +11,15 @@ const useStyles = makeStyles(theme => ({
   title: {
     margin: theme.spacing(1),
   },
-}));
+}))
 
 function Identity() {
-  const { instance } = useDBNode();
-  const classes = useStyles();
+  const { instance } = useDBNode()
+  console.log(instance)
+  const classes = useStyles()
   return (
     <div className={classes.root}>
-      <Typography className={classes.title} variant="h4">
+      <Typography className={classes.title} variant='h4'>
         Database Identity
       </Typography>
       <Paper className={classes.paper}>
@@ -29,7 +30,7 @@ function Identity() {
         </Typography>
       </Paper>
     </div>
-  );
+  )
 }
 
-export default Identity;
+export default Identity

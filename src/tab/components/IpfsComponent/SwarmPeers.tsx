@@ -1,4 +1,5 @@
 import { makeStyles, Typography } from '@material-ui/core'
+import { useSwarmPeersEffect } from '@src/ipfsNode/use-ipfs'
 import { Peer } from '@src/typings/ipfs'
 import React, { useState } from 'react'
 import CustomList from '../Shared/CustomList'
@@ -19,10 +20,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-export function MyNodes() {
+export default function SwarmPeers() {
   const classes = useStyles()
 
-  const [nodes, setNodes] = useState([] as Peer[])
+  const [peers, setPeers] = useState([] as Peer[])
+
+  useSwarmPeersEffect(setPeers)
 
   function transformPeerToString(peer: Peer): string {
     if (peer.addr) {
@@ -38,8 +41,8 @@ export function MyNodes() {
   }
   return (
     <div className={classes.root}>
-      <Typography variant='h6'>My Nodes: {nodes.length}</Typography>
-      <CustomList data={nodes} classes={classes} transformValue={transformPeerToString} />
+      <Typography variant='h6'>Connected Peers: {peers.length}</Typography>
+      <CustomList data={peers} classes={classes} transformValue={transformPeerToString} />
     </div>
   )
 }

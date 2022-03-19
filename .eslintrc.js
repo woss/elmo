@@ -1,29 +1,54 @@
+// eslint-disable-next-line no-undef
 module.exports = {
-    parser: '@typescript-eslint/parser', // Specifies the ESLint parser
-    extends: [
-        'plugin:@typescript-eslint/recommended', // Uses the recommended rules from @typescript-eslint/eslint-plugin
-        'plugin:react/recommended', // Uses the recommended rules from @eslint-plugin-react
-        'prettier/@typescript-eslint', // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
-        'plugin:prettier/recommended', // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
-    ],
-    parserOptions: {
-        ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
-        sourceType: 'module', // Allows for the use of imports
-        ecmaFeatures: {
-            jsx: true, // Allows for the parsing of JSX
-        },
+  root: true,
+  extends: [
+    'eslint:recommended',
+    'plugin:prettier/recommended',
+    'plugin:react/recommended', // Uses the recommended rules from @eslint-plugin-react
+    'plugin:@typescript-eslint/eslint-recommended', // Uses the recommended rules from the @typescript-eslint/eslint-plugin
+    'plugin:@typescript-eslint/recommended', // Uses the recommended rules from the @typescript-eslint/eslint-plugin
+    'prettier/@typescript-eslint', // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
+  ],
+  parser: '@typescript-eslint/parser', // Specifies the ESLint parser
+  env: {
+    browser: true,
+    es6: true,
+    jest: true,
+  },
+  parserOptions: {
+    ecmaVersion: 2020, // Allows for the parsing of modern ECMAScript features
+    sourceType: 'module', // Allows for the use of imports
+    ecmaFeatures: {
+      jsx: true, // Allows for the parsing of JSX
+      arrowFunctions: true,
     },
-    rules: {
-        // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
-        "@typescript-eslint/explicit-function-return-type": "off",
-        "@typescript-eslint/camelcase": "off",
-        "@typescript-eslint/interface-name-prefix": 'off',
-        "@typescript-eslint/no-explicit-any": 'off',
-
+  },
+  plugins: ['react', '@typescript-eslint', 'prettier'],
+  settings: {
+    react: {
+      version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
     },
-    settings: {
-        react: {
-            version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
-        },
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        paths: ['./src'],
+      },
     },
-};
+  },
+  rules: {
+    // Existing rules
+    'comma-dangle': 'off', // https://eslint.org/docs/rules/comma-dangle
+    'function-paren-newline': 'off', // https://eslint.org/docs/rules/function-paren-newline
+    'global-require': 'off', // https://eslint.org/docs/rules/global-require
+    'import/no-dynamic-require': 'off', // https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-dynamic-require.md
+    'no-inner-declarations': 'off', // https://eslint.org/docs/rules/no-inner-declarations
+    // New rules
+    'class-methods-use-this': 'off',
+    'import/extensions': 'off',
+    'import/prefer-default-export': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+  },
+}

@@ -1,26 +1,28 @@
+# TODO
+
+- finish the replication. it creates the stores but not sync
+
 # Welcome
 
-Current title is **ELMO - Efficient Link Management and O**, but i'm looking for better alternatives, if you want to participate in deciding click [here and VOTE](https://linkto.run/p/J3T51ILU)
-
-Results can ber found [here](https://linkto.run/r/J3T51ILU)
-
-Options:
-
-- ELMO - Efficient Link Management and O
-
-- ELMo - Efficient Link Management and o
-
-- ELMØ - Efficient Link Management and Ø
-
-- ELMø - Efficient Link Management and ø
-
-- ELMÅ - Efficient Link Management and Å
-
-- ELMå - Efficient Link Management and å
+to ELMO - Efficient Link Management and Organizer
 
 Elmo is available for chromium based browser. This is just a proof of concept to show the real world use case of IPFS and orbitDB. I hope you will give it a go and you will like it.
 
 It is fairly stable and sometimes slow with replication, that is due to the mechanics of the underlying layer, OR it could be just me and my programming. In any case feel free to contribute with the code or the advice. All are much appreciated.
+
+## Diagram of what we want to have
+
+```mermaid
+
+graph LR
+    link[Save Link from the web] --> coll[Add to collection] --> share{share}
+    share -- Full sync --> me[full sync across devices]
+    link --> share
+    link -- ipfs -->  offline[Have the link content offline]
+    link --> online[For online view]
+    share -- Collaboration with ACL --> friend[With a friend]
+    friend -- Collaboration with ACL --> share
+```
 
 ## What will this do to my Browser
 
@@ -56,6 +58,5 @@ yarn dev
 
 Now you are ready to load the extension.
 Check out this to see the demo...
-
 
 ![intro](./assets/how-to-video/intro.gif)

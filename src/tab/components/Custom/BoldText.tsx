@@ -1,7 +1,7 @@
-import React from "react";
+import React, { Props } from 'react'
 
-function BoldText({ children }) {
-  return <span style={{ fontWeight: "bold" }}>{...children}</span>;
+function BoldText({ children }: Props<{}>) {
+  return <span style={{ fontWeight: 'bold' }}>{children}</span>
 }
 
-export default BoldText;
+export default BoldText

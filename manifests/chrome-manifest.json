@@ -9,7 +9,7 @@
   },
   "background": {
     "scripts": ["js/background.js"],
-    "persistent": false
+    "persistent": true
   },
   "chrome_url_overrides": {
     "newtab": "tab.html"

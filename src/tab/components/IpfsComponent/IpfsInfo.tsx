@@ -1,27 +1,25 @@
-import React, { useEffect, useState } from "react";
-
-import { useIpfsNode } from "@src/ipfsNode/ipfsFactory";
 import {
+  Button,
   Grid,
-  Typography,
+  GridSpacing,
+  IconButton,
   makeStyles,
   Paper,
-  GridSpacing,
-  Button,
-  IconButton,
-} from "@material-ui/core";
-import Addresses from "./Addresses";
-import { SwarmPeers } from "./Swarm";
-import Connect from "./Connect";
-import useIpfsEffect from "@src/ipfsNode/use-ipfs";
-import { MyNodes } from "./MyNodes";
+  Typography,
+} from '@material-ui/core'
+import { green } from '@material-ui/core/colors'
+import OfflineBoltIcon from '@material-ui/icons/OfflineBolt'
+import { useIpfsNode } from '@src/ipfsNode/ipfsFactory'
+import useIpfsEffect from '@src/ipfsNode/use-ipfs'
+import { red } from 'bn.js'
+import React, { useEffect, useState } from 'react'
+import Addresses from './Addresses'
+import Config from './Config'
+import Connect from './Connect'
+import { MyNodes } from './MyNodes'
+import SwarmPeers from './SwarmPeers'
 
-import OfflineBoltIcon from "@material-ui/icons/OfflineBolt";
-import { green } from "@material-ui/core/colors";
-import { red } from "bn.js";
-import Config from "./Config";
-
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {},
   left: {
     // backgroundColor: theme.palette.primary[300],
@@ -33,8 +31,8 @@ const useStyles = makeStyles(theme => ({
   titleContainer: {
     padding: theme.spacing(2),
     margin: theme.spacing(1),
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
   },
   title: {
     margin: theme.spacing(1),
@@ -46,20 +44,20 @@ const useStyles = makeStyles(theme => ({
   nodeInfo: {
     marginRight: theme.spacing(1),
   },
-}));
+}))
 
 export const IpfsInfo = () => {
-  const classes = useStyles();
-  const { error, isIpfsReady } = useIpfsNode();
-  const [spacing, setSpacing] = useState(4 as GridSpacing);
+  const classes = useStyles()
+  const { error, isIpfsReady } = useIpfsNode()
+  const [spacing, setSpacing] = useState(4 as GridSpacing)
 
-  const node = useIpfsEffect("id");
-  const isOnline = useIpfsEffect("isOnline");
+  const node = useIpfsEffect('id')
+  const isOnline = useIpfsEffect('isOnline')
 
-  const version = useIpfsEffect("version");
+  const version = useIpfsEffect('version')
 
   if (!isIpfsReady) {
-    return <span>Connecting to IPFS...</span>;
+    return <span>Connecting to IPFS...</span>
   }
   async function testStuff() {
     // let r;
@@ -70,20 +68,20 @@ export const IpfsInfo = () => {
     // console.log(r);
   }
   useEffect(() => {
-    testStuff();
-  }, []);
+    testStuff()
+  }, [])
   return (
     <Grid container spacing={spacing} className={classes.root}>
       <Grid item md xs>
         <Grid
           container
-          direction="column"
+          direction='column'
           // spacing={spacing}
           // className={classes.root}
         >
           <Grid item>
             <Paper className={classes.titleContainer}>
-              <Typography variant="h6" className={classes.title}>
+              <Typography variant='h6' className={classes.title}>
                 Peer ID: {node && node.id}
               </Typography>
               <div className={classes.nodeInfo}>
@@ -95,7 +93,7 @@ export const IpfsInfo = () => {
                   />
                 </IconButton>
                 {version && (
-                  <Button component="span" disabled>
+                  <Button component='span' disabled>
                     {version.version}
                   </Button>
                 )}
@@ -128,6 +126,6 @@ export const IpfsInfo = () => {
         </Paper>
       </Grid>
     </Grid>
-  );
-};
-export default IpfsInfo;
+  )
+}
+export default IpfsInfo

@@ -1,219 +1,198 @@
-import { IconButton, InputBase, Typography } from "@material-ui/core";
-import AppBar from "@material-ui/core/AppBar";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import { green } from "@material-ui/core/colors";
-import { makeStyles } from "@material-ui/core/styles";
-import Toolbar from "@material-ui/core/Toolbar";
-import AddIcon from "@material-ui/icons/Add";
-import CheckIcon from "@material-ui/icons/Check";
-import DeleteIcon from "@material-ui/icons/Delete";
-import SaveIcon from "@material-ui/icons/Save";
-import ShareIcon from "@material-ui/icons/Share";
-import { ICollection } from "@src/interfaces";
-import { addFileToIPFS, createCID, calculateHash } from "@src/ipfsNode/helpers";
-import { withStore } from "@src/databases/OrbitDB";
-import clsx from "clsx";
-import { useSnackbar } from "notistack";
-import React, { SyntheticEvent, useEffect, useState } from "react";
-import {
-  addToCollection,
-  saveLink,
-  createPageInstance,
-  getPageTitle,
-  toDocument,
-  createLink,
-} from "../Links/helpers";
-import Links from "../Links/Links";
+import { IconButton, InputBase, Typography } from '@material-ui/core'
+import AppBar from '@material-ui/core/AppBar'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import { green } from '@material-ui/core/colors'
+import { makeStyles } from '@material-ui/core/styles'
+import Toolbar from '@material-ui/core/Toolbar'
+import AddIcon from '@material-ui/icons/Add'
+import CheckIcon from '@material-ui/icons/Check'
+import DeleteIcon from '@material-ui/icons/Delete'
+import SaveIcon from '@material-ui/icons/Save'
+import ShareIcon from '@material-ui/icons/Share'
+import { DB_NAME_COLLECTIONS, renameCollection, withStore } from '@src/databases/OrbitDB'
+import { ICollection } from '@src/interfaces'
+import { calculateHash, createCID } from '@src/ipfsNode/helpers'
+import clsx from 'clsx'
+import { useSnackbar } from 'notistack'
+import { isEmpty } from 'ramda'
+import React, { SyntheticEvent, useEffect, useState } from 'react'
+import browser from 'webextension-polyfill'
+import Links from '../Links/Links'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
-    flexDirection: "column",
+    display: 'flex',
+    flexDirection: 'column',
   },
   title: {
-    display: "flex",
-    justifyItems: "center",
+    display: 'flex',
+    justifyItems: 'center',
     flexGrow: 1,
   },
   grow: {
     flexGrow: 1,
   },
   inputRoot: {
-    color: "inherit",
-    width: "100%",
+    color: 'inherit',
+    width: '100%',
   },
   inputInput: {
     // padding: theme.spacing(1, 1, 1, 7),
-    transition: theme.transitions.create("width"),
-    width: "100%",
+    transition: theme.transitions.create('width'),
+    width: '100%',
     // [theme.breakpoints.up("xl")]: {
     //     width: 200,
     // },
   },
   button: {
-    color: "inherit",
+    color: 'inherit',
   },
   createdAt: {
     paddingLeft: theme.spacing(2),
   },
   wrapper: {
     margin: theme.spacing(1),
-    position: "relative",
+    position: 'relative',
   },
   buttonSuccess: {
     backgroundColor: green[500],
-    "&:hover": {
+    '&:hover': {
       backgroundColor: green[700],
     },
   },
   fabProgress: {
     color: green[500],
-    position: "absolute",
+    position: 'absolute',
     width: theme.spacing(8),
     height: theme.spacing(8),
     zIndex: 1,
   },
-}));
+}))
 interface Props {
-  id: string;
-  forceReload: boolean;
+  id: string
+  data: any
 }
 
-const VALID_URL_REGEX = /^(ftp|http|https|file):\/\/[^ "]+$/;
+const VALID_URL_REGEX = /^(ftp|http|https|file):\/\/[^ "]+$/
 
-function Collection({ id, forceReload }: Props) {
-  const classes = useStyles();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+function Collection({ id, data }: Props) {
+  const classes = useStyles()
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
-  const store = withStore("collections");
+  const store = withStore(DB_NAME_COLLECTIONS)
   const defaultCollection: ICollection = {
-    _id: "",
+    _id: '',
     createdAt: 0,
-    hash: "",
+    hash: '',
     links: [],
-    title: "",
+    title: '',
     workspaces: [],
-  };
-  const [collection, setCollection] = useState(defaultCollection);
-  const [saving, setSaving] = useState(false);
-
-  const [success, setSuccess] = React.useState(false);
-
-  async function loadCollection() {
-    console.debug("Loading collection ", id);
-    const r = await store.get(id);
-    // console.log(r[0], collection.links);
-    setCollection(r[0]);
   }
+  const [collection, setCollection] = useState(defaultCollection)
+  const [saving, setSaving] = useState(false)
+
+  const [success, setSuccess] = React.useState(false)
+  const [links, setLinks] = React.useState([] as string[])
+  const [addLinkNotificationKey, setAddLinkNotificationKey] = React.useState('' as any)
 
   async function handleAddLink() {
-    const url = prompt("Please enter the URL");
+    const url = prompt('Please enter the URL')
 
     if (VALID_URL_REGEX.test(url)) {
-      const snackKey = enqueueSnackbar("Saving link ...", {
-        varian: "info",
+      const snackKey = enqueueSnackbar('Saving link ...', {
+        varian: 'info',
         persist: true,
-      });
+      })
+      setAddLinkNotificationKey(snackKey)
 
-      const doc = await createPageInstance(url);
-      const docObj = toDocument(doc);
-      const title = getPageTitle(docObj);
-      const ipfsPath = await addFileToIPFS(`${title}.html`, doc);
-
-      const hash = await calculateHash(url);
-
-      const l = await createLink({
-        createdAt: Date.now(),
-        hash,
-        title,
-        url,
-        ipfs: ipfsPath,
-      });
-
-      await saveLink(l);
-
-      console.time(`Adding link, hash ${hash}, to collection`);
-      await addToCollection(hash, collection);
-      console.timeEnd(`Adding link, hash ${hash}, to collection`);
-
-      await loadCollection();
-      closeSnackbar(snackKey);
+      const hash = await calculateHash(url)
+      // !TODO fix me
+      // if (!links.includes(hash)) {
+      //   browser.runtime.sendMessage(
+      //     createBrowserRuntimeMessage("saveLink", {
+      //       url,
+      //       collection,
+      //     }),
+      //   );
+      // }
     } else {
       // we have the url but it's invalid, don't show if user clicks on cancel
       if (url) {
-        enqueueSnackbar("Incorrect or empty URL", { variant: "error" });
+        enqueueSnackbar('Incorrect or empty URL', { variant: 'error' })
       }
     }
   }
   function handleShareCollection() {
-    console.log("share collection");
+    console.log('share collection')
   }
 
   async function handleDelete(): Promise<void> {
-    const r = confirm("SRSLY?");
+    const r = confirm('SRSLY?')
     if (r === true) {
-      await store.del(collection._id);
+      await store.del(collection._id)
     }
   }
 
   function handleTitleChange(e) {
-    const t = e.target.value;
+    const t = e.target.value
     setCollection({
       ...collection,
       title: t,
-    });
+    })
   }
 
   async function handleTitleSave(e: SyntheticEvent): Promise<void> {
-    e.preventDefault();
-    const hash = await createCID(collection.title.trim());
-    if (hash === collection.hash) return null;
+    e.preventDefault()
+    const hash = await createCID(collection.title.trim())
+    if (hash === collection.hash) return null
 
-    if (saving) return null;
+    if (saving) return null
 
-    setSaving(true);
+    setSaving(true)
 
-    console.debug("Renaming collection", collection._id);
-    console.time(`Renaming collection ${collection._id}`);
+    await renameCollection(collection)
 
-    await store.put(
-      {
-        ...collection,
-        hash,
-      },
-      { pin: true },
-    );
-    console.timeEnd(`Renaming collection ${collection._id}`);
-    setSuccess(true);
-    setSaving(false);
+    setSuccess(true)
+    setSaving(false)
 
-    setTimeout(() => setSuccess(false), 3000);
+    setTimeout(() => setSuccess(false), 3000)
   }
 
   useEffect(() => {
-    loadCollection();
-  }, []);
-
-  useEffect(() => {
-    if (forceReload) {
-      console.log("got force reload");
-      loadCollection();
+    if (data) {
+      setCollection(data)
+      setLinks(data.links)
     }
-  }, [forceReload]);
+
+    // async function loadCollection() {
+    //   // don;t forget to load the store from disk
+    //   await store.load();
+    //   const r = await store.get(id);
+
+    //   if (!isEmpty(r)) {
+    //     setCollection(r[0]);
+    //     setLinks(r[0].links);
+    //   }
+    // }
+    // loadCollection();
+    return () => {
+      closeSnackbar(addLinkNotificationKey)
+    }
+  }, [data])
 
   const buttonClassname = clsx({
     [classes.buttonSuccess]: success,
     [classes.button]: true,
-  });
+  })
 
   return (
     <div className={classes.root}>
-      <AppBar position="static">
+      <AppBar position='static'>
         <Toolbar>
-          <Typography variant="h4" component="h4" className={classes.title}>
+          <Typography variant='h4' component='h4' className={classes.title}>
             <form onSubmit={handleTitleSave}>
               <InputBase
-                id="title"
+                id='title'
                 classes={{
                   root: classes.inputRoot,
                   input: classes.inputInput,
@@ -222,42 +201,38 @@ function Collection({ id, forceReload }: Props) {
                 onBlur={handleTitleSave}
                 onChange={handleTitleChange}
                 fullWidth
-                color="secondary"
+                color='secondary'
               />
             </form>
           </Typography>
           <div className={classes.grow} />
           <div>
-            <IconButton
-              aria-label="save"
-              color="primary"
-              className={buttonClassname}
-            >
+            <IconButton aria-label='save' color='primary' className={buttonClassname}>
               {saving && <CircularProgress className={classes.fabProgress} />}
               {success ? <CheckIcon /> : <SaveIcon />}
             </IconButton>
 
             <IconButton
-              id="add-link"
+              id='add-link'
               onClick={handleAddLink}
               className={classes.button}
-              aria-label="add link"
+              aria-label='add link'
             >
               <AddIcon />
             </IconButton>
             <IconButton
-              id="share-collection"
+              id='share-collection'
               onClick={handleShareCollection}
               className={classes.button}
-              aria-label="share"
+              aria-label='share'
             >
               <ShareIcon />
             </IconButton>
             <IconButton
               onClick={handleDelete}
               className={classes.button}
-              aria-label="delete"
-              variant="contained"
+              aria-label='delete'
+              variant='contained'
             >
               <DeleteIcon />
             </IconButton>
@@ -266,9 +241,9 @@ function Collection({ id, forceReload }: Props) {
       </AppBar>
 
       {/* Lets show the links */}
-      <Links links={collection.links} />
+      <Links links={links} />
     </div>
-  );
+  )
 }
 
-export default Collection;
+export default Collection
