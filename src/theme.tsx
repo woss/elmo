@@ -1,6 +1,6 @@
 import primaryColor from '@material-ui/core/colors/deepPurple'
 import secondaryColor from '@material-ui/core/colors/orange'
-import { createMuiTheme } from '@material-ui/core/styles'
+import { createTheme } from '@material-ui/core/styles'
 
 const t = {
   palette: {
@@ -11,7 +11,7 @@ const t = {
   },
 }
 
-export const theme = createMuiTheme(t as any)
+export const theme = createTheme(t as any)
 // theme = responsiveFontSizes(theme);
 
 window['theme'] = theme
